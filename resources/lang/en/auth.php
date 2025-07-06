@@ -37,5 +37,6 @@ return [
     'design_description' => 'Create innovative electronic smart cards with our advanced design tools',
     'secure_login' => 'Secure Login',
     'get_started' => 'Get Started',
+    'password' => 'Password',
 
 ];

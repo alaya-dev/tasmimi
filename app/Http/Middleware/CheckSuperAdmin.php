@@ -20,7 +20,7 @@ class CheckSuperAdmin
         }
 
         if (!auth()->user()->isSuperAdmin()) {
-            abort(403, 'Accès réservé aux Super Administrateurs.');
+            abort(403, 'Access reserved for Super Administrators.');
         }
 
         return $next($request);

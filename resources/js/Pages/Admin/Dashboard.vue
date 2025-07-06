@@ -1,17 +1,30 @@
 <template>
     <Head :title="__('common.dashboard') + ' - ' + __('common.admin')" />
 
-    <AdminLayout>
-        <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('common.dashboard') }}</h2>
+    <AdminLayoutSidebar>
+        <template #breadcrumb>
+            <span class="text-gray-500">{{ __('common.dashboard') }}</span>
         </template>
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <template #header>
+            <div>
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('common.dashboard') }}</h2>
+                <p class="mt-1 text-sm text-gray-600">{{ __('common.admin_dashboard_description') }}</p>
+            </div>
+        </template>
+
+        <div class="py-6">
+            <div class="w-full">
+                <!-- Page Header -->
+                <div class="admin-header mb-6">
+                    <h1 class="page-title">{{ __('admin.dashboard') }}</h1>
+                    <p class="text-muted">{{ __('admin.dashboard_overview') }}</p>
+                </div>
+
                 <!-- Statistiques -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6 text-gray-900">
+                    <div class="stats-card">
+                        <div class="stats-card-body">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
                                     <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
@@ -28,8 +41,8 @@
                         </div>
                     </div>
 
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6 text-gray-900">
+                    <div class="stats-card">
+                        <div class="stats-card-body">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
                                     <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
@@ -46,8 +59,8 @@
                         </div>
                     </div>
 
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6 text-gray-900">
+                    <div class="stats-card">
+                        <div class="stats-card-body">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
                                     <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
@@ -66,10 +79,10 @@
                 </div>
 
                 <!-- Utilisateurs récents -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
+                <div class="admin-content">
+                    <div class="admin-body">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-medium text-gray-900">{{ __('common.recent_projects') }}</h3>
+                            <h3 class="section-title">{{ __('common.recent_projects') }}</h3>
                             <Link :href="route('admin.users.index')" class="text-indigo-600 hover:text-indigo-900">
                                 {{ __('common.view') }} {{ __('common.users') }}
                             </Link>
@@ -116,12 +129,12 @@
                 </div>
             </div>
         </div>
-    </AdminLayout>
+    </AdminLayoutSidebar>
 </template>
 
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import AdminLayout from '@/Layouts/AdminLayout.vue';
+import AdminLayoutSidebar from '@/Layouts/AdminLayoutSidebar.vue';
 import { useTranslations } from '@/Composables/useTranslations';
 
 const props = defineProps({

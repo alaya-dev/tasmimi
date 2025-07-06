@@ -58,3 +58,54 @@
 [dir="rtl"] {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Arabic UI Text', 'Arabic UI Display';
 }
+
+/* Layout improvements */
+.admin-content {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200;
+}
+
+.admin-header {
+    @apply bg-white border-b border-gray-200 px-6 py-4;
+}
+
+.admin-body {
+    @apply p-6;
+}
+
+/* Card improvements */
+.stats-card {
+    @apply bg-white overflow-hidden shadow rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200;
+}
+
+.stats-card-body {
+    @apply p-5;
+}
+
+.stats-card-icon {
+    @apply flex items-center justify-center w-12 h-12 rounded-md;
+}
+
+/* Better spacing and typography */
+.page-title {
+    @apply text-2xl font-bold text-gray-900 mb-6;
+}
+
+.section-title {
+    @apply text-lg font-semibold text-gray-900 mb-4;
+}
+
+.text-muted {
+    @apply text-gray-600;
+}
+
+/* Sidebar improvements */
+.sidebar-transition {
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Better content spacing */
+.content-wrapper {
+    @apply max-w-none mx-auto;
+}
+
+

@@ -1,7 +1,11 @@
 <template>
     <Head :title="__('common.user_management')" />
 
-    <AdminLayout>
+    <AdminLayoutSidebar>
+        <template #breadcrumb>
+            <span class="text-gray-500">{{ __('common.user_management') }}</span>
+        </template>
+
         <template #header>
             <div :class="isRTL ? 'flex-row-reverse' : 'flex'" class="flex justify-between items-center">
                 <div class="flex items-center">
@@ -16,14 +20,18 @@
                     </Link>
                     <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('common.user_management') }}</h2>
                 </div>
-                <Link :href="route('admin.users.create')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200">
+                <Link
+                    v-if="userPermissions.canAddUsers"
+                    :href="route('admin.users.create')"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
+                >
                     {{ __('common.add_user') }}
                 </Link>
             </div>
         </template>
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="py-6">
+            <div class="w-full">
                 <!-- Filtres -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                     <div class="p-6">
@@ -77,48 +85,57 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th :class="isRTL ? 'text-right' : 'text-left'" class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                    <th :class="[
+                                        'px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider',
+                                        isRTL ? 'text-right' : 'text-left'
+                                    ]">
+                                        <div :class="isRTL ? 'flex-row-reverse' : 'flex'" class="flex items-center">
+                                            <svg :class="isRTL ? 'ml-2' : 'mr-2'" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                                             </svg>
                                             {{ __('auth.name') }}
                                         </div>
                                     </th>
-                                    <th :class="isRTL ? 'text-right' : 'text-left'" class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                    <th :class="[
+                                        'px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider',
+                                        isRTL ? 'text-right' : 'text-left'
+                                    ]">
+                                        <div :class="isRTL ? 'flex-row-reverse' : 'flex'" class="flex items-center">
+                                            <svg :class="isRTL ? 'ml-2' : 'mr-2'" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                                             </svg>
                                             {{ __('auth.email') }}
                                         </div>
                                     </th>
-                                    <th :class="isRTL ? 'text-right' : 'text-left'" class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                    <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+                                        <div class="flex items-center justify-center">
+                                            <svg :class="isRTL ? 'ml-2' : 'mr-2'" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                                             </svg>
                                             {{ __('common.role') }}
                                         </div>
                                     </th>
-                                    <th :class="isRTL ? 'text-right' : 'text-left'" class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                    <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+                                        <div class="flex items-center justify-center">
+                                            <svg :class="isRTL ? 'ml-2' : 'mr-2'" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
                                             </svg>
                                             {{ __('common.created_at') }}
                                         </div>
                                     </th>
-                                    <th :class="isRTL ? 'text-right' : 'text-left'" class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
                                         {{ __('common.actions') }}
                                     </th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <tr v-for="user in users.data" :key="user.id" class="hover:bg-gray-50 transition-colors duration-200">
-                                    <td :class="isRTL ? 'text-right' : 'text-left'" class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                                    <td :class="[
+                                        'px-6 py-4 whitespace-nowrap',
+                                        isRTL ? 'text-right' : 'text-left'
+                                    ]">
+                                        <div :class="isRTL ? 'flex-row-reverse' : 'flex'" class="flex items-center">
+                                            <div :class="isRTL ? 'ml-3' : 'mr-3'" class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                                                 <span class="text-white font-semibold text-sm">{{ user.name.charAt(0).toUpperCase() }}</span>
                                             </div>
                                             <div>
@@ -126,34 +143,38 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td :class="isRTL ? 'text-right' : 'text-left'" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td :class="[
+                                        'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
+                                        isRTL ? 'text-right' : 'text-left'
+                                    ]">
                                         {{ user.email }}
                                     </td>
-                                    <td :class="isRTL ? 'text-right' : 'text-left'" class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
                                         <span :class="getRoleBadgeClass(user.role)" class="inline-flex px-3 py-1 text-xs font-semibold rounded-full">
                                             {{ getRoleLabel(user.role) }}
                                         </span>
                                     </td>
-                                    <td :class="isRTL ? 'text-right' : 'text-left'" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                         {{ formatDate(user.created_at) }}
                                     </td>
-                                    <td :class="isRTL ? 'text-right' : 'text-left'" class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div :class="isRTL ? 'space-x-reverse' : ''" class="flex space-x-3">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                                        <div :class="isRTL ? 'space-x-reverse' : ''" class="flex justify-center space-x-3">
                                             <Link
+                                                v-if="canEditUser(user)"
                                                 :href="route('admin.users.edit', user.id)"
                                                 class="inline-flex items-center px-3 py-1 bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200 transition-colors duration-200"
                                             >
-                                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                                                <svg :class="isRTL ? 'ml-1' : 'mr-1'" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                                                 </svg>
                                                 {{ __('common.edit') }}
                                             </Link>
                                             <button
-                                                v-if="user.id !== $page.props.auth.user.id"
+                                                v-if="canDeleteUser(user)"
                                                 @click="deleteUser(user)"
                                                 class="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors duration-200"
                                             >
-                                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                                                <svg :class="isRTL ? 'ml-1' : 'mr-1'" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                     <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
                                                 </svg>
                                                 {{ __('common.delete') }}
@@ -220,19 +241,22 @@
                 </div>
             </div>
         </div>
-    </AdminLayout>
+    </AdminLayoutSidebar>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
-import AdminLayout from '@/Layouts/AdminLayout.vue';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import AdminLayoutSidebar from '@/Layouts/AdminLayoutSidebar.vue';
 import { useTranslations } from '@/Composables/useTranslations';
+
+const $page = usePage();
 
 const props = defineProps({
     users: Object,
     filters: Object,
     roles: Array,
+    userPermissions: Object,
     locale: {
         type: String,
         default: 'en'
@@ -292,6 +316,32 @@ const getRoleBadgeClass = (role) => {
 
 const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('fr-FR');
+};
+
+// Fonctions de vérification des permissions
+const canEditUser = (user) => {
+    // Super_Admin peut modifier tout le monde
+    if (props.userPermissions.canEditAdmins) {
+        return true;
+    }
+
+    // Admin peut seulement modifier les clients
+    return user.role === 'client';
+};
+
+const canDeleteUser = (user) => {
+    // Ne peut pas supprimer son propre compte
+    if (user.id === $page.props.auth.user.id) {
+        return false;
+    }
+
+    // Super_Admin peut supprimer admins et clients
+    if (props.userPermissions.canDeleteAdmins) {
+        return true;
+    }
+
+    // Admin peut seulement supprimer des clients
+    return user.role === 'client' && props.userPermissions.canDeleteClients;
 };
 </script>
 
