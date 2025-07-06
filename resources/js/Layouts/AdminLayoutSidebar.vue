@@ -185,6 +185,9 @@
                 </div>
             </main>
         </div>
+
+        <!-- رسائل النجاح -->
+        <SuccessMessage />
     </div>
 </template>
 
@@ -194,6 +197,7 @@ import { Link } from '@inertiajs/vue3'
 import ApplicationLogo from '@/Components/ApplicationLogo.vue'
 import Dropdown from '@/Components/Dropdown.vue'
 import DropdownLink from '@/Components/DropdownLink.vue'
+import SuccessMessage from '@/Components/SuccessMessage.vue'
 import { useTranslations } from '@/Composables/useTranslations'
 
 const { __, isRTL, direction } = useTranslations();

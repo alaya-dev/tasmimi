@@ -111,7 +111,7 @@ class UserManagementController extends Controller
         ]);
 
         return redirect()->route('admin.users.index')
-            ->with('success', __('common.user_created_successfully'));
+            ->with('success', 'تم إنشاء المستخدم بنجاح');
     }
 
     /**
@@ -181,7 +181,7 @@ class UserManagementController extends Controller
         $user->update($data);
 
         return redirect()->route('admin.users.index')
-            ->with('success', __('common.user_updated_successfully'));
+            ->with('success', 'تم تحديث المستخدم بنجاح');
     }
 
     /**
@@ -210,6 +210,6 @@ class UserManagementController extends Controller
         $user->delete();
 
         return redirect()->route('admin.users.index')
-            ->with('success', __('common.user_deleted_successfully'));
+            ->with('success', 'تم حذف المستخدم بنجاح');
     }
 }

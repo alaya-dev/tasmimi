@@ -85,6 +85,13 @@ const arabicTranslations = {
     'validation.email': 'يجب أن يكون البريد الإلكتروني صحيحاً',
     'validation.min': 'يجب أن يكون الحد الأدنى :min أحرف',
     'validation.confirmed': 'تأكيد كلمة المرور غير متطابق',
+
+    // Success Messages
+    'common.user_created_successfully': 'تم إنشاء المستخدم بنجاح',
+    'common.user_updated_successfully': 'تم تحديث المستخدم بنجاح',
+    'common.user_deleted_successfully': 'تم حذف المستخدم بنجاح',
+    'common.profile_updated': 'تم تحديث الملف الشخصي بنجاح',
+    'common.password_updated': 'تم تحديث كلمة المرور بنجاح',
 }
 
 export function useTranslations() {
