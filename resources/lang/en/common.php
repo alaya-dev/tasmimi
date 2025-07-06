@@ -1,0 +1,123 @@
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Common Language Lines
+    |--------------------------------------------------------------------------
+    |
+    | The following language lines are used for common elements throughout
+    | the application.
+    |
+    */
+
+    'dashboard' => 'Dashboard',
+    'users' => 'Users',
+    'profile' => 'Profile',
+    'settings' => 'Settings',
+    'save' => 'Save',
+    'cancel' => 'Cancel',
+    'edit' => 'Edit',
+    'delete' => 'Delete',
+    'create' => 'Create',
+    'update' => 'Update',
+    'search' => 'Search',
+    'actions' => 'Actions',
+    'status' => 'Status',
+    'active' => 'Active',
+    'inactive' => 'Inactive',
+    'yes' => 'Yes',
+    'no' => 'No',
+    'welcome' => 'Welcome',
+    'home' => 'Home',
+    'back' => 'Back',
+    'next' => 'Next',
+    'previous' => 'Previous',
+    'loading' => 'Loading...',
+    'no_data' => 'No data available',
+    'confirm_delete' => 'Are you sure you want to delete this item?',
+    'success' => 'Operation completed successfully',
+    'error' => 'An error occurred',
+    'language' => 'Language',
+    'english' => 'English',
+    'arabic' => 'العربية',
+    
+    // User management
+    'user_management' => 'User Management',
+    'add_user' => 'Add User',
+    'edit_user' => 'Edit User',
+    'delete_user' => 'Delete User',
+    'user_details' => 'User Details',
+    'created_at' => 'Created At',
+    'updated_at' => 'Updated At',
+    'role' => 'Role',
+    'admin' => 'Admin',
+    'user' => 'User',
+    'super_admin' => 'Super Admin',
+    
+    // Profile
+    'profile_information' => 'Profile Information',
+    'update_profile' => 'Update Profile',
+    'update_password' => 'Update Password',
+    'delete_account' => 'Delete Account',
+    'current_password' => 'Current Password',
+    'new_password' => 'New Password',
+    'confirm_new_password' => 'Confirm New Password',
+    'save_changes' => 'Save Changes',
+    'profile_updated' => 'Profile updated successfully',
+    'password_updated' => 'Password updated successfully',
+    
+    // General actions
+    'view' => 'View',
+    'show' => 'Show',
+    'hide' => 'Hide',
+    'close' => 'Close',
+    'open' => 'Open',
+    'submit' => 'Submit',
+    'reset' => 'Reset',
+    'clear' => 'Clear',
+    'filter' => 'Filter',
+    'sort' => 'Sort',
+    'export' => 'Export',
+    'import' => 'Import',
+    'download' => 'Download',
+    'upload' => 'Upload',
+    
+    // Smart card design
+    'smart_cards' => 'Smart Cards',
+    'card_design' => 'Card Design',
+    'design_tools' => 'Design Tools',
+    'templates' => 'Templates',
+    'projects' => 'Projects',
+    'my_projects' => 'My Projects',
+    'new_project' => 'New Project',
+    'recent_projects' => 'Recent Projects',
+    
+    // Contacts/Claims
+    'contacts' => 'Contacts',
+    'claims' => 'Claims',
+    'contact_management' => 'Contact Management',
+    'claim_management' => 'Claim Management',
+    'contact_details' => 'Contact Details',
+    'message' => 'Message',
+    'content' => 'Content',
+    'pending' => 'Pending',
+    'in_progress' => 'In Progress',
+    'resolved' => 'Resolved',
+    'mark_as_resolved' => 'Mark as Resolved',
+    'mark_as_in_progress' => 'Mark as In Progress',
+    'contact_status' => 'Contact Status',
+    'received_at' => 'Received At',
+    'to' => 'to',
+    'of' => 'of',
+    'results' => 'results',
+    'email_unverified' => 'Your email address is unverified.',
+    'resend_verification' => 'Click here to re-send the verification email.',
+    'verification_sent' => 'A new verification link has been sent to your email address.',
+    'password_security_note' => 'Ensure your account is using a long, random password to stay secure.',
+    'select_role' => 'Select a role',
+    'manage_users_description' => 'Manage and organize all users in the system',
+    'manage_contacts_description' => 'Manage customer inquiries and support requests',
+
+];
