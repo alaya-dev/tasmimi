@@ -1,36 +1,32 @@
 <template>
-    <Head :title="__('common.profile')" />
+    <Head title="الملف الشخصي" />
 
     <AdminLayoutSidebar>
         <template #breadcrumb>
-            <span class="text-gray-500">{{ __('common.profile') }}</span>
-        </template>
-
-        <template #header>
-            <div :class="isRTL ? 'flex-row-reverse' : 'flex'" class="flex justify-between items-center">
-                <div>
-                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('common.profile') }}</h2>
-                    <p class="mt-1 text-sm text-gray-600">{{ __('common.profile_settings_description') }}</p>
-                </div>
-            </div>
+            الملف الشخصي
         </template>
 
         <div class="py-6">
             <div class="w-full space-y-6">
+                <!-- رأس الصفحة -->
+                <div class="card-arabic p-6">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">الملف الشخصي</h1>
+                    <p class="text-gray-600">إدارة معلومات حسابك وإعدادات الأمان</p>
+                </div>
 
-                <!-- Profile Information Section -->
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
-                        <h3 class="text-lg font-semibold text-white">{{ __('common.profile_information') }}</h3>
-                        <p class="text-blue-100 text-sm">{{ __('common.profile_information_description') }}</p>
+                <!-- قسم معلومات الملف الشخصي -->
+                <div class="card-arabic">
+                    <div class="bg-gradient-to-l from-blue-500 to-purple-600 px-6 py-4">
+                        <h3 class="text-lg font-semibold text-white">معلومات الملف الشخصي</h3>
+                        <p class="text-blue-100 text-sm">قم بتحديث معلومات حسابك وعنوان بريدك الإلكتروني</p>
                     </div>
-                    
+
                     <div class="p-6">
-                        <form @submit.prevent="updateProfile" class="space-y-6">
+                        <form @submit.prevent="updateProfile" class="form-arabic">
                             <!-- Profile Image Section -->
                             <div class="mb-6">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    {{ __('common.profile_image') }}
+                                <label class="label-arabic">
+                                    صورة الملف الشخصي
                                 </label>
                                 <div :class="isRTL ? 'flex-row-reverse' : 'flex'" class="flex items-center space-x-6">
                                     <div class="shrink-0">
@@ -57,18 +53,17 @@
                                         <button
                                             type="button"
                                             @click="$refs.imageInput.click()"
-                                            class="bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                            class="btn-arabic text-sm"
                                         >
-                                            {{ __('common.change_image') }}
+                                            تغيير الصورة
                                         </button>
                                         <button
                                             v-if="$page.props.auth.user.image || imagePreview"
                                             type="button"
                                             @click="removeImage"
-                                            :class="isRTL ? 'mr-3' : 'ml-3'"
-                                            class="bg-red-600 py-2 px-3 border border-transparent rounded-md shadow-sm text-sm leading-4 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                            class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-all duration-200 mr-3"
                                         >
-                                            {{ __('common.remove_image') }}
+                                            إزالة الصورة
                                         </button>
                                         <p class="mt-2 text-sm text-gray-500">
                                             {{ __('common.image_upload_note') }}
@@ -81,20 +76,17 @@
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- Name Field -->
+                                <!-- حقل الاسم -->
                                 <div>
-                                    <label :for="'name'" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('auth.name') }}
+                                    <label for="name" class="label-arabic">
+                                        الاسم
                                     </label>
                                     <input
                                         id="name"
                                         v-model="profileForm.name"
                                         type="text"
-                                        :class="[
-                                            'w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
-                                            isRTL ? 'text-right' : 'text-left',
-                                            profileForm.errors.name ? 'border-red-300' : ''
-                                        ]"
+                                        class="input-arabic"
+                                        :class="profileForm.errors.name ? 'border-red-300' : ''"
                                         required
                                     />
                                     <div v-if="profileForm.errors.name" class="mt-2 text-sm text-red-600">
@@ -102,20 +94,17 @@
                                     </div>
                                 </div>
 
-                                <!-- Email Field -->
+                                <!-- حقل البريد الإلكتروني -->
                                 <div>
-                                    <label :for="'email'" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('auth.email') }}
+                                    <label for="email" class="label-arabic">
+                                        البريد الإلكتروني
                                     </label>
                                     <input
                                         id="email"
                                         v-model="profileForm.email"
                                         type="email"
-                                        :class="[
-                                            'w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
-                                            isRTL ? 'text-right' : 'text-left',
-                                            profileForm.errors.email ? 'border-red-300' : ''
-                                        ]"
+                                        class="input-arabic"
+                                        :class="profileForm.errors.email ? 'border-red-300' : ''"
                                         required
                                     />
                                     <div v-if="profileForm.errors.email" class="mt-2 text-sm text-red-600">
@@ -170,48 +159,45 @@
                                 </div>
                             </div>
 
-                            <!-- Submit Button -->
-                            <div :class="isRTL ? 'text-left' : 'text-right'" class="flex justify-end">
+                            <!-- زر الحفظ -->
+                            <div class="flex justify-start">
                                 <button
                                     type="submit"
                                     :disabled="profileForm.processing"
-                                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50"
+                                    class="btn-arabic flex items-center"
                                 >
-                                    <svg v-if="profileForm.processing" :class="isRTL ? 'ml-2' : 'mr-2'" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                    <svg v-if="profileForm.processing" class="animate-spin h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    {{ __('common.save_changes') }}
+                                    حفظ التغييرات
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
 
-                <!-- Update Password Section -->
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="bg-gradient-to-r from-green-500 to-teal-600 px-6 py-4">
-                        <h3 class="text-lg font-semibold text-white">{{ __('common.update_password') }}</h3>
-                        <p class="text-green-100 text-sm">{{ __('common.password_security_note') }}</p>
+                <!-- قسم تحديث كلمة المرور -->
+                <div class="card-arabic">
+                    <div class="bg-gradient-to-l from-green-500 to-teal-600 px-6 py-4">
+                        <h3 class="text-lg font-semibold text-white">تحديث كلمة المرور</h3>
+                        <p class="text-green-100 text-sm">تأكد من أن حسابك يستخدم كلمة مرور طويلة وعشوائية للبقاء آمناً</p>
                     </div>
-                    
+
                     <div class="p-6">
-                        <form @submit.prevent="updatePassword" class="space-y-6">
+                        <form @submit.prevent="updatePassword" class="form-arabic">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- Current Password -->
+                                <!-- كلمة المرور الحالية -->
                                 <div class="md:col-span-2">
-                                    <label :for="'current_password'" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('common.current_password') }}
+                                    <label for="current_password" class="label-arabic">
+                                        كلمة المرور الحالية
                                     </label>
                                     <input
                                         id="current_password"
                                         v-model="passwordForm.current_password"
                                         type="password"
-                                        :class="[
-                                            'w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
-                                            isRTL ? 'text-right' : 'text-left',
-                                            passwordForm.errors.current_password ? 'border-red-300' : ''
-                                        ]"
+                                        class="input-arabic"
+                                        :class="passwordForm.errors.current_password ? 'border-red-300' : ''"
                                         autocomplete="current-password"
                                     />
                                     <div v-if="passwordForm.errors.current_password" class="mt-2 text-sm text-red-600">
@@ -219,20 +205,17 @@
                                     </div>
                                 </div>
 
-                                <!-- New Password -->
+                                <!-- كلمة المرور الجديدة -->
                                 <div>
-                                    <label :for="'password'" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('common.new_password') }}
+                                    <label for="password" class="label-arabic">
+                                        كلمة المرور الجديدة
                                     </label>
                                     <input
                                         id="password"
                                         v-model="passwordForm.password"
                                         type="password"
-                                        :class="[
-                                            'w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
-                                            isRTL ? 'text-right' : 'text-left',
-                                            passwordForm.errors.password ? 'border-red-300' : ''
-                                        ]"
+                                        class="input-arabic"
+                                        :class="passwordForm.errors.password ? 'border-red-300' : ''"
                                         autocomplete="new-password"
                                     />
                                     <div v-if="passwordForm.errors.password" class="mt-2 text-sm text-red-600">
@@ -240,20 +223,17 @@
                                     </div>
                                 </div>
 
-                                <!-- Confirm Password -->
+                                <!-- تأكيد كلمة المرور -->
                                 <div>
-                                    <label :for="'password_confirmation'" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('common.confirm_new_password') }}
+                                    <label for="password_confirmation" class="label-arabic">
+                                        تأكيد كلمة المرور الجديدة
                                     </label>
                                     <input
                                         id="password_confirmation"
                                         v-model="passwordForm.password_confirmation"
                                         type="password"
-                                        :class="[
-                                            'w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
-                                            isRTL ? 'text-right' : 'text-left',
-                                            passwordForm.errors.password_confirmation ? 'border-red-300' : ''
-                                        ]"
+                                        class="input-arabic"
+                                        :class="passwordForm.errors.password_confirmation ? 'border-red-300' : ''"
                                         autocomplete="new-password"
                                     />
                                     <div v-if="passwordForm.errors.password_confirmation" class="mt-2 text-sm text-red-600">
@@ -262,18 +242,18 @@
                                 </div>
                             </div>
 
-                            <!-- Submit Button -->
-                            <div :class="isRTL ? 'text-left' : 'text-right'" class="flex justify-end">
+                            <!-- زر تحديث كلمة المرور -->
+                            <div class="flex justify-start">
                                 <button
                                     type="submit"
                                     :disabled="passwordForm.processing"
-                                    class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50"
+                                    class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center"
                                 >
-                                    <svg v-if="passwordForm.processing" :class="isRTL ? 'ml-2' : 'mr-2'" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                    <svg v-if="passwordForm.processing" class="animate-spin h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    {{ __('common.update_password') }}
+                                    تحديث كلمة المرور
                                 </button>
                             </div>
                         </form>
@@ -407,7 +387,7 @@ const props = defineProps({
     }
 });
 
-const { __, isRTL, direction } = useTranslations();
+const { __, isRTL } = useTranslations();
 const page = usePage();
 
 
