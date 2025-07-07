@@ -18,6 +18,9 @@ class UserManagementController extends Controller
     {
         $query = User::query();
 
+        // Exclure les super_admin de la liste
+        $query->where('role', '!=', User::ROLE_SUPER_ADMIN);
+
         // Filtrer par rôle si spécifié
         if ($request->has('role') && $request->role !== '') {
             $query->where('role', $request->role);
@@ -30,10 +33,15 @@ class UserManagementController extends Controller
 
         $users = $query->paginate(10)->withQueryString();
 
+        // Filtrer les rôles disponibles (exclure super_admin)
+        $availableRoles = array_filter(User::getRoles(), function($role) {
+            return $role !== User::ROLE_SUPER_ADMIN;
+        });
+
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
             'filters' => $request->only(['role', 'search']),
-            'roles' => User::getRoles(),
+            'roles' => array_values($availableRoles),
         ]);
     }
 
@@ -42,8 +50,18 @@ class UserManagementController extends Controller
      */
     public function create()
     {
+        // Seul le Super Admin peut créer des utilisateurs
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Seul le Super Admin peut créer des utilisateurs.');
+        }
+
+        // Filtrer les rôles disponibles (exclure super_admin pour la création)
+        $availableRoles = array_filter(User::getRoles(), function($role) {
+            return $role !== User::ROLE_SUPER_ADMIN;
+        });
+
         return Inertia::render('Admin/Users/Create', [
-            'roles' => User::getRoles(),
+            'roles' => array_values($availableRoles),
         ]);
     }
 
@@ -52,6 +70,11 @@ class UserManagementController extends Controller
      */
     public function store(Request $request)
     {
+        // Seul le Super Admin peut créer des utilisateurs
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Seul le Super Admin peut créer des utilisateurs.');
+        }
+
         $request->validate([
             'email' => 'required|string|lowercase|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
@@ -139,6 +162,11 @@ class UserManagementController extends Controller
         // Empêcher la suppression de son propre compte
         if ($user->id === auth()->id()) {
             abort(403, __('common.cannot_delete_own_account'));
+        }
+
+        // Si l'utilisateur connecté est un Admin, il ne peut pas supprimer un autre Admin
+        if (auth()->user()->isAdmin() && $user->isAdmin()) {
+            abort(403, 'Un Admin ne peut pas supprimer un autre Admin.');
         }
 
         $user->delete();

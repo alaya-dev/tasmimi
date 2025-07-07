@@ -1,225 +1,225 @@
 <template>
     <div :dir="direction" class="min-h-screen bg-gray-100">
-        <div class="flex">
-            <!-- Main Content -->
-            <div class="flex-1 w-full lg:mr-64">
-                <!-- Top Bar -->
-                <div class="fixed top-0 bg-white shadow-sm border-b border-gray-200 z-40 w-full lg:w-[calc(100%-16rem)]">
-                    <div class="px-4 sm:px-6 lg:px-8">
-                        <div class="flex justify-between h-16">
-                            <div class="flex items-center">
-                                <!-- Mobile menu button -->
-                                <button
-                                    @click="sidebarOpen = true"
-                                    class="lg:hidden text-gray-500 hover:text-gray-700"
-                                >
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                                    </svg>
-                                </button>
-
-                                <!-- Breadcrumb -->
-                                <nav class="hidden lg:flex mr-4">
-                                    <ol class="flex items-center space-x-2 space-x-reverse flex-row-reverse">
-                                        <li>
-                                            <Link :href="route('admin.dashboard')" class="text-gray-500 hover:text-gray-700">
-                                                {{ __('common.admin') }}
-                                            </Link>
-                                        </li>
-                                        <li v-if="$slots.breadcrumb">
-                                            <svg class="w-5 h-5 text-gray-400 rotate-180" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                            </svg>
-                                        </li>
-                                        <li v-if="$slots.breadcrumb">
-                                            <slot name="breadcrumb" />
-                                        </li>
-                                    </ol>
-                                </nav>
-                            </div>
-
-                            <!-- Right side actions -->
-                            <div class="flex items-center space-x-4">
-                                <!-- Notifications -->
-                                <button class="text-gray-500 hover:text-gray-700">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM10.5 3.5L6 8v13h5V8l4.5-4.5z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Content Wrapper with padding for fixed top bar -->
-                <div class="pt-16">
-                    <!-- Page Header -->
-                    <header v-if="$slots.header" class="bg-white shadow-sm">
-                        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                            <slot name="header" />
-                        </div>
-                    </header>
-
-                    <!-- Page Content -->
-                    <main class="flex-1">
-                        <slot />
-                    </main>
-                </div>
-            </div>
-
-            <!-- Sidebar - Always on the right -->
-            <div :class="[
-                'fixed inset-y-0 right-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0',
-                sidebarOpen ? 'translate-x-0' : 'translate-x-full'
-            ]">
-                <!-- User Info at Top -->
-                <div class="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-4">
-                    <div class="flex items-center justify-between flex-row-reverse">
-                        <div class="flex items-center flex-row-reverse">
-                            <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                                <img
-                                    v-if="$page.props.auth.user.image"
-                                    :src="$page.props.auth.user.image"
-                                    :alt="$page.props.auth.user.email"
-                                    class="w-10 h-10 rounded-full object-cover"
-                                />
-                                <span v-else class="text-white font-semibold text-sm">
-                                    {{ $page.props.auth.user.email.charAt(0).toUpperCase() }}
-                                </span>
-                            </div>
-                            <div class="flex-1 min-w-0 mr-3 text-right">
-                                <p class="text-white font-medium text-sm truncate">{{ $page.props.auth.user.email }}</p>
-                                <p class="text-blue-100 text-xs truncate">{{ __('common.super_admin') }}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-2 space-x-reverse">
-                            <Dropdown align="left" width="48">
-                                <template #trigger>
-                                    <button class="text-white hover:text-blue-200 transition-colors">
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-                                        </svg>
-                                    </button>
-                                </template>
-                                <template #content>
-                                    <DropdownLink :href="route('profile.edit')">{{ __('common.profile') }}</DropdownLink>
-                                    <DropdownLink :href="route('logout')" method="post" as="button">
-                                        {{ __('auth.logout') }}
-                                    </DropdownLink>
-                                </template>
-                            </Dropdown>
+        <!-- Main Content -->
+        <div class="content-with-sidebar">
+            <!-- Top Bar -->
+            <div class="fixed top-0 left-0 bg-white shadow-sm border-b border-gray-200 z-40 h-16" 
+                 style="right: 16rem;">
+                <div class="px-4 sm:px-6 lg:px-8 h-full">
+                    <div class="flex justify-between items-center h-full">
+                        <div class="flex items-center">
+                            <!-- Mobile menu button -->
                             <button
-                                @click="sidebarOpen = false"
-                                class="lg:hidden text-white hover:text-blue-200 transition-colors"
+                                @click="sidebarOpen = true"
+                                class="lg:hidden text-gray-500 hover:text-gray-700"
                             >
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                </svg>
+                            </button>
+
+                            <!-- Breadcrumb -->
+                            <nav class="hidden lg:flex mr-4">
+                                <ol class="flex items-center space-x-2 space-x-reverse flex-row-reverse">
+                                    <li>
+                                        <Link :href="route('admin.dashboard')" class="text-gray-500 hover:text-gray-700">
+                                            لوحة التحكم
+                                        </Link>
+                                    </li>
+                                    <li v-if="$slots.breadcrumb">
+                                        <svg class="w-5 h-5 text-gray-400 rotate-180" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </li>
+                                    <li v-if="$slots.breadcrumb">
+                                        <slot name="breadcrumb" />
+                                    </li>
+                                </ol>
+                            </nav>
+                        </div>
+
+                        <!-- Right side actions -->
+                        <div class="flex items-center space-x-4">
+                            <!-- Notifications -->
+                            <button class="text-gray-500 hover:text-gray-700">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM10.5 3.5L6 8v13h5V8l4.5-4.5z"/>
                                 </svg>
                             </button>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Logo Section -->
-                <div class="bg-gradient-to-l from-blue-500 to-purple-500 px-6 py-3 border-b border-blue-400">
-                    <div class="flex items-center justify-center flex-row-reverse">
-                        <ApplicationLogo class="block h-8 w-auto fill-current text-white" />
-                        <span class="text-white font-bold text-lg mr-3">{{ __('common.admin') }} {{ $page.props.appName }}</span>
+            <!-- Content Wrapper with padding for fixed top bar -->
+            <div class="pt-16">
+                <!-- Page Header -->
+                <header v-if="$slots.header" class="bg-white shadow-sm">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        <slot name="header" />
+                    </div>
+                </header>
+
+                <!-- Page Content -->
+                <main class="flex-1">
+                    <slot />
+                </main>
+            </div>
+        </div>
+
+        <!-- Sidebar - Fixed on the right -->
+        <div :class="[
+            'sidebar-right bg-white shadow-lg transform transition-transform duration-300 ease-in-out',
+            'lg:translate-x-0',
+            sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
+        ]">
+            <!-- User Info at Top -->
+            <div class="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-4">
+                <div class="flex items-center justify-between flex-row-reverse">
+                    <div class="flex items-center flex-row-reverse">
+                        <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                            <img
+                                v-if="$page.props.auth.user.image"
+                                :src="$page.props.auth.user.image"
+                                :alt="$page.props.auth.user.email"
+                                class="w-10 h-10 rounded-full object-cover"
+                            />
+                            <span v-else class="text-white font-semibold text-sm">
+                                {{ $page.props.auth.user.email.charAt(0).toUpperCase() }}
+                            </span>
+                        </div>
+                        <div class="flex-1 min-w-0 mr-3 text-right">
+                            <p class="text-white font-medium text-sm truncate">{{ $page.props.auth.user.email }}</p>
+                            <p class="text-blue-100 text-xs truncate">مدير عام</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 space-x-reverse">
+                        <Dropdown align="left" width="48">
+                            <template #trigger>
+                                <button class="text-white hover:text-blue-200 transition-colors">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                                    </svg>
+                                </button>
+                            </template>
+                            <template #content>
+                                <DropdownLink :href="route('profile.edit')">الملف الشخصي</DropdownLink>
+                                <DropdownLink :href="route('logout')" method="post" as="button">
+                                    تسجيل الخروج
+                                </DropdownLink>
+                            </template>
+                        </Dropdown>
+                        <button
+                            @click="sidebarOpen = false"
+                            class="lg:hidden text-white hover:text-blue-200 transition-colors"
+                        >
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                <!-- Navigation -->
-                <nav class="mt-8 px-4">
-                    <div class="space-y-2">
-                        <!-- Dashboard -->
-                        <Link
-                            :href="route('admin.dashboard')"
-                            :class="[
-                                'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 flex-row-reverse text-right',
-                                route().current('admin.dashboard')
-                                    ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
-                                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                            ]"
-                        >
-                            <span class="text-right flex-1">{{ __('common.dashboard') }}</span>
-                            <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
-                            </svg>
-                        </Link>
+            <!-- Logo Section -->
+            <div class="bg-gradient-to-l from-blue-500 to-purple-500 px-6 py-3 border-b border-blue-400">
+                <div class="flex items-center justify-center flex-row-reverse">
+                    <ApplicationLogo class="block h-8 w-auto fill-current text-white" />
+                    <span class="text-white font-bold text-lg mr-3">لوحة تحكم Bitaqati</span>
+                </div>
+            </div>
 
-                        <!-- Users Management -->
-                        <Link
-                            :href="route('admin.users.index')"
-                            :class="[
-                                'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 flex-row-reverse text-right',
-                                route().current('admin.users.*')
-                                    ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
-                                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                            ]"
-                        >
-                            <span class="text-right flex-1">{{ __('common.users') }}</span>
-                            <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                            </svg>
-                        </Link>
+            <!-- Navigation -->
+            <nav class="mt-8 px-4 overflow-y-auto" style="height: calc(100vh - 200px);" dir="rtl">
+                <div class="space-y-2">
+                    <!-- Dashboard -->
+                    <Link
+                        :href="route('admin.dashboard')"
+                        :class="[
+                            'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-right',
+                            route().current('admin.dashboard')
+                                ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
+                                : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                        ]"
+                    >
+                        <span class="text-right flex-1">لوحة التحكم</span>
+                        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                        </svg>
+                    </Link>
 
-                        <!-- Contacts Management -->
-                        <Link
-                            :href="route('admin.contacts.index')"
-                            :class="[
-                                'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 flex-row-reverse text-right',
-                                route().current('admin.contacts.*')
-                                    ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
-                                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                            ]"
-                        >
-                            <span class="text-right flex-1">{{ __('common.contacts') }}</span>
-                            <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                            </svg>
-                        </Link>
+                    <!-- Users Management -->
+                    <Link
+                        :href="route('admin.users.index')"
+                        :class="[
+                            'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-right',
+                            route().current('admin.users.*')
+                                ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
+                                : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                        ]"
+                    >
+                        <span class="text-right flex-1">المستخدمون</span>
+                        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </Link>
 
-                        <!-- Smart Cards Section -->
-                        <div class="pt-4">
-                            <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
-                                {{ __('common.smart_cards') }}
-                            </h3>
-                            <div class="mt-2 space-y-1">
-                                <a href="#" class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 flex-row-reverse text-right">
-                                    <span class="text-right flex-1">{{ __('common.templates') }}</span>
-                                    <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-                                    </svg>
-                                </a>
-                                <a href="#" class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 flex-row-reverse text-right">
-                                    <span class="text-right flex-1">{{ __('common.design_tools') }}</span>
-                                    <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
+                    <!-- Contacts Management -->
+                    <Link
+                        :href="route('admin.contacts.index')"
+                        :class="[
+                            'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-right',
+                            route().current('admin.contacts.*')
+                                ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
+                                : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                        ]"
+                    >
+                        <span class="text-right flex-1">جهات الاتصال</span>
+                        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                    </Link>
 
-                        <!-- Settings Section -->
-                        <div class="pt-4">
-                            <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
-                                {{ __('common.settings') }}
-                            </h3>
-                            <div class="mt-2 space-y-1">
-                                <Link
-                                    :href="route('profile.edit')"
-                                    class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 flex-row-reverse text-right"
-                                >
-                                    <span class="text-right flex-1">{{ __('common.profile') }}</span>
-                                    <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                                    </svg>
-                                </Link>
-                            </div>
+                    <!-- Smart Cards Section -->
+                    <div class="pt-4">
+                        <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
+                            البطاقات الذكية
+                        </h3>
+                        <div class="mt-2 space-y-1">
+                            <a href="#" class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 text-right">
+                                <span class="text-right flex-1">القوالب</span>
+                                <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                                </svg>
+                            </a>
+                            <a href="#" class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 text-right">
+                                <span class="text-right flex-1">أدوات التصميم</span>
+                                <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </a>
                         </div>
                     </div>
-                </nav>
-            </div>
+
+                    <!-- Settings Section -->
+                    <div class="pt-4">
+                        <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
+                            الإعدادات
+                        </h3>
+                        <div class="mt-2 space-y-1">
+                            <Link
+                                :href="route('profile.edit')"
+                                class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 text-right"
+                            >
+                                <span class="text-right flex-1">الملف الشخصي</span>
+                                <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                </svg>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </nav>
         </div>
 
         <!-- Mobile sidebar overlay -->

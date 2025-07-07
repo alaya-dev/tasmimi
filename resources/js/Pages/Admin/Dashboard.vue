@@ -86,9 +86,6 @@
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            الاسم
-                                        </th>
-                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             البريد الإلكتروني
                                         </th>
                                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -102,9 +99,6 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <tr v-for="user in stats.recent_users" :key="user.id">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
-                                            {{ user.name }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
                                             {{ user.email }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right">
@@ -167,4 +161,3 @@ const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('fr-FR');
 };
 </script>
-

@@ -9,13 +9,17 @@
         <template #header>
             <div class="flex justify-between items-center flex-row-reverse">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">إدارة المستخدمين</h2>
-                <button @click="showCreateModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+                <Link 
+                    v-if="$page.props.auth.user.role === 'super_admin'"
+                    :href="route('admin.users.create')" 
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
+                >
                     إضافة مستخدم
-                </button>
+                </Link>
             </div>
         </template>
 
-        <div class="py-12">
+        <div class="py-12" dir="rtl">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <!-- المرشحات -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
@@ -37,7 +41,7 @@
                                     dir="rtl"
                                 >
                                     <option value="">جميع الأدوار</option>
-                                    <option v-for="role in roles" :key="role" :value="role">
+                                    <option v-for="role in availableRoles" :key="role" :value="role">
                                         {{ getRoleLabel(role) }}
                                     </option>
                                 </select>
@@ -100,42 +104,53 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <tr v-if="users?.data?.length === 0">
+                                <tr v-if="filteredUsers?.length === 0">
                                     <td colspan="4" class="px-6 py-8 text-center text-gray-500">
                                         لا توجد مستخدمين
                                     </td>
                                 </tr>
-                                <tr v-for="user in users?.data" :key="user.id" class="hover:bg-gray-50 transition-colors duration-200">
+                                <tr v-for="user in filteredUsers" :key="user.id" class="hover:bg-gray-50 transition-colors duration-200">
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <div class="flex items-center flex-row-reverse">
-                                            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center ml-3">
-                                                <span class="text-white font-semibold text-sm">{{ user.email.charAt(0).toUpperCase() }}</span>
+                                        <div class="flex items-center justify-end">
+                                            <div class="text-right mr-3">
+                                                <div class="text-sm font-medium text-gray-900 text-right">{{ user.email }}</div>
                                             </div>
-                                            <div>
-                                                <div class="text-sm font-medium text-gray-900">{{ user.email }}</div>
+                                            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                                <span class="text-white font-semibold text-sm">{{ user.email.charAt(0).toUpperCase() }}</span>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <span :class="getRoleBadgeClass(user.role)" class="inline-flex px-3 py-1 text-xs font-semibold rounded-full">
-                                            {{ getRoleLabel(user.role) }}
-                                        </span>
+                                        <div class="flex justify-end">
+                                            <span :class="getRoleBadgeClass(user.role)" class="inline-flex px-3 py-1 text-xs font-semibold rounded-full">
+                                                {{ getRoleLabel(user.role) }}
+                                            </span>
+                                        </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
                                         {{ formatDate(user.created_at) }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
-                                        <div class="flex justify-end">
+                                        <div class="flex justify-end space-x-2 space-x-reverse">
                                             <button
-                                                v-if="user.id !== $page.props.auth.user.id"
+                                                v-if="canDeleteUser(user)"
                                                 @click="deleteUser(user)"
-                                                class="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors duration-200 flex-row-reverse"
+                                                class="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors duration-200"
                                             >
-                                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                                <span class="mr-1">حذف</span>
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                     <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
                                                 </svg>
-                                                حذف
                                             </button>
+                                            <Link
+                                                :href="route('admin.users.edit', user.id)"
+                                                class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors duration-200"
+                                            >
+                                                <span class="mr-1">تعديل</span>
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                                </svg>
+                                            </Link>
                                         </div>
                                     </td>
                                 </tr>
@@ -198,114 +213,13 @@
                 </div>
             </div>
         </div>
-
-        <!-- Create User Modal -->
-        <Modal :show="showCreateModal" @close="closeCreateModal" max-width="2xl">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-6 flex-row-reverse">
-                    <h2 class="text-lg font-medium text-gray-900">إضافة مستخدم جديد</h2>
-                    <button @click="closeCreateModal" class="text-gray-400 hover:text-gray-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <form @submit.prevent="createUser" class="space-y-6">
-                    <div>
-                        <label for="create_email" class="block text-sm font-medium text-gray-700 mb-2 text-right">البريد الإلكتروني</label>
-                        <input
-                            id="create_email"
-                            v-model="createForm.email"
-                            type="email"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
-                            :class="createForm.errors.email ? 'border-red-300' : ''"
-                            required
-                            dir="rtl"
-                        />
-                        <div v-if="createForm.errors.email" class="mt-2 text-sm text-red-600 text-right">
-                            {{ createForm.errors.email }}
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="create_role" class="block text-sm font-medium text-gray-700 mb-2 text-right">الدور</label>
-                        <select
-                            id="create_role"
-                            v-model="createForm.role"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
-                            :class="createForm.errors.role ? 'border-red-300' : ''"
-                            required
-                            dir="rtl"
-                        >
-                            <option value="">اختر دوراً</option>
-                            <option v-for="role in roles" :key="role" :value="role">
-                                {{ getRoleLabel(role) }}
-                            </option>
-                        </select>
-                        <div v-if="createForm.errors.role" class="mt-2 text-sm text-red-600 text-right">
-                            {{ createForm.errors.role }}
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="create_password" class="block text-sm font-medium text-gray-700 mb-2 text-right">كلمة المرور</label>
-                            <input
-                                id="create_password"
-                                v-model="createForm.password"
-                                type="password"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
-                                :class="createForm.errors.password ? 'border-red-300' : ''"
-                                required
-                                dir="rtl"
-                            />
-                            <div v-if="createForm.errors.password" class="mt-2 text-sm text-red-600 text-right">
-                                {{ createForm.errors.password }}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="create_password_confirmation" class="block text-sm font-medium text-gray-700 mb-2 text-right">تأكيد كلمة المرور</label>
-                            <input
-                                id="create_password_confirmation"
-                                v-model="createForm.password_confirmation"
-                                type="password"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
-                                required
-                                dir="rtl"
-                            />
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end space-x-3 space-x-reverse">
-                        <button
-                            type="button"
-                            @click="closeCreateModal"
-                            class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded transition-colors duration-200"
-                        >
-                            إلغاء
-                        </button>
-                        <button
-                            type="submit"
-                            :disabled="createForm.processing"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition-colors duration-200"
-                        >
-                            <span v-if="createForm.processing">جاري الإنشاء...</span>
-                            <span v-else>إنشاء المستخدم</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </Modal>
     </AdminLayoutSidebar>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { ref, reactive, computed } from 'vue';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import AdminLayoutSidebar from '@/Layouts/AdminLayoutSidebar.vue';
-import Modal from '@/Components/Modal.vue';
 import { useTranslations } from '@/Composables/useTranslations';
 
 const props = defineProps({
@@ -316,18 +230,25 @@ const props = defineProps({
 
 const { __, isRTL, direction } = useTranslations();
 
-const showCreateModal = ref(false);
-
 const form = reactive({
     search: props.filters?.search || '',
     role: props.filters?.role || '',
 });
 
-const createForm = useForm({
-    email: '',
-    role: '',
-    password: '',
-    password_confirmation: '',
+// Filtrer les rôles disponibles (exclure super_admin pour les non-super_admin)
+const availableRoles = computed(() => {
+    if (props.roles) {
+        return props.roles.filter(role => role !== 'super_admin');
+    }
+    return [];
+});
+
+// Filtrer les utilisateurs (exclure les super_admin)
+const filteredUsers = computed(() => {
+    if (props.users?.data) {
+        return props.users.data.filter(user => user.role !== 'super_admin');
+    }
+    return [];
 });
 
 const search = () => {
@@ -352,6 +273,24 @@ const deleteUser = (user) => {
     }
 };
 
+// Vérifier si l'utilisateur peut être supprimé
+const canDeleteUser = (user) => {
+    const currentUser = usePage().props.auth.user;
+    
+    // Ne peut pas supprimer son propre compte
+    if (user.id === currentUser.id) {
+        return false;
+    }
+    
+    // Si l'utilisateur connecté est un Admin, il ne peut pas supprimer un autre Admin
+    if (currentUser.role === 'admin' && user.role === 'admin') {
+        return false;
+    }
+    
+    // Super Admin peut tout supprimer (sauf les autres super_admin qui sont déjà filtrés)
+    return true;
+};
+
 const getRoleLabel = (role) => {
     const labels = {
         'super_admin': 'مدير عام',
@@ -370,23 +309,13 @@ const getRoleBadgeClass = (role) => {
     return classes[role] || 'bg-gray-100 text-gray-800';
 };
 
+// Format de date normal (non hijri)
 const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('ar-SA');
-};
-
-const createUser = () => {
-    createForm.post(route('admin.users.store'), {
-        preserveScroll: true,
-        onSuccess: () => {
-            closeCreateModal();
-            createForm.reset();
-        },
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
     });
-};
-
-const closeCreateModal = () => {
-    showCreateModal.value = false;
-    createForm.reset();
-    createForm.clearErrors();
 };
 </script>
