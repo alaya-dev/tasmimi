@@ -45,8 +45,8 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="text-xl font-bold text-white">{{ contact.name }}</h3>
-                                    <p class="text-blue-100">{{ contact.email }}</p>
+                                    <h3 class="text-xl font-bold text-white">{{ contact.email }}</h3>
+                                    <p class="text-blue-100">{{ __('common.contact') }}</p>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -154,7 +154,7 @@ const updateStatus = () => {
 };
 
 const deleteContact = () => {
-    if (confirm(__('common.confirm_delete') + ' ' + props.contact.name + '?')) {
+    if (confirm(__('common.confirm_delete') + ' ' + props.contact.email + '?')) {
         router.delete(route('admin.contacts.destroy', props.contact.id));
     }
 };

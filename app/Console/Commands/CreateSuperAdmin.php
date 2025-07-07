@@ -14,68 +14,79 @@ class CreateSuperAdmin extends Command
      *
      * @var string
      */
-    protected $signature = 'bitaqati:create-super-admin 
-                            {--name= : Le nom du Super Admin}
-                            {--email= : L\'email du Super Admin}
-                            {--password= : Le mot de passe du Super Admin}';
+    protected $signature = 'bitaqati:create-super-admin
+                            {--email= : Super Admin email}
+                            {--password= : Super Admin password}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Créer un compte Super Administrateur pour Bitaqati';
+    protected $description = 'Create a Super Administrator account for Bitaqati';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $this->info('=== Création d\'un Super Administrateur ===');
+        $this->info('=== Creating Super Administrator ===');
         $this->newLine();
 
-        // Récupérer les données depuis les options ou demander à l'utilisateur
-        $name = $this->option('name') ?: $this->ask('Nom du Super Admin');
-        $email = $this->option('email') ?: $this->ask('Email du Super Admin');
-        $password = $this->option('password') ?: $this->secret('Mot de passe du Super Admin');
+        // Get data from options or ask user
+        $email = $this->option('email') ?: $this->ask('Super Admin Email');
+        $password = $this->option('password');
 
-        // Valider les données
+        if (!$password) {
+            $password = $this->secret('Super Admin Password');
+            $passwordConfirmation = $this->secret('Confirm Password');
+
+            // Validate password confirmation
+            if ($password !== $passwordConfirmation) {
+                $this->error('Password confirmation does not match.');
+                return Command::FAILURE;
+            }
+        }
+
+        // Validate data
         $validator = Validator::make([
-            'name' => $name,
             'email' => $email,
             'password' => $password,
         ], [
-            'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
+        ], [
+            'email.required' => 'Email is required.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => 'This email is already registered.',
+            'password.required' => 'Password is required.',
+            'password.min' => 'Password must be at least 8 characters long.',
         ]);
 
         if ($validator->fails()) {
-            $this->error('Erreurs de validation :');
+            $this->error('Validation errors:');
             foreach ($validator->errors()->all() as $error) {
                 $this->error('- ' . $error);
             }
             return Command::FAILURE;
         }
 
-        // Vérifier s'il existe déjà un Super Admin
+        // Check if Super Admin already exists
         $existingSuperAdmin = User::where('role', User::ROLE_SUPER_ADMIN)->first();
         if ($existingSuperAdmin) {
-            $this->warn('Un Super Admin existe déjà :');
-            $this->line('Nom: ' . $existingSuperAdmin->name);
+            $this->warn('A Super Admin already exists:');
             $this->line('Email: ' . $existingSuperAdmin->email);
             $this->newLine();
-            
-            if (!$this->confirm('Voulez-vous créer un autre Super Admin ?')) {
-                $this->info('Opération annulée.');
+
+            if (!$this->confirm('Do you want to create another Super Admin?')) {
+                $this->info('Operation cancelled.');
                 return Command::SUCCESS;
             }
         }
 
-        // Créer le Super Admin
+        // Create Super Admin
         try {
             $superAdmin = User::create([
-                'name' => $name,
                 'email' => $email,
                 'password' => Hash::make($password),
                 'role' => User::ROLE_SUPER_ADMIN,
@@ -83,20 +94,19 @@ class CreateSuperAdmin extends Command
             ]);
 
             $this->newLine();
-            $this->info('✅ Super Admin créé avec succès !');
+            $this->info('✅ Super Admin created successfully!');
             $this->newLine();
-            $this->line('Détails du compte :');
+            $this->line('Account details:');
             $this->line('ID: ' . $superAdmin->id);
-            $this->line('Nom: ' . $superAdmin->name);
             $this->line('Email: ' . $superAdmin->email);
-            $this->line('Rôle: ' . $superAdmin->role);
-            $this->line('Créé le: ' . $superAdmin->created_at->format('d/m/Y H:i:s'));
+            $this->line('Role: ' . $superAdmin->role);
+            $this->line('Created at: ' . $superAdmin->created_at->format('Y-m-d H:i:s'));
             $this->newLine();
-            $this->info('Le Super Admin peut maintenant se connecter à l\'interface d\'administration.');
+            $this->info('The Super Admin can now log in to the administration interface.');
 
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Erreur lors de la création du Super Admin :');
+            $this->error('Error creating Super Admin:');
             $this->error($e->getMessage());
             return Command::FAILURE;
         }

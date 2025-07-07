@@ -77,17 +77,7 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th :class="[
-                                        'px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider',
-                                        isRTL ? 'text-right' : 'text-left'
-                                    ]">
-                                        <div :class="isRTL ? 'flex-row-reverse' : 'flex'" class="flex items-center">
-                                            <svg :class="isRTL ? 'ml-2' : 'mr-2'" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                                            </svg>
-                                            {{ __('auth.name') }}
-                                        </div>
-                                    </th>
+
                                     <th :class="[
                                         'px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider',
                                         isRTL ? 'text-right' : 'text-left'
@@ -133,19 +123,7 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <tr v-for="contact in contacts.data" :key="contact.id" class="hover:bg-gray-50 transition-colors duration-200">
-                                    <td :class="[
-                                        'px-6 py-4 whitespace-nowrap',
-                                        isRTL ? 'text-right' : 'text-left'
-                                    ]">
-                                        <div :class="isRTL ? 'flex-row-reverse' : 'flex'" class="flex items-center">
-                                            <div :class="isRTL ? 'ml-3' : 'mr-3'" class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center">
-                                                <span class="text-white font-semibold text-sm">{{ contact.name.charAt(0).toUpperCase() }}</span>
-                                            </div>
-                                            <div>
-                                                <div class="text-sm font-medium text-gray-900">{{ contact.name }}</div>
-                                            </div>
-                                        </div>
-                                    </td>
+
                                     <td :class="[
                                         'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
                                         isRTL ? 'text-right' : 'text-left'
@@ -297,7 +275,7 @@ const clearFilters = () => {
 };
 
 const deleteContact = (contact) => {
-    if (confirm(__('common.confirm_delete') + ' ' + contact.name + '?')) {
+    if (confirm(__('common.confirm_delete') + ' ' + contact.email + '?')) {
         router.delete(route('admin.contacts.destroy', contact.id));
     }
 };

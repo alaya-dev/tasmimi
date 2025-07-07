@@ -5,7 +5,6 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import LanguageSwitcher from '@/Components/LanguageSwitcher.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { useTranslations } from '@/Composables/useTranslations';
 
@@ -45,11 +44,6 @@ const submit = () => {
     <div :dir="direction" class="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
         <Head :title="__('auth.login')" />
         
-        <!-- Language Switcher -->
-        <div class="absolute top-4 z-10" :class="isRTL ? 'left-4' : 'right-4'">
-            <LanguageSwitcher :current-locale="props.locale" />
-        </div>
-
         <div class="min-h-screen flex">
             <!-- Left Side - Branding -->
             <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden">
