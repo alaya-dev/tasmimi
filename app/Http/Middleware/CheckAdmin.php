@@ -20,7 +20,7 @@ class CheckAdmin
         }
 
         if (!auth()->user()->hasAdminPrivileges()) {
-            abort(403, 'Access reserved for Administrators.');
+            abort(403, 'Accès réservé aux Administrateurs.');
         }
 
         return $next($request);

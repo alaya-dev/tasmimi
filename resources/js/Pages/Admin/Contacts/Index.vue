@@ -1,30 +1,29 @@
 <template>
-    <Head :title="__('common.contact_management')" />
+    <Head title="إدارة جهات الاتصال" />
 
     <AdminLayoutSidebar>
         <template #breadcrumb>
-            <span class="text-gray-500">{{ __('common.contact_management') }}</span>
+            <span class="text-gray-500">إدارة جهات الاتصال</span>
         </template>
 
         <template #header>
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <Link 
-                        :href="route('admin.dashboard')" 
-                        :class="isRTL ? 'ml-4' : 'mr-4'"
-                        class="text-gray-600 hover:text-gray-900 transition-colors duration-200"
+            <div class="flex items-center justify-between flex-row-reverse">
+                <div class="flex items-center flex-row-reverse">
+                    <Link
+                        :href="route('admin.dashboard')"
+                        class="ml-4 text-gray-600 hover:text-gray-900 transition-colors duration-200"
                     >
-                        <svg :class="isRTL ? 'rotate-180' : ''" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                         </svg>
                     </Link>
-                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('common.contact_management') }}</h2>
+                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">إدارة جهات الاتصال</h2>
                 </div>
             </div>
         </template>
 
-        <div class="py-6">
-            <div class="w-full">
+        <div class="py-12">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <!-- Filtres -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                     <div class="p-6">

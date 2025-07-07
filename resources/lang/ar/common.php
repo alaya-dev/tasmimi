@@ -59,7 +59,7 @@ return [
     // Profile
     'profile_information' => 'معلومات الملف الشخصي',
     'update_profile' => 'تحديث الملف الشخصي',
-    'update_password' => 'تحديث كلمة المرور',
+    'update_password' => 'تحدي�� كلمة المرور',
     'delete_account' => 'حذف الحساب',
     'current_password' => 'كلمة المرور الحالية',
     'new_password' => 'كلمة المرور الجديدة',
@@ -138,8 +138,16 @@ return [
     'edit_user_description' => 'تحديث معلومات المستخدم والصلاحيات',
     'new_password_optional' => 'كلمة المرور الجديدة (اتركها فارغة للاحتفاظ بالحالية)',
     'view_contact_details_description' => 'عرض وإدارة معلومات جهة الاتصال',
+    'create_user_modal_title' => 'إضافة مستخدم جديد',
+    'creating' => 'جاري الإنشاء',
+    'create_user' => 'إنشاء المستخدم',
     'user_created_successfully' => 'تم إنشاء المستخدم بنجاح',
     'user_updated_successfully' => 'تم تحديث المستخدم بنجاح',
     'user_deleted_successfully' => 'تم حذف المستخدم بنجاح',
+    'only_super_admin_can_create_super_admin' => 'فقط المدير العام يمكنه إنشاء مدير عام آخر',
+    'only_super_admin_can_edit_super_admin' => 'فقط المدير العام يمكنه تعديل مدير عام آخر',
+    'only_super_admin_can_assign_super_admin_role' => 'فقط المدير العام يمكنه تعيين دور المدير العام',
+    'only_super_admin_can_delete_super_admin' => 'فقط المدير العام يمكنه حذف مدير عام آخر',
+    'cannot_delete_own_account' => 'لا يمكنك حذف حسابك الخاص',
 
 ];

@@ -66,7 +66,7 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return Redirect::route('profile.edit')->with('success', 'تم تحديث الملف الشخصي بنجاح');
+        return Redirect::route('profile.edit')->with('success', 'Profile updated successfully.');
     }
 
     /**

@@ -22,7 +22,6 @@ const props = defineProps({
 const { __, isRTL, direction } = useTranslations();
 
 const form = useForm({
-    name: '',
     email: '',
     password: '',
     password_confirmation: '',
@@ -100,34 +99,6 @@ const submit = () => {
 
                         <form @submit.prevent="submit" class="space-y-6">
                             <div>
-                                <label for="name" class="block text-sm font-medium text-blue-100 mb-2">
-                                    {{ __('auth.name') }}
-                                </label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 flex items-center pointer-events-none" :class="isRTL ? 'right-0 pr-3' : 'left-0 pl-3'">
-                                        <svg class="w-5 h-5 text-blue-300" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                                        </svg>
-                                    </div>
-                                    <input
-                                        id="name"
-                                        type="text"
-                                        v-model="form.name"
-                                        required
-                                        autofocus
-                                        autocomplete="name"
-                                        class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
-                                        :class="[
-                                            isRTL ? 'pr-10 text-right' : 'pl-10',
-                                            form.errors.name ? 'border-red-400' : ''
-                                        ]"
-                                        :placeholder="__('auth.name')"
-                                    />
-                                </div>
-                                <InputError class="mt-2 text-red-300" :message="form.errors.name" />
-                            </div>
-
-                            <div>
                                 <label for="email" class="block text-sm font-medium text-blue-100 mb-2">
                                     {{ __('auth.email') }}
                                 </label>
@@ -143,6 +114,7 @@ const submit = () => {
                                         type="email"
                                         v-model="form.email"
                                         required
+                                        autofocus
                                         autocomplete="username"
                                         class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
                                         :class="[

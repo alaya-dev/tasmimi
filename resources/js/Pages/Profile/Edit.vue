@@ -3,30 +3,33 @@
 
     <AdminLayoutSidebar>
         <template #breadcrumb>
-            الملف الشخصي
+            <span class="text-gray-500">الملف الشخصي</span>
         </template>
 
-        <div class="py-6">
-            <div class="w-full space-y-6">
-                <!-- رأس الصفحة -->
-                <div class="card-arabic p-6">
-                    <h1 class="text-3xl font-bold text-gray-800 mb-2">الملف الشخصي</h1>
-                    <p class="text-gray-600">إدارة معلومات حسابك وإعدادات الأمان</p>
+        <template #header>
+            <div class="flex justify-between items-center flex-row-reverse">
+                <div class="text-right">
+                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">الملف الشخصي</h2>
+                    <p class="mt-1 text-sm text-gray-600">إدارة إعدادات حسابك وتفضيلاتك</p>
                 </div>
+            </div>
+        </template>
 
+        <div class="py-12">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <!-- قسم معلومات الملف الشخصي -->
-                <div class="card-arabic">
-                    <div class="bg-gradient-to-l from-blue-500 to-purple-600 px-6 py-4">
+                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 text-right">
                         <h3 class="text-lg font-semibold text-white">معلومات الملف الشخصي</h3>
-                        <p class="text-blue-100 text-sm">قم بتحديث معلومات حسابك وعنوان بريدك الإلكتروني</p>
+                        <p class="text-blue-100 text-sm">تحديث معلومات ملفك الشخصي وعنوان البريد الإلكتروني</p>
                     </div>
-
+                    
                     <div class="p-6">
-                        <form @submit.prevent="updateProfile" class="form-arabic">
+                        <form @submit.prevent="updateProfile" class="space-y-6">
                             <!-- Profile Image Section -->
                             <div class="mb-6">
-                                <label class="label-arabic">
-                                    صورة الملف الشخصي
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ __('common.profile_image') }}
                                 </label>
                                 <div :class="isRTL ? 'flex-row-reverse' : 'flex'" class="flex items-center space-x-6">
                                     <div class="shrink-0">
@@ -53,17 +56,18 @@
                                         <button
                                             type="button"
                                             @click="$refs.imageInput.click()"
-                                            class="btn-arabic text-sm"
+                                            class="bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                         >
-                                            تغيير الصورة
+                                            {{ __('common.change_image') }}
                                         </button>
                                         <button
                                             v-if="$page.props.auth.user.image || imagePreview"
                                             type="button"
                                             @click="removeImage"
-                                            class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-all duration-200 mr-3"
+                                            :class="isRTL ? 'mr-3' : 'ml-3'"
+                                            class="bg-red-600 py-2 px-3 border border-transparent rounded-md shadow-sm text-sm leading-4 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                                         >
-                                            إزالة الصورة
+                                            {{ __('common.remove_image') }}
                                         </button>
                                         <p class="mt-2 text-sm text-gray-500">
                                             {{ __('common.image_upload_note') }}
@@ -76,17 +80,20 @@
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- حقل الاسم -->
+                                <!-- Name Field -->
                                 <div>
-                                    <label for="name" class="label-arabic">
-                                        الاسم
+                                    <label :for="'name'" class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ __('auth.name') }}
                                     </label>
                                     <input
                                         id="name"
                                         v-model="profileForm.name"
                                         type="text"
-                                        class="input-arabic"
-                                        :class="profileForm.errors.name ? 'border-red-300' : ''"
+                                        :class="[
+                                            'w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+                                            isRTL ? 'text-right' : 'text-left',
+                                            profileForm.errors.name ? 'border-red-300' : ''
+                                        ]"
                                         required
                                     />
                                     <div v-if="profileForm.errors.name" class="mt-2 text-sm text-red-600">
@@ -94,17 +101,20 @@
                                     </div>
                                 </div>
 
-                                <!-- حقل البريد الإلكتروني -->
+                                <!-- Email Field -->
                                 <div>
-                                    <label for="email" class="label-arabic">
-                                        البريد الإلكتروني
+                                    <label :for="'email'" class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ __('auth.email') }}
                                     </label>
                                     <input
                                         id="email"
                                         v-model="profileForm.email"
                                         type="email"
-                                        class="input-arabic"
-                                        :class="profileForm.errors.email ? 'border-red-300' : ''"
+                                        :class="[
+                                            'w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+                                            isRTL ? 'text-right' : 'text-left',
+                                            profileForm.errors.email ? 'border-red-300' : ''
+                                        ]"
                                         required
                                     />
                                     <div v-if="profileForm.errors.email" class="mt-2 text-sm text-red-600">
@@ -159,18 +169,18 @@
                                 </div>
                             </div>
 
-                            <!-- زر الحفظ -->
-                            <div class="flex justify-start">
+                            <!-- Submit Button -->
+                            <div :class="isRTL ? 'text-left' : 'text-right'" class="flex justify-end">
                                 <button
                                     type="submit"
                                     :disabled="profileForm.processing"
-                                    class="btn-arabic flex items-center"
+                                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50"
                                 >
-                                    <svg v-if="profileForm.processing" class="animate-spin h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24">
+                                    <svg v-if="profileForm.processing" :class="isRTL ? 'ml-2' : 'mr-2'" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    حفظ التغييرات
+                                    {{ __('common.save_changes') }}
                                 </button>
                             </div>
                         </form>
@@ -178,26 +188,29 @@
                 </div>
 
                 <!-- قسم تحديث كلمة المرور -->
-                <div class="card-arabic">
-                    <div class="bg-gradient-to-l from-green-500 to-teal-600 px-6 py-4">
+                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                    <div class="bg-gradient-to-r from-green-500 to-teal-600 px-6 py-4 text-right">
                         <h3 class="text-lg font-semibold text-white">تحديث كلمة المرور</h3>
                         <p class="text-green-100 text-sm">تأكد من أن حسابك يستخدم كلمة مرور طويلة وعشوائية للبقاء آمناً</p>
                     </div>
-
+                    
                     <div class="p-6">
-                        <form @submit.prevent="updatePassword" class="form-arabic">
+                        <form @submit.prevent="updatePassword" class="space-y-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- كلمة المرور الحالية -->
+                                <!-- Current Password -->
                                 <div class="md:col-span-2">
-                                    <label for="current_password" class="label-arabic">
-                                        كلمة المرور الحالية
+                                    <label :for="'current_password'" class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ __('common.current_password') }}
                                     </label>
                                     <input
                                         id="current_password"
                                         v-model="passwordForm.current_password"
                                         type="password"
-                                        class="input-arabic"
-                                        :class="passwordForm.errors.current_password ? 'border-red-300' : ''"
+                                        :class="[
+                                            'w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+                                            isRTL ? 'text-right' : 'text-left',
+                                            passwordForm.errors.current_password ? 'border-red-300' : ''
+                                        ]"
                                         autocomplete="current-password"
                                     />
                                     <div v-if="passwordForm.errors.current_password" class="mt-2 text-sm text-red-600">
@@ -205,17 +218,20 @@
                                     </div>
                                 </div>
 
-                                <!-- كلمة المرور الجديدة -->
+                                <!-- New Password -->
                                 <div>
-                                    <label for="password" class="label-arabic">
-                                        كلمة المرور الجديدة
+                                    <label :for="'password'" class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ __('common.new_password') }}
                                     </label>
                                     <input
                                         id="password"
                                         v-model="passwordForm.password"
                                         type="password"
-                                        class="input-arabic"
-                                        :class="passwordForm.errors.password ? 'border-red-300' : ''"
+                                        :class="[
+                                            'w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+                                            isRTL ? 'text-right' : 'text-left',
+                                            passwordForm.errors.password ? 'border-red-300' : ''
+                                        ]"
                                         autocomplete="new-password"
                                     />
                                     <div v-if="passwordForm.errors.password" class="mt-2 text-sm text-red-600">
@@ -223,17 +239,20 @@
                                     </div>
                                 </div>
 
-                                <!-- تأكيد كلمة المرور -->
+                                <!-- Confirm Password -->
                                 <div>
-                                    <label for="password_confirmation" class="label-arabic">
-                                        تأكيد كلمة المرور الجديدة
+                                    <label :for="'password_confirmation'" class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ __('common.confirm_new_password') }}
                                     </label>
                                     <input
                                         id="password_confirmation"
                                         v-model="passwordForm.password_confirmation"
                                         type="password"
-                                        class="input-arabic"
-                                        :class="passwordForm.errors.password_confirmation ? 'border-red-300' : ''"
+                                        :class="[
+                                            'w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+                                            isRTL ? 'text-right' : 'text-left',
+                                            passwordForm.errors.password_confirmation ? 'border-red-300' : ''
+                                        ]"
                                         autocomplete="new-password"
                                     />
                                     <div v-if="passwordForm.errors.password_confirmation" class="mt-2 text-sm text-red-600">
@@ -242,60 +261,60 @@
                                 </div>
                             </div>
 
-                            <!-- زر تحديث كلمة المرور -->
-                            <div class="flex justify-start">
+                            <!-- Submit Button -->
+                            <div :class="isRTL ? 'text-left' : 'text-right'" class="flex justify-end">
                                 <button
                                     type="submit"
                                     :disabled="passwordForm.processing"
-                                    class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center"
+                                    class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50"
                                 >
-                                    <svg v-if="passwordForm.processing" class="animate-spin h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24">
+                                    <svg v-if="passwordForm.processing" :class="isRTL ? 'ml-2' : 'mr-2'" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    تحديث كلمة المرور
+                                    {{ __('common.update_password') }}
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
 
-                <!-- قسم حذف الحساب -->
-                <div class="card-arabic">
-                    <div class="bg-gradient-to-l from-red-500 to-pink-600 px-6 py-4">
-                        <h3 class="text-lg font-semibold text-white">حذف الحساب</h3>
-                        <p class="text-red-100 text-sm">بمجرد حذف حسابك، سيتم حذف جميع موارده وبياناته نهائياً</p>
+                <!-- Delete Account Section -->
+                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                    <div class="bg-gradient-to-r from-red-500 to-pink-600 px-6 py-4">
+                        <h3 class="text-lg font-semibold text-white">{{ __('common.delete_account') }}</h3>
+                        <p class="text-red-100 text-sm">{{ __('common.delete_account_warning') }}</p>
                     </div>
-
+                    
                     <div class="p-6">
                         <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
-                            <div class="flex flex-row-reverse">
+                            <div :class="isRTL ? 'flex-row-reverse' : 'flex'" class="flex">
                                 <div class="flex-shrink-0">
                                     <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                                     </svg>
                                 </div>
-                                <div class="mr-3">
+                                <div :class="isRTL ? 'mr-3' : 'ml-3'">
                                     <h3 class="text-sm font-medium text-red-800">
-                                        تحذير
+                                        {{ __('common.warning') }}
                                     </h3>
                                     <div class="mt-2 text-sm text-red-700">
-                                        <p>بمجرد حذف حسابك، سيتم حذف جميع موارده وبياناته نهائياً. يرجى إدخال كلمة المرور لتأكيد رغبتك في حذف حسابك نهائياً.</p>
+                                        <p>{{ __('common.delete_account_warning') }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex justify-start">
+                        <div :class="isRTL ? 'text-left' : 'text-right'" class="flex justify-end">
                             <button
                                 @click="confirmUserDeletion"
                                 type="button"
-                                class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center"
+                                class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:bg-red-700 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150"
                             >
-                                <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24">
+                                <svg :class="isRTL ? 'ml-2' : 'mr-2'" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
                                 </svg>
-                                حذف الحساب
+                                {{ __('common.delete_account') }}
                             </button>
                         </div>
                     </div>
@@ -303,55 +322,59 @@
             </div>
         </div>
 
-        <!-- نافذة تأكيد الحذف -->
+        <!-- Delete Confirmation Modal -->
         <Modal :show="confirmingUserDeletion" @close="closeModal">
-            <div class="p-6" dir="rtl">
-                <h2 class="text-lg font-medium text-gray-900 text-right">
-                    هل أنت متأكد من رغبتك في حذف حسابك؟
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-gray-900">
+                    {{ __('common.delete_account_confirmation_title') }}
                 </h2>
 
-                <p class="mt-1 text-sm text-gray-600 text-right">
-                    بمجرد حذف حسابك، سيتم حذف جميع موارده وبياناته نهائياً. يرجى إدخال كلمة المرور لتأكيد رغبتك في حذف حسابك نهائياً.
+                <p class="mt-1 text-sm text-gray-600">
+                    {{ __('common.delete_account_confirmation') }}
                 </p>
 
                 <div class="mt-6">
-                    <label for="password" class="sr-only">كلمة المرور</label>
+                    <label :for="'password'" class="sr-only">{{ __('auth.password') }}</label>
                     <input
                         id="password"
                         ref="passwordInput"
                         v-model="deleteForm.password"
                         type="password"
-                        class="input-arabic w-3/4"
-                        :class="deleteForm.errors.password ? 'border-red-300' : ''"
-                        placeholder="كلمة المرور"
+                        :class="[
+                            'mt-1 block w-3/4 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+                            isRTL ? 'text-right' : 'text-left',
+                            deleteForm.errors.password ? 'border-red-300' : ''
+                        ]"
+                        :placeholder="__('auth.password')"
                         @keyup.enter="deleteUser"
                     />
 
-                    <div v-if="deleteForm.errors.password" class="mt-2 text-sm text-red-600 text-right">
+                    <div v-if="deleteForm.errors.password" class="mt-2 text-sm text-red-600">
                         {{ deleteForm.errors.password }}
                     </div>
                 </div>
 
-                <div class="mt-6 flex justify-start space-x-3 space-x-reverse">
+                <div class="mt-6 flex justify-end">
                     <button
                         @click="closeModal"
                         type="button"
-                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-all duration-200"
+                        class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                        إلغاء
+                        {{ __('common.cancel') }}
                     </button>
 
                     <button
                         @click="deleteUser"
                         type="button"
                         :disabled="deleteForm.processing"
-                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-all duration-200 flex items-center disabled:opacity-50"
+                        :class="isRTL ? 'mr-3' : 'ml-3'"
+                        class="inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
                     >
-                        <svg v-if="deleteForm.processing" class="animate-spin h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24">
+                        <svg v-if="deleteForm.processing" :class="isRTL ? 'ml-2' : 'mr-2'" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        حذف الحساب
+                        {{ __('common.delete_account') }}
                     </button>
                 </div>
             </div>
@@ -383,10 +406,8 @@ const props = defineProps({
     }
 });
 
-const { __, isRTL } = useTranslations();
+const { __, isRTL, direction } = useTranslations();
 const page = usePage();
-
-
 
 const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);

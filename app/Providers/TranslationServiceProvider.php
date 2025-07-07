@@ -47,6 +47,33 @@ class TranslationServiceProvider extends ServiceProvider
                     }
                 }
                 
+                // Load app translations
+                $appFile = resource_path("lang/{$locale}/app.php");
+                if (file_exists($appFile)) {
+                    $appTranslations = include $appFile;
+                    foreach ($appTranslations as $key => $value) {
+                        $translations["app.{$key}"] = $value;
+                    }
+                }
+                
+                // Load validation translations
+                $validationFile = resource_path("lang/{$locale}/validation.php");
+                if (file_exists($validationFile)) {
+                    $validationTranslations = include $validationFile;
+                    foreach ($validationTranslations as $key => $value) {
+                        $translations["validation.{$key}"] = $value;
+                    }
+                }
+                
+                // Load pagination translations
+                $paginationFile = resource_path("lang/{$locale}/pagination.php");
+                if (file_exists($paginationFile)) {
+                    $paginationTranslations = include $paginationFile;
+                    foreach ($paginationTranslations as $key => $value) {
+                        $translations["pagination.{$key}"] = $value;
+                    }
+                }
+                
                 return $translations;
             },
         ]);

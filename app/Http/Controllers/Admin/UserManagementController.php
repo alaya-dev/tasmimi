@@ -17,47 +17,23 @@ class UserManagementController extends Controller
     public function index(Request $request)
     {
         $query = User::query();
-        $currentUser = auth()->user();
-
-        // Restrictions selon le rôle :
-        // Admin : peut voir seulement les clients
-        // Super_Admin : peut voir tous les utilisateurs
-        if ($currentUser->isAdmin() && !$currentUser->isSuperAdmin()) {
-            $query->where('role', User::ROLE_CLIENT);
-        }
 
         // Filtrer par rôle si spécifié
         if ($request->has('role') && $request->role !== '') {
             $query->where('role', $request->role);
         }
 
-        // Recherche par nom ou email
+        // Recherche par email
         if ($request->has('search') && $request->search !== '') {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%');
-            });
+            $query->where('email', 'like', '%' . $request->search . '%');
         }
 
         $users = $query->paginate(10)->withQueryString();
 
-        // Définir les rôles disponibles selon les permissions
-        $availableRoles = User::getRoles();
-        if ($currentUser->isAdmin() && !$currentUser->isSuperAdmin()) {
-            // Admin ne peut voir que les clients
-            $availableRoles = [User::ROLE_CLIENT];
-        }
-
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
             'filters' => $request->only(['role', 'search']),
-            'roles' => $availableRoles,
-            'userPermissions' => [
-                'canAddUsers' => $currentUser->isSuperAdmin(),
-                'canEditAdmins' => $currentUser->isSuperAdmin(),
-                'canDeleteClients' => true, // Admin et Super_Admin peuvent supprimer des clients
-                'canDeleteAdmins' => $currentUser->isSuperAdmin(),
-            ],
+            'roles' => User::getRoles(),
         ]);
     }
 
@@ -66,13 +42,6 @@ class UserManagementController extends Controller
      */
     public function create()
     {
-        $currentUser = auth()->user();
-
-        // Only Super_Admin can create users
-        if (!$currentUser->isSuperAdmin()) {
-            abort(403, 'Only a Super Admin can add users.');
-        }
-
         return Inertia::render('Admin/Users/Create', [
             'roles' => User::getRoles(),
         ]);
@@ -83,27 +52,18 @@ class UserManagementController extends Controller
      */
     public function store(Request $request)
     {
-        $currentUser = auth()->user();
-
-        // Only Super_Admin can create users
-        if (!$currentUser->isSuperAdmin()) {
-            abort(403, 'Only a Super Admin can add users.');
-        }
-
         $request->validate([
-            'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => 'required|in:' . implode(',', User::getRoles()),
         ]);
 
-        // Check permissions
-        if ($request->role === User::ROLE_SUPER_ADMIN && !$currentUser->isSuperAdmin()) {
-            abort(403, 'Only a Super Admin can create another Super Admin.');
+        // Vérifier les permissions
+        if ($request->role === User::ROLE_SUPER_ADMIN && !auth()->user()->isSuperAdmin()) {
+            abort(403, __('common.only_super_admin_can_create_super_admin'));
         }
 
         User::create([
-            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
@@ -111,7 +71,7 @@ class UserManagementController extends Controller
         ]);
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'تم إنشاء المستخدم بنجاح');
+            ->with('success', __('common.user_created_successfully'));
     }
 
     /**
@@ -119,17 +79,9 @@ class UserManagementController extends Controller
      */
     public function edit(User $user)
     {
-        $currentUser = auth()->user();
-
-        // Admin cannot edit admins or super_admins
-        if ($currentUser->isAdmin() && !$currentUser->isSuperAdmin() &&
-            ($user->isAdmin() || $user->isSuperAdmin())) {
-            abort(403, 'You cannot edit this user.');
-        }
-
-        // Only Super Admin can edit other Super Admins (but Super Admin can edit everyone)
-        if ($user->isSuperAdmin() && !$currentUser->isSuperAdmin()) {
-            abort(403, 'Only a Super Admin can edit another Super Admin.');
+        // Vérifier les permissions
+        if ($user->isSuperAdmin() && !auth()->user()->isSuperAdmin()) {
+            abort(403, __('common.only_super_admin_can_edit_super_admin'));
         }
 
         return Inertia::render('Admin/Users/Edit', [
@@ -143,33 +95,23 @@ class UserManagementController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $currentUser = auth()->user();
-
-        // Admin cannot edit admins or super_admins
-        if ($currentUser->isAdmin() && !$currentUser->isSuperAdmin() &&
-            ($user->isAdmin() || $user->isSuperAdmin())) {
-            abort(403, 'You cannot edit this user.');
-        }
-
-        // Only Super Admin can edit other Super Admins (but Super Admin can edit everyone)
-        if ($user->isSuperAdmin() && !$currentUser->isSuperAdmin()) {
-            abort(403, 'Only a Super Admin can edit another Super Admin.');
+        // Vérifier les permissions
+        if ($user->isSuperAdmin() && !auth()->user()->isSuperAdmin()) {
+            abort(403, __('common.only_super_admin_can_edit_super_admin'));
         }
 
         $request->validate([
-            'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:users,email,' . $user->id,
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             'role' => 'required|in:' . implode(',', User::getRoles()),
         ]);
 
-        // Check permissions for role change
+        // Vérifier les permissions pour le changement de rôle
         if ($request->role === User::ROLE_SUPER_ADMIN && !auth()->user()->isSuperAdmin()) {
-            abort(403, 'Only a Super Admin can assign the Super Admin role.');
+            abort(403, __('common.only_super_admin_can_assign_super_admin_role'));
         }
 
         $data = [
-            'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
         ];
@@ -181,7 +123,7 @@ class UserManagementController extends Controller
         $user->update($data);
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'تم تحديث المستخدم بنجاح');
+            ->with('success', __('common.user_updated_successfully'));
     }
 
     /**
@@ -189,27 +131,19 @@ class UserManagementController extends Controller
      */
     public function destroy(User $user)
     {
-        $currentUser = auth()->user();
-
-        // Admin can only delete clients
-        if ($currentUser->isAdmin() && !$currentUser->isSuperAdmin() &&
-            ($user->isAdmin() || $user->isSuperAdmin())) {
-            abort(403, 'You can only delete clients.');
+        // Vérifier les permissions
+        if ($user->isSuperAdmin() && !auth()->user()->isSuperAdmin()) {
+            abort(403, __('common.only_super_admin_can_delete_super_admin'));
         }
 
-        // Super_Admin can delete admins and clients
-        if ($user->isSuperAdmin() && !$currentUser->isSuperAdmin()) {
-            abort(403, 'Only a Super Admin can delete another Super Admin.');
-        }
-
-        // Prevent deletion of own account
+        // Empêcher la suppression de son propre compte
         if ($user->id === auth()->id()) {
-            abort(403, 'You cannot delete your own account.');
+            abort(403, __('common.cannot_delete_own_account'));
         }
 
         $user->delete();
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'تم حذف المستخدم بنجاح');
+            ->with('success', __('common.user_deleted_successfully'));
     }
 }

@@ -138,8 +138,5 @@ return [
     'edit_user_description' => 'Update user information and permissions',
     'new_password_optional' => 'New Password (leave blank to keep current)',
     'view_contact_details_description' => 'View and manage contact information',
-    'user_created_successfully' => 'User created successfully',
-    'user_updated_successfully' => 'User updated successfully',
-    'user_deleted_successfully' => 'User deleted successfully',
 
 ];

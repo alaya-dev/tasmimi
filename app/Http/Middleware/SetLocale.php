@@ -18,13 +18,8 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next)
     {
-        // Get locale from session, URL parameter, or default to 'en'
-        $locale = $request->get('locale') ?? Session::get('locale') ?? 'en';
-        
-        // Validate locale
-        if (!in_array($locale, ['en', 'ar'])) {
-            $locale = 'en';
-        }
+        // Force Arabic locale for the entire application
+        $locale = 'ar';
         
         // Set the locale
         App::setLocale($locale);

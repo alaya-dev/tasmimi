@@ -14,32 +14,32 @@ class CreateSuperAdmin extends Command
      *
      * @var string
      */
-    protected $signature = 'bitaqati:create-super-admin
-                            {--name= : The Super Admin name}
-                            {--email= : The Super Admin email}
-                            {--password= : The Super Admin password}';
+    protected $signature = 'bitaqati:create-super-admin 
+                            {--name= : Le nom du Super Admin}
+                            {--email= : L\'email du Super Admin}
+                            {--password= : Le mot de passe du Super Admin}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a Super Administrator account for Bitaqati';
+    protected $description = 'Créer un compte Super Administrateur pour Bitaqati';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $this->info('=== Creating Super Administrator ===');
+        $this->info('=== Création d\'un Super Administrateur ===');
         $this->newLine();
 
-        // Get data from options or ask user
-        $name = $this->option('name') ?: $this->ask('Super Admin Name');
-        $email = $this->option('email') ?: $this->ask('Super Admin Email');
-        $password = $this->option('password') ?: $this->secret('Super Admin Password');
+        // Récupérer les données depuis les options ou demander à l'utilisateur
+        $name = $this->option('name') ?: $this->ask('Nom du Super Admin');
+        $email = $this->option('email') ?: $this->ask('Email du Super Admin');
+        $password = $this->option('password') ?: $this->secret('Mot de passe du Super Admin');
 
-        // Validate data
+        // Valider les données
         $validator = Validator::make([
             'name' => $name,
             'email' => $email,
@@ -51,28 +51,28 @@ class CreateSuperAdmin extends Command
         ]);
 
         if ($validator->fails()) {
-            $this->error('Validation errors:');
+            $this->error('Erreurs de validation :');
             foreach ($validator->errors()->all() as $error) {
                 $this->error('- ' . $error);
             }
             return Command::FAILURE;
         }
 
-        // Check if a Super Admin already exists
+        // Vérifier s'il existe déjà un Super Admin
         $existingSuperAdmin = User::where('role', User::ROLE_SUPER_ADMIN)->first();
         if ($existingSuperAdmin) {
-            $this->warn('A Super Admin already exists:');
-            $this->line('Name: ' . $existingSuperAdmin->name);
+            $this->warn('Un Super Admin existe déjà :');
+            $this->line('Nom: ' . $existingSuperAdmin->name);
             $this->line('Email: ' . $existingSuperAdmin->email);
             $this->newLine();
-
-            if (!$this->confirm('Do you want to create another Super Admin?')) {
-                $this->info('Operation cancelled.');
+            
+            if (!$this->confirm('Voulez-vous créer un autre Super Admin ?')) {
+                $this->info('Opération annulée.');
                 return Command::SUCCESS;
             }
         }
 
-        // Create the Super Admin
+        // Créer le Super Admin
         try {
             $superAdmin = User::create([
                 'name' => $name,
@@ -83,20 +83,20 @@ class CreateSuperAdmin extends Command
             ]);
 
             $this->newLine();
-            $this->info('✅ Super Admin created successfully!');
+            $this->info('✅ Super Admin créé avec succès !');
             $this->newLine();
-            $this->line('Account details:');
+            $this->line('Détails du compte :');
             $this->line('ID: ' . $superAdmin->id);
-            $this->line('Name: ' . $superAdmin->name);
+            $this->line('Nom: ' . $superAdmin->name);
             $this->line('Email: ' . $superAdmin->email);
-            $this->line('Role: ' . $superAdmin->role);
-            $this->line('Created at: ' . $superAdmin->created_at->format('Y-m-d H:i:s'));
+            $this->line('Rôle: ' . $superAdmin->role);
+            $this->line('Créé le: ' . $superAdmin->created_at->format('d/m/Y H:i:s'));
             $this->newLine();
-            $this->info('The Super Admin can now log in to the administration interface.');
+            $this->info('Le Super Admin peut maintenant se connecter à l\'interface d\'administration.');
 
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Error creating Super Admin:');
+            $this->error('Erreur lors de la création du Super Admin :');
             $this->error($e->getMessage());
             return Command::FAILURE;
         }
