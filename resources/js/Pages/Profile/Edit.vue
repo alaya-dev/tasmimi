@@ -1,5 +1,5 @@
 <template>
-    <Head title="الملف الشخصي" />
+    <Head title="الملف الشخصي - Bitaqati" />
 
     <AdminLayoutSidebar>
         <template #breadcrumb>
@@ -9,8 +9,8 @@
         <template #header>
             <div class="flex justify-between items-center flex-row-reverse">
                 <div class="text-right">
-                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">الملف الشخصي</h2>
-                    <p class="mt-1 text-sm text-gray-600">إدارة إعدادات حسابك وتفضيلاتك</p>
+                    <h2 class="font-semibold text-xl text-gray-800 leading-tight text-right">الملف الشخصي</h2>
+                    <p class="mt-1 text-sm text-gray-600 text-right">إدارة إعدادات حسابك وتفضيلاتك</p>
                 </div>
             </div>
         </template>
@@ -19,7 +19,7 @@
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <!-- قسم معلومات الملف الشخصي -->
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 text-right">
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 text-center">
                         <h3 class="text-lg font-semibold text-white">معلومات الملف الشخصي</h3>
                         <p class="text-blue-100 text-sm">تحديث معلومات ملفك الشخصي وعنوان البريد الإلكتروني</p>
                     </div>
@@ -28,10 +28,12 @@
                         <form @submit.prevent="updateProfile" class="space-y-6">
                             <!-- Profile Image Section -->
                             <div class="mb-6">
-                                <label class="block text-sm font-medium text-gray-700 mb-2 text-right">
-                                    صورة الملف الشخصي
-                                </label>
-                                <div class="flex items-center space-x-6 flex-row-reverse">
+                                <div class="mb-3" style="text-align: right !important;">
+                                    <label class="text-sm font-medium text-gray-700" style="text-align: right !important; display: block;">
+                                        صورة الملف الشخصي
+                                    </label>
+                                </div>
+                                <div class="flex items-center gap-6 flex-row-reverse">
                                     <div class="shrink-0">
                                         <img 
                                             v-if="imagePreview || $page.props.auth.user.image" 
@@ -45,7 +47,7 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="flex-1 text-right">
+                                    <div class="flex-1">
                                         <input
                                             ref="imageInput"
                                             type="file"
@@ -53,21 +55,23 @@
                                             @change="handleImageUpload"
                                             class="hidden"
                                         />
-                                        <button
-                                            type="button"
-                                            @click="$refs.imageInput.click()"
-                                            class="bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ml-3"
-                                        >
-                                            تغيير الصورة
-                                        </button>
-                                        <button
-                                            v-if="$page.props.auth.user.image || imagePreview"
-                                            type="button"
-                                            @click="removeImage"
-                                            class="bg-red-600 py-2 px-3 border border-transparent rounded-md shadow-sm text-sm leading-4 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                                        >
-                                            إزالة الصورة
-                                        </button>
+                                        <div class="flex gap-3 justify-end mb-4 flex-row-reverse">
+                                            <button
+                                                type="button"
+                                                @click="$refs.imageInput.click()"
+                                                class="bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                            >
+                                                تغيير الصورة
+                                            </button>
+                                            <button
+                                                v-if="$page.props.auth.user.image || imagePreview"
+                                                type="button"
+                                                @click="removeImage"
+                                                class="bg-red-600 py-2 px-3 border border-transparent rounded-md shadow-sm text-sm leading-4 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                            >
+                                                إزالة الصورة
+                                            </button>
+                                        </div>
                                         <p class="mt-2 text-sm text-gray-500 text-right">
                                             JPG, GIF أو PNG. حد أقصى 2MB.
                                         </p>
@@ -81,16 +85,18 @@
                             <div class="grid grid-cols-1 gap-6">
                                 <!-- Email Field -->
                                 <div>
-                                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2 text-right">
-                                        البريد الإلكتروني
-                                    </label>
+                                    <div class="mb-3" style="text-align: right !important;">
+                                        <label for="email" class="text-sm font-medium text-gray-700" style="text-align: right !important; display: block;">
+                                            البريد الإلكتروني
+                                        </label>
+                                    </div>
                                     <input
                                         id="email"
                                         v-model="profileForm.email"
                                         type="email"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        style="text-align: right !important; direction: rtl !important;"
                                         required
-                                        dir="rtl"
                                     />
                                     <div v-if="profileForm.errors.email" class="mt-2 text-sm text-red-600 text-right">
                                         {{ profileForm.errors.email }}
@@ -99,15 +105,15 @@
                             </div>
 
                             <!-- Submit Button -->
-                            <div class="flex justify-end">
+                            <div class="flex justify-center">
                                 <button
                                     type="submit"
                                     :disabled="profileForm.processing"
                                     class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50"
                                 >
-                                    <svg v-if="profileForm.processing" class="animate-spin h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24">
+                                    <svg v-if="profileForm.processing" class="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
                                     حفظ التغييرات
                                 </button>
@@ -118,7 +124,7 @@
 
                 <!-- قسم تحديث كلمة المرور -->
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="bg-gradient-to-r from-green-500 to-teal-600 px-6 py-4 text-right">
+                    <div class="bg-gradient-to-r from-green-500 to-teal-600 px-6 py-4 text-center">
                         <h3 class="text-lg font-semibold text-white">تحديث كلمة المرور</h3>
                         <p class="text-green-100 text-sm">تأكد من أن حسابك يستخدم كلمة مرور طويلة وعشوائية للبقاء آمناً</p>
                     </div>
@@ -128,16 +134,19 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <!-- Current Password -->
                                 <div class="md:col-span-2">
-                                    <label for="current_password" class="block text-sm font-medium text-gray-700 mb-2 text-right">
-                                        كلمة المرور الحالية
-                                    </label>
+                                    <div class="mb-3" style="text-align: right !important;">
+                                        <label for="current_password" class="text-sm font-medium text-gray-700" style="text-align: right !important; display: block;">
+                                            كلمة المرور الحالية
+                                        </label>
+                                    </div>
                                     <input
                                         id="current_password"
                                         v-model="passwordForm.current_password"
                                         type="password"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        style="text-align: right !important; direction: rtl !important;"
                                         autocomplete="current-password"
-                                        dir="rtl"
+                                        placeholder="أدخل كلمة المرور الحالية"
                                     />
                                     <div v-if="passwordForm.errors.current_password" class="mt-2 text-sm text-red-600 text-right">
                                         {{ passwordForm.errors.current_password }}
@@ -146,16 +155,19 @@
 
                                 <!-- New Password -->
                                 <div>
-                                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2 text-right">
-                                        كلمة المرور الجديدة
-                                    </label>
+                                    <div class="mb-3" style="text-align: right !important;">
+                                        <label for="password" class="text-sm font-medium text-gray-700" style="text-align: right !important; display: block;">
+                                            كلمة المرور الجديدة
+                                        </label>
+                                    </div>
                                     <input
                                         id="password"
                                         v-model="passwordForm.password"
                                         type="password"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        style="text-align: right !important; direction: rtl !important;"
                                         autocomplete="new-password"
-                                        dir="rtl"
+                                        placeholder="أدخل كلمة المرور الجديدة"
                                     />
                                     <div v-if="passwordForm.errors.password" class="mt-2 text-sm text-red-600 text-right">
                                         {{ passwordForm.errors.password }}
@@ -164,16 +176,19 @@
 
                                 <!-- Confirm Password -->
                                 <div>
-                                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2 text-right">
-                                        تأكيد كلمة المرور الجديدة
-                                    </label>
+                                    <div class="mb-3" style="text-align: right !important;">
+                                        <label for="password_confirmation" class="text-sm font-medium text-gray-700" style="text-align: right !important; display: block;">
+                                            تأكيد كلمة المرور الجديدة
+                                        </label>
+                                    </div>
                                     <input
                                         id="password_confirmation"
                                         v-model="passwordForm.password_confirmation"
                                         type="password"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        style="text-align: right !important; direction: rtl !important;"
                                         autocomplete="new-password"
-                                        dir="rtl"
+                                        placeholder="أعد إدخال كلمة المرور الجديدة"
                                     />
                                     <div v-if="passwordForm.errors.password_confirmation" class="mt-2 text-sm text-red-600 text-right">
                                         {{ passwordForm.errors.password_confirmation }}
@@ -182,15 +197,15 @@
                             </div>
 
                             <!-- Submit Button -->
-                            <div class="flex justify-end">
+                            <div class="flex justify-center">
                                 <button
                                     type="submit"
                                     :disabled="passwordForm.processing"
                                     class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50"
                                 >
-                                    <svg v-if="passwordForm.processing" class="animate-spin h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24">
+                                    <svg v-if="passwordForm.processing" class="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
                                     تحديث كلمة المرور
                                 </button>
@@ -201,7 +216,7 @@
 
                 <!-- Delete Account Section -->
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="bg-gradient-to-r from-red-500 to-pink-600 px-6 py-4 text-right">
+                    <div class="bg-gradient-to-r from-red-500 to-pink-600 px-6 py-4 text-center">
                         <h3 class="text-lg font-semibold text-white">حذف الحساب</h3>
                         <p class="text-red-100 text-sm">بمجرد حذف حسابك، سيتم حذف جميع موارده وبياناته نهائياً</p>
                     </div>
@@ -225,7 +240,7 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-end">
+                        <div class="flex justify-center">
                             <button
                                 @click="confirmUserDeletion"
                                 type="button"
@@ -250,7 +265,7 @@
                 </h2>
 
                 <p class="mt-1 text-sm text-gray-600 text-right">
-                    بمجرد حذف حسابك، سيتم حذف جميع موارده وبياناته نهائياً. يرجى إدخال كلمة المرور لتأكيد رغبتك في حذف حسابك نهائياً.
+                    بمجرد حذف حس��بك، سيتم حذف جميع موارده وبياناته نهائياً. يرجى إدخال كلمة المرور لتأكيد رغبتك في حذف حسابك نهائياً.
                 </p>
 
                 <div class="mt-6">
@@ -260,10 +275,11 @@
                         ref="passwordInput"
                         v-model="deleteForm.password"
                         type="password"
-                        class="mt-1 block w-3/4 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                        class="mt-1 block w-3/4 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         placeholder="كلمة المرور"
                         @keyup.enter="deleteUser"
                         dir="rtl"
+                        style="text-align: right !important; direction: rtl !important;"
                     />
 
                     <div v-if="deleteForm.errors.password" class="mt-2 text-sm text-red-600 text-right">
@@ -286,9 +302,9 @@
                         :disabled="deleteForm.processing"
                         class="inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
                     >
-                        <svg v-if="deleteForm.processing" class="animate-spin h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24">
+                        <svg v-if="deleteForm.processing" class="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                         حذف الحساب
                     </button>
@@ -304,6 +320,7 @@ import { Head, useForm, router, usePage } from '@inertiajs/vue3';
 import AdminLayoutSidebar from '@/Layouts/AdminLayoutSidebar.vue';
 import Modal from '@/Components/Modal.vue';
 import { useTranslations } from '@/Composables/useTranslations';
+
 
 const props = defineProps({
     mustVerifyEmail: {

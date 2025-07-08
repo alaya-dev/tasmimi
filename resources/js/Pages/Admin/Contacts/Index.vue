@@ -22,12 +22,12 @@
             </div>
         </template>
 
-        <div class="py-12">
+        <div class="py-12" dir="rtl">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <!-- Filtres -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                     <div class="p-6">
-                        <form @submit.prevent="search" class="flex flex-wrap gap-4">
+                        <form @submit.prevent="search" class="flex flex-wrap gap-4 flex-row-reverse">
                             <div class="flex-1 min-w-64">
                                 <input
                                     v-model="form.search"
@@ -68,13 +68,13 @@
 
                 <!-- Liste des contacts -->
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 text-right">
                         <h3 class="text-lg font-semibold text-white">{{ __('common.contacts') }}</h3>
                         <p class="text-blue-100 text-sm">{{ __('common.manage_contacts_description') }}</p>
                     </div>
                     
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200" dir="rtl">
                             <thead class="bg-gray-50">
                                 <tr>
 
@@ -175,26 +175,26 @@
 
                     <!-- Pagination -->
                     <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1 flex justify-between sm:hidden">
-                                <Link
-                                    v-if="contacts.prev_page_url"
-                                    :href="contacts.prev_page_url"
-                                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                                >
-                                    {{ __('common.previous') }}
-                                </Link>
+                        <div class="flex items-center justify-between flex-row-reverse">
+                            <div class="flex-1 flex justify-between sm:hidden flex-row-reverse">
                                 <Link
                                     v-if="contacts.next_page_url"
                                     :href="contacts.next_page_url"
-                                    class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                                 >
                                     {{ __('common.next') }}
                                 </Link>
+                                <Link
+                                    v-if="contacts.prev_page_url"
+                                    :href="contacts.prev_page_url"
+                                    class="mr-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                >
+                                    {{ __('common.previous') }}
+                                </Link>
                             </div>
-                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between flex-row-reverse">
                                 <div>
-                                    <p class="text-sm text-gray-700">
+                                    <p class="text-sm text-gray-700 text-right">
                                         {{ __('common.show') }}
                                         <span class="font-medium">{{ contacts.from }}</span>
                                         {{ __('common.to') }}
