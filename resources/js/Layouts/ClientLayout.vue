@@ -34,7 +34,7 @@
                             الأسعار
                             <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
                         </NavLink>
-                        <NavLink :href="route('client.contact')" :active="route().current('client.contact')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
+                        <NavLink v-if="$page.props.auth.user" :href="route('client.contact')" :active="route().current('client.contact')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
                             اتصل بنا
                             <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
                         </NavLink>
@@ -132,9 +132,12 @@
                     <MobileNavLink :href="route('client.pricing')" :active="route().current('client.pricing')">
                         {{ __('client.pricing') }}
                     </MobileNavLink>
-                    <MobileNavLink :href="route('client.contact')" :active="route().current('client.contact')">
-                        اتصل بنا
-                    </MobileNavLink>
+
+                    <div v-if="$page.props.auth.user" class="pt-2 border-t border-gray-200">
+                        <MobileNavLink :href="route('client.contact')" :active="route().current('client.contact')">
+                            اتصل بنا
+                        </MobileNavLink>
+                    </div>
                     
                     <div v-if="!$page.props.auth.user" class="pt-4 border-t border-gray-200">
                         <MobileNavLink :href="route('login')">
@@ -225,13 +228,13 @@
                                 </svg>
                                 الأسعار
                             </Link></li>
-                            <li><Link :href="route('client.my-designs')" class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center group">
+                            <li v-if="$page.props.auth.user"><Link :href="route('client.my-designs')" class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center group">
                                 <svg class="w-4 h-4 mr-2 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                                 </svg>
                                 تصاميمي
                             </Link></li>
-                            <li><Link :href="route('client.contact')" class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center group">
+                            <li v-if="$page.props.auth.user"><Link :href="route('client.contact')" class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center group">
                                 <svg class="w-4 h-4 mr-2 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                                 </svg>

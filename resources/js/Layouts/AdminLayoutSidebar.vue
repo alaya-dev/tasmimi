@@ -186,18 +186,34 @@
                             البطاقات الذكية
                         </h3>
                         <div class="mt-2 space-y-1">
-                            <a href="#" class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 text-right">
+                            <Link
+                                :href="route('admin.templates.index')"
+                                :class="[
+                                    'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-right',
+                                    route().current('admin.templates.*')
+                                        ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
+                                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                ]"
+                            >
                                 <span class="text-right flex-1">القوالب</span>
                                 <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
                                 </svg>
-                            </a>
-                            <a href="#" class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 text-right">
-                                <span class="text-right flex-1">أدوات التصميم</span>
+                            </Link>
+                            <Link
+                                :href="route('admin.categories.index')"
+                                :class="[
+                                    'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-right',
+                                    route().current('admin.categories.*')
+                                        ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
+                                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                ]"
+                            >
+                                <span class="text-right flex-1">الفئات</span>
                                 <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                 </svg>
-                            </a>
+                            </Link>
                         </div>
                     </div>
 

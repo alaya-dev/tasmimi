@@ -73,14 +73,15 @@ Route::prefix('client')->name('client.')->group(function () {
         return Inertia::render('Client/Pricing');
     })->name('pricing');
 
-    Route::get('/contact', [App\Http\Controllers\Client\ContactController::class, 'index'])->name('contact');
-    Route::post('/contact', [App\Http\Controllers\Client\ContactController::class, 'store'])->name('contact.store');
-
-    // Authenticated client routes
-    Route::middleware('auth')->group(function () {
+    // Authenticated client routes (clients only)
+    Route::middleware(['auth', 'client'])->group(function () {
         Route::get('/profile', [ClientProfileController::class, 'show'])->name('profile');
         Route::patch('/profile', [ClientProfileController::class, 'update'])->name('profile.update');
         Route::put('/profile/password', [ClientProfileController::class, 'updatePassword'])->name('password.update');
+
+        // Contact routes (clients only)
+        Route::get('/contact', [App\Http\Controllers\Client\ContactController::class, 'index'])->name('contact');
+        Route::post('/contact', [App\Http\Controllers\Client\ContactController::class, 'store'])->name('contact.store');
 
         Route::get('/my-designs', function () {
             return Inertia::render('Client/MyDesigns', [
@@ -132,6 +133,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     
     // Gestion des contacts/réclamations
     Route::resource('contacts', App\Http\Controllers\Admin\ContactController::class)->except(['create', 'store', 'edit']);
+
+    // Gestion des catégories
+    Route::resource('categories', App\Http\Controllers\Admin\CategoryController::class)->except(['show', 'create', 'edit']);
+
+    // Gestion des templates
+    Route::resource('templates', App\Http\Controllers\Admin\TemplateController::class)->except(['show', 'create', 'edit']);
+    Route::patch('templates/{template}/toggle-status', [App\Http\Controllers\Admin\TemplateController::class, 'toggleStatus'])->name('templates.toggle-status');
 });
 
 require __DIR__.'/auth.php';
