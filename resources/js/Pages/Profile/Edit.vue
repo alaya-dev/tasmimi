@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <Head title="الملف الشخصي - Bitaqati" />
 
     <AdminLayoutSidebar>
@@ -26,62 +26,6 @@
                     
                     <div class="p-6">
                         <form @submit.prevent="updateProfile" class="space-y-6">
-                            <!-- Profile Image Section -->
-                            <div class="mb-6">
-                                <div class="mb-3" style="text-align: right !important;">
-                                    <label class="text-sm font-medium text-gray-700" style="text-align: right !important; display: block;">
-                                        صورة الملف الشخصي
-                                    </label>
-                                </div>
-                                <div class="flex items-center gap-6 flex-row-reverse">
-                                    <div class="shrink-0">
-                                        <img 
-                                            v-if="imagePreview || $page.props.auth.user.image" 
-                                            :src="imagePreview || $page.props.auth.user.image" 
-                                            :alt="$page.props.auth.user.email"
-                                            class="h-20 w-20 object-cover rounded-full border-2 border-gray-300"
-                                        />
-                                        <div v-else class="h-20 w-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center border-2 border-gray-300">
-                                            <span class="text-white font-semibold text-xl">
-                                                {{ $page.props.auth.user.email.charAt(0).toUpperCase() }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="flex-1">
-                                        <input
-                                            ref="imageInput"
-                                            type="file"
-                                            accept="image/*"
-                                            @change="handleImageUpload"
-                                            class="hidden"
-                                        />
-                                        <div class="flex gap-3 justify-end mb-4 flex-row-reverse">
-                                            <button
-                                                type="button"
-                                                @click="$refs.imageInput.click()"
-                                                class="bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                            >
-                                                تغيير الصورة
-                                            </button>
-                                            <button
-                                                v-if="$page.props.auth.user.image || imagePreview"
-                                                type="button"
-                                                @click="removeImage"
-                                                class="bg-red-600 py-2 px-3 border border-transparent rounded-md shadow-sm text-sm leading-4 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                                            >
-                                                إزالة الصورة
-                                            </button>
-                                        </div>
-                                        <p class="mt-2 text-sm text-gray-500 text-right">
-                                            JPG, GIF أو PNG. حد أقصى 2MB.
-                                        </p>
-                                    </div>
-                                </div>
-                                <div v-if="profileForm.errors.image" class="mt-2 text-sm text-red-600 text-right">
-                                    {{ profileForm.errors.image }}
-                                </div>
-                            </div>
-
                             <div class="grid grid-cols-1 gap-6">
                                 <!-- Email Field -->
                                 <div>
@@ -316,12 +260,9 @@
 
 <script setup>
 import { ref, nextTick } from 'vue';
-import { Head, useForm, router, usePage } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import AdminLayoutSidebar from '@/Layouts/AdminLayoutSidebar.vue';
 import Modal from '@/Components/Modal.vue';
-import { useTranslations } from '@/Composables/useTranslations';
-
-
 const props = defineProps({
     mustVerifyEmail: {
         type: Boolean,
@@ -338,20 +279,14 @@ const props = defineProps({
         default: () => ({})
     }
 });
-
-const { __, isRTL, direction } = useTranslations();
 const page = usePage();
 
 const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);
-const imagePreview = ref(null);
-const imageInput = ref(null);
 
 // Profile form
 const profileForm = useForm({
     email: page.props.auth.user.email || '',
-    image: null,
-    remove_image: false,
 });
 
 // Password form
@@ -366,58 +301,12 @@ const deleteForm = useForm({
     password: '',
 });
 
-const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        profileForm.image = file;
-        
-        // Create preview
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            imagePreview.value = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-};
 
-const removeImage = () => {
-    profileForm.image = null;
-    profileForm.remove_image = true;
-    imagePreview.value = null;
-    if (imageInput.value) {
-        imageInput.value.value = '';
-    }
-    
-    // Submit the form to remove the image
-    profileForm.patch(route('profile.update'), {
-        preserveScroll: true,
-        onSuccess: () => {
-            profileForm.remove_image = false;
-        },
-    });
-};
 
 const updateProfile = () => {
-    if (profileForm.image) {
-        // Si il y a une image, utiliser POST avec _method=PATCH
-        profileForm.transform((data) => ({
-            ...data,
-            _method: 'PATCH'
-        })).post(route('profile.update'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                imagePreview.value = null;
-            },
-        });
-    } else {
-        // Sinon utiliser PATCH normal
-        profileForm.patch(route('profile.update'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                imagePreview.value = null;
-            },
-        });
-    }
+    profileForm.patch(route('profile.update'), {
+        preserveScroll: true,
+    });
 };
 
 const updatePassword = () => {
@@ -437,9 +326,7 @@ const updatePassword = () => {
     });
 };
 
-const sendVerification = () => {
-    router.post(route('verification.send'));
-};
+
 
 const confirmUserDeletion = () => {
     confirmingUserDeletion.value = true;

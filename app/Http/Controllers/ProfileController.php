@@ -32,30 +32,9 @@ class ProfileController extends Controller
     {
         $validated = $request->validate([
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $request->user()->id],
-            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ]);
 
         $user = $request->user();
-        
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($user->image && str_starts_with($user->image, '/storage/')) {
-                $oldImagePath = str_replace('/storage/', '', $user->image);
-                Storage::disk('public')->delete($oldImagePath);
-            }
-            
-            // Store new image
-            $imagePath = $request->file('image')->store('profile-images', 'public');
-            $validated['image'] = '/storage/' . $imagePath;
-        } elseif ($request->has('remove_image') && $request->remove_image) {
-            // Remove image if requested
-            if ($user->image && str_starts_with($user->image, '/storage/')) {
-                $oldImagePath = str_replace('/storage/', '', $user->image);
-                Storage::disk('public')->delete($oldImagePath);
-            }
-            $validated['image'] = null;
-        }
 
         $user->fill($validated);
 
@@ -65,7 +44,24 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return Redirect::route('profile.edit')->with('success', 'Profile updated successfully.');
+        return Redirect::route('profile.edit')->with('success', 'تم تحديث الملف الشخصي بنجاح.');
+    }
+
+    /**
+     * Update the user's password.
+     */
+    public function updatePassword(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $request->user()->update([
+            'password' => bcrypt($validated['password']),
+        ]);
+
+        return Redirect::route('profile.edit')->with('success', 'تم تحديث كلمة المرور بنجاح.');
     }
 
     /**

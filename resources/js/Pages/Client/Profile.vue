@@ -341,67 +341,7 @@ svp                <!-- Page Header - STRICT RTL -->
                         </div>
 
                         <!-- Account Settings -->
-                        <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                            <div class="px-8 py-6 bg-gradient-to-l from-blue-600 via-indigo-600 to-purple-700">
-                                <div class="text-right">
-                                    <h3 class="text-xl font-bold text-white mb-2 flex items-center justify-end">
-                                        إعدادات الحساب
-                                        <svg class="w-6 h-6 ml-3 text-blue-200" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
-                                        </svg>
-                                    </h3>
-                                    <p class="text-blue-100 text-sm text-right">إدارة تفضيلات حسابك وإعداداتك</p>
-                                </div>
-                            </div>
-                            <div class="p-8">
-                                <div class="space-y-6">
-                                    <div class="flex items-center justify-between p-6 bg-gray-50 rounded-xl border border-gray-200 flex-row-reverse">
-                                        <div class="flex items-center">
-                                            <button
-                                                type="button"
-                                                class="relative inline-flex h-8 w-14 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-300 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                                role="switch"
-                                                aria-checked="false"
-                                            >
-                                                <span class="translate-x-0 pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
-                                            </button>
-                                        </div>
-                                        <div class="text-right flex-1 ml-6">
-                                            <h4 class="text-lg font-bold text-gray-900 mb-1 flex items-center justify-end">
-                                                إشعارات البريد الإلكتروني
-                                                <svg class="w-5 h-5 ml-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                                                </svg>
-                                            </h4>
-                                            <p class="text-sm text-gray-600 text-right">تلقي إشعارات حول طلباتك وتصاميمك عبر البريد الإلكتروني</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex items-center justify-between p-6 bg-gray-50 rounded-xl border border-gray-200 flex-row-reverse">
-                                        <div class="flex items-center">
-                                            <button
-                                                type="button"
-                                                class="relative inline-flex h-8 w-14 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-300 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                                role="switch"
-                                                aria-checked="false"
-                                            >
-                                                <span class="translate-x-0 pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
-                                            </button>
-                                        </div>
-                                        <div class="text-right flex-1 ml-6">
-                                            <h4 class="text-lg font-bold text-gray-900 mb-1 flex items-center justify-end">
-                                                إشعارات الرسائل النصية
-                                                <svg class="w-5 h-5 ml-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                                                </svg>
-                                            </h4>
-                                            <p class="text-sm text-gray-600 text-right">تلقي رسائل نصية للتحديثات المهمة والعاجلة</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>

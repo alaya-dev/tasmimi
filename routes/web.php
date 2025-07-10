@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Client\ProfileController as ClientProfileController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\SubscriptionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -59,6 +60,7 @@ Route::get('/language/current', [LanguageController::class, 'current'])->name('l
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
@@ -69,9 +71,7 @@ Route::prefix('client')->name('client.')->group(function () {
         return Inertia::render('Client/Templates');
     })->name('templates');
 
-    Route::get('/pricing', function () {
-        return Inertia::render('Client/Pricing');
-    })->name('pricing');
+    Route::get('/pricing', [App\Http\Controllers\Client\PricingController::class, 'index'])->name('pricing');
 
     // Authenticated client routes (clients only)
     Route::middleware(['auth', 'client'])->group(function () {
@@ -140,6 +140,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Gestion des templates
     Route::resource('templates', App\Http\Controllers\Admin\TemplateController::class)->except(['show', 'create', 'edit']);
     Route::patch('templates/{template}/toggle-status', [App\Http\Controllers\Admin\TemplateController::class, 'toggleStatus'])->name('templates.toggle-status');
+
+    // Gestion des abonnements (super admin seulement)
+    Route::middleware('super_admin')->group(function () {
+        Route::resource('subscriptions', App\Http\Controllers\SubscriptionController::class)->except(['show', 'create', 'edit']);
+    });
 });
 
 require __DIR__.'/auth.php';
+
+// Route de test pour les abonnements
+Route::get('/test-subscriptions', [App\Http\Controllers\TestController::class, 'testSubscriptions'])->name('test.subscriptions');

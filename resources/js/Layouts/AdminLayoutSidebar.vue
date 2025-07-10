@@ -217,6 +217,29 @@
                         </div>
                     </div>
 
+                    <!-- Subscriptions Section (Super Admin Only) -->
+                    <div v-if="$page.props.auth.user.role === 'super_admin'" class="pt-4">
+                        <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
+                            الاشتراكات
+                        </h3>
+                        <div class="mt-2 space-y-1">
+                            <Link
+                                :href="route('admin.subscriptions.index')"
+                                :class="[
+                                    'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-right',
+                                    route().current('admin.subscriptions.*')
+                                        ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
+                                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                ]"
+                            >
+                                <span class="text-right flex-1">إدارة الاشتراكات</span>
+                                <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                </svg>
+                            </Link>
+                        </div>
+                    </div>
+
                     <!-- Settings Section -->
                     <div class="pt-4">
                         <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
