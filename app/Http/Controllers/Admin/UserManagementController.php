@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\AdminAccountCreated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
@@ -86,12 +87,21 @@ class UserManagementController extends Controller
             abort(403, __('common.only_super_admin_can_create_super_admin'));
         }
 
-        User::create([
+        // Stocker le mot de passe en clair pour l'email
+        $plainPassword = $request->password;
+
+        $user = User::create([
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'email_verified_at' => now(),
         ]);
+
+        // Envoyer l'email avec les informations de compte seulement pour les admins
+        if ($request->role === User::ROLE_ADMIN) {
+            $loginUrl = url('/login');
+            $user->notify(new AdminAccountCreated($plainPassword, $loginUrl));
+        }
 
         return redirect()->route('admin.users.index')
             ->with('success', __('common.user_created_successfully'));
