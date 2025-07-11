@@ -1,11 +1,11 @@
-# Bitaqati - Système de Gestion des Rôles avec Laravel 10 et Vue.js 3
+# سامقة - Système de Gestion des Rôles avec Laravel 10 et Vue.js 3
 
 ![Laravel](https://img.shields.io/badge/Laravel-10.x-red.svg)
 ![Vue.js](https://img.shields.io/badge/Vue.js-3.x-green.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1+-blue.svg)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange.svg)
 
-Bitaqati est une application web moderne développée avec Laravel 10 et Vue.js 3, offrant un système complet de gestion des rôles et d'authentification. Le projet implémente une architecture robuste avec trois niveaux de permissions : Super Administrateur, Administrateur et Client.
+سامقة est une application web moderne développée avec Laravel 10 et Vue.js 3, offrant un système complet de gestion des rôles et d'authentification. Le projet implémente une architecture robuste avec trois niveaux de permissions : Super Administrateur, Administrateur et Client.
 
 ## 🚀 Fonctionnalités Principales
 
@@ -174,7 +174,7 @@ MAIL_PORT=1025
 MAIL_USERNAME=null
 MAIL_PASSWORD=null
 MAIL_ENCRYPTION=null
-MAIL_FROM_ADDRESS="hello@bitaqati.com"
+MAIL_FROM_ADDRESS="hello@samqa.com"
 MAIL_FROM_NAME="${APP_NAME}"
 ```
 
@@ -511,8 +511,8 @@ php artisan migrate:fresh --seed
 ```
 
 Comptes de test créés :
-- **Admin** : admin@bitaqati.com / password
-- **Client** : client@bitaqati.com / password
+- **Admin** : admin@samqa.com / password
+- **Client** : client@samqa.com / password
 - **5 clients supplémentaires** générés automatiquement
 
 ## 🚨 Dépannage
@@ -743,7 +743,7 @@ Pour obtenir de l'aide ou signaler des problèmes :
 
 ---
 
-**Bitaqati** - Système de Gestion des Rôles Moderne et Sécurisé
+**سامقة** - Système de Gestion des Rôles Moderne et Sécurisé
 
 *Développé avec ❤️ par Manus AI*
 

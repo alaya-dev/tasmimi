@@ -30,7 +30,7 @@
 - **Problème :** Logo et informations utilisateur mal positionnés
 - **Solution :** 
   - Informations utilisateur (avatar, nom, email, dropdown) déplacées en haut
-  - Logo Bitaqati Admin centré dans une section dédiée
+  - Logo سامقة Admin centré dans une section dédiée
   - Suppression de la section utilisateur du bas
   - Design cohérent avec dégradé bleu-violet
 

@@ -1,5 +1,5 @@
 <template>
-    <Head title="الأسعار - Bitaqati" />
+    <Head title="الأسعار - سامقة" />
 
     <ClientLayout>
         <div class="py-12 bg-gray-50 min-h-screen">

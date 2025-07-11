@@ -16,7 +16,7 @@ return [
     'welcome_subtitle' => 'صمم بطاقات إلكترونية احترافية ومميزة باستخدام أدواتنا المتقدمة',
     'get_started' => 'ابدأ الآن',
     'learn_more' => 'اعرف المزيد',
-    'features_title' => 'لماذا تختار بطاقاتي؟',
+    'features_title' => 'لماذا تختار سامقة؟',
     'feature_easy_title' => 'سهولة الاستخدام',
     'feature_easy_desc' => 'واجهة بسيطة وسهلة تمكنك من إنشاء بطاقاتك في دقائق',
     'feature_templates_title' => 'قوالب متنوعة',

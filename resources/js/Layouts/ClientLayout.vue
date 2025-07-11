@@ -4,45 +4,24 @@
         <nav class="bg-white/95 backdrop-blur-md shadow-xl border-b border-gray-200/50 sticky top-0 z-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-20">
-                    <!-- Logo and Brand -->
+                    <!-- Auth Links (moved to left) -->
                     <div class="flex items-center">
-                        <Link :href="route('client.home')" class="flex items-center group">
-                            <div class="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        <div v-if="!$page.props.auth.user" class="flex items-center space-x-4 space-x-reverse">
+                            <Link :href="route('login')" class="group flex items-center text-gray-700 hover:text-purple-600 font-semibold transition-all duration-200 px-4 py-2 rounded-xl hover:bg-purple-50">
+                                تسجيل الدخول
+                                <svg class="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                                 </svg>
-                            </div>
-                            <span class="text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">بطاقاتي</span>
-                        </Link>
-                    </div>
-
-                    <!-- Desktop Navigation -->
-                    <div class="hidden md:flex items-center space-x-8 space-x-reverse">
-                        <NavLink :href="route('client.home')" :active="route().current('client.home')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
-                            الرئيسية
-                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
-                        </NavLink>
-                        <NavLink :href="route('client.templates')" :active="route().current('client.templates')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
-                            القوالب
-                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
-                        </NavLink>
-                        <NavLink :href="route('client.my-designs')" :active="route().current('client.my-designs')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
-                            تصاميمي
-                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
-                        </NavLink>
-                        <NavLink :href="route('client.pricing')" :active="route().current('client.pricing')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
-                            الأسعار
-                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
-                        </NavLink>
-                        <NavLink v-if="$page.props.auth.user" :href="route('client.contact')" :active="route().current('client.contact')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
-                            اتصل بنا
-                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
-                        </NavLink>
-                    </div>
-
-                    <!-- User Menu / Auth Links -->
-                    <div class="flex items-center">
-                        <div v-if="$page.props.auth.user" class="flex items-center space-x-4 space-x-reverse">
+                            </Link>
+                            <Link :href="route('register')" class="group flex items-center bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-2xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl transform hover:scale-105">
+                                إنشاء حساب
+                                <svg class="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                </svg>
+                            </Link>
+                        </div>
+                        <!-- User menu for authenticated users (moved to left) -->
+                        <div v-else class="flex items-center space-x-4 space-x-reverse">
                             <!-- Cart Icon -->
                             <Link :href="route('client.cart')" class="relative p-3 text-gray-600 hover:text-purple-600 transition-colors duration-200 hover:bg-purple-50 rounded-xl group">
                                 <svg class="w-6 h-6 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,10 +33,10 @@
                             </Link>
 
                             <!-- User Dropdown -->
-                            <Dropdown align="right" width="48">
+                            <Dropdown align="left" width="48">
                                 <template #trigger>
                                     <button class="flex items-center text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors duration-200 group">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mr-2 group-hover:scale-110 transition-transform duration-200">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center ml-2 group-hover:scale-110 transition-transform duration-200">
                                             <span class="text-white font-bold text-lg">{{ $page.props.auth.user.email.charAt(0).toUpperCase() }}</span>
                                         </div>
                                         <svg class="w-5 h-5 group-hover:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,16 +74,42 @@
                                 </template>
                             </Dropdown>
                         </div>
+                    </div>
 
-                        <!-- Guest Links -->
-                        <div v-else class="flex items-center space-x-4 space-x-reverse">
-                            <Link :href="route('login')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 px-4 py-2 rounded-xl hover:bg-purple-50">
-                                تسجيل الدخول
-                            </Link>
-                            <Link :href="route('register')" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-2xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl transform hover:scale-105">
-                                إنشاء حساب
-                            </Link>
-                        </div>
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:flex items-center space-x-8 space-x-reverse flex-1 justify-center">
+                        <NavLink :href="route('client.home')" :active="route().current('client.home')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
+                            الرئيسية
+                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
+                        </NavLink>
+                        <NavLink :href="route('client.templates')" :active="route().current('client.templates')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
+                            القوالب
+                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
+                        </NavLink>
+                        <NavLink :href="route('client.my-designs')" :active="route().current('client.my-designs')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
+                            تصاميمي
+                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
+                        </NavLink>
+                        <NavLink :href="route('client.pricing')" :active="route().current('client.pricing')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
+                            الأسعار
+                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
+                        </NavLink>
+                        <NavLink v-if="$page.props.auth.user" :href="route('client.contact')" :active="route().current('client.contact')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
+                            اتصل بنا
+                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
+                        </NavLink>
+                    </div>
+
+                    <!-- Logo and Brand (moved to right) -->
+                    <div class="flex items-center">
+                        <Link :href="route('client.home')" class="flex items-center group">
+                            <span class="text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent ml-3">سامقة</span>
+                            <div class="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </div>
+                        </Link>
 
                         <!-- Mobile menu button -->
                         <button @click="showMobileMenu = !showMobileMenu" class="md:hidden ml-4 p-2 text-gray-600 hover:text-blue-600">
@@ -181,7 +186,7 @@
                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                 </svg>
                             </div>
-                            <span class="text-3xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">بطاقاتي</span>
+                            <span class="text-3xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">سامقة</span>
                         </div>
                         <p class="text-gray-300 mb-6 text-lg leading-relaxed">
                             منصة متقدمة لإنشاء البطاقات الإلكترونية بتصاميم احترافية ومميزة تعكس هويتك الفريدة
@@ -277,7 +282,7 @@
 
                 <div class="border-t border-white/20 mt-12 pt-8 text-center">
                     <p class="text-gray-300 text-lg">
-                        &copy; {{ new Date().getFullYear() }} <span class="font-bold text-white">بطاقاتي</span> - جميع الحقوق محفوظة
+                        &copy; {{ new Date().getFullYear() }} <span class="font-bold text-white">سامقة</span> - جميع الحقوق محفوظة
                     </p>
                     <p class="text-gray-400 text-sm mt-2">
                         صُنع بـ ❤️ في المملكة العربية السعودية

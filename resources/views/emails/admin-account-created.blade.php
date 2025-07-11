@@ -133,7 +133,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">{{ config('app.name', 'Bitaqati') }}</div>
+            <div class="logo">{{ config('app.name', 'سامقة') }}</div>
             <h1>مرحباً بك في فريق الإدارة</h1>
         </div>
 
@@ -143,7 +143,7 @@
             </p>
 
             <p class="welcome-text">
-             .{{ config('app.name', 'Bitaqati') }}   نحن سعداء لإعلامك بأنه تم إنشاء حساب إداري جديد لك في منصة 
+                نحن سعداء لإعلامك بأنه تم إنشاء حساب إداري جديد لك في منصة {{ config('app.name', 'سامقة') }}.
                 يمكنك الآن الوصول إلى لوحة التحكم الإدارية باستخدام المعلومات التالية:
             </p>
 
@@ -195,12 +195,12 @@
 
             <p>
                 مع أطيب التحيات،<br>
-                فريق {{ config('app.name', 'Bitaqati') }}
+                فريق {{ config('app.name', 'سامقة') }}
             </p>
         </div>
 
         <div class="footer">
-            <p>&copy; {{ date('Y') }} {{ config('app.name', 'Bitaqati') }}. جميع الحقوق محفوظة.</p>
+            <p>&copy; {{ date('Y') }} {{ config('app.name', 'سامقة') }}. جميع الحقوق محفوظة.</p>
             <p>هذا البريد الإلكتروني تم إرساله تلقائياً، يرجى عدم الرد عليه.</p>
         </div>
     </div>

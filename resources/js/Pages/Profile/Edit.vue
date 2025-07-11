@@ -1,5 +1,5 @@
 ﻿<template>
-    <Head title="الملف الشخصي - Bitaqati" />
+    <Head title="الملف الشخصي - سامقة" />
 
     <AdminLayoutSidebar>
         <template #breadcrumb>
