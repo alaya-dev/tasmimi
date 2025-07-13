@@ -660,3 +660,4 @@
 #34 {main}
 "} 
 [2025-07-09 17:37:07] local.INFO: Template update request data: {"all":{"name":"azerty","category_id":"2","_method":"PUT","thumbnail":{"Illuminate\\Http\\UploadedFile":"C:\\xampp\\tmp\\phpE5BC.tmp"}},"name":"azerty","category_id":"2","has_thumbnail":true} 
+[2025-07-13 00:25:30] local.INFO: Template update request data: {"all":{"name":"azerty","category_id":"2","_method":"PUT","thumbnail":{"Illuminate\\Http\\UploadedFile":"C:\\xampp\\tmp\\php1B0F.tmp"}},"name":"azerty","category_id":"2","has_thumbnail":true} 

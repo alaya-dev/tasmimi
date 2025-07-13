@@ -188,6 +188,15 @@
                                                 </svg>
                                                 تعديل
                                             </button>
+                                            <Link
+                                                :href="route('admin.templates.design', template.id)"
+                                                class="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors duration-200"
+                                            >
+                                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
+                                                </svg>
+                                                محرر التصميم
+                                            </Link>
                                             <button
                                                 @click="deleteTemplate(template)"
                                                 class="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors duration-200"

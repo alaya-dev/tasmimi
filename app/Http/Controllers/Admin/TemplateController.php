@@ -174,4 +174,37 @@ class TemplateController extends Controller
         
         return back()->with('success', $status . ' القالب بنجاح');
     }
+
+    /**
+     * Show the design editor for the specified template.
+     */
+    public function designEditor(Template $template): Response
+    {
+        return Inertia::render('Admin/Templates/DesignEditor', [
+            'template' => $template->load('category'),
+            'categories' => Category::all(),
+        ]);
+    }
+
+    /**
+     * Save the design data for the specified template.
+     */
+    public function saveDesign(Request $request, Template $template)
+    {
+        $validated = $request->validate([
+            'design_data' => 'required|array',
+        ], [
+            'design_data.required' => 'بيانات التصميم مطلوبة',
+            'design_data.array' => 'بيانات التصميم يجب أن تكون في صيغة صحيحة',
+        ]);
+
+        $template->update([
+            'design_data' => $validated['design_data']
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم حفظ التصميم بنجاح'
+        ]);
+    }
 }

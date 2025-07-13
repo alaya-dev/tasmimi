@@ -141,6 +141,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('templates', App\Http\Controllers\Admin\TemplateController::class)->except(['show', 'create', 'edit']);
     Route::patch('templates/{template}/toggle-status', [App\Http\Controllers\Admin\TemplateController::class, 'toggleStatus'])->name('templates.toggle-status');
 
+    // Éditeur de design pour templates
+    Route::get('templates/{template}/design', [App\Http\Controllers\Admin\TemplateController::class, 'designEditor'])->name('templates.design');
+    Route::post('templates/{template}/design', [App\Http\Controllers\Admin\TemplateController::class, 'saveDesign'])->name('templates.design.save');
+
     // Gestion des abonnements (super admin seulement)
     Route::middleware('super_admin')->group(function () {
         Route::resource('subscriptions', App\Http\Controllers\SubscriptionController::class)->except(['show', 'create', 'edit']);
