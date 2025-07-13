@@ -13,18 +13,30 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
+        // Nouvelles catégories selon les spécifications
         $categories = [
+            'دعوة مناسبات عامة',
+            'دعوة خاصة',
             'زواج',
-            'تهنئة',
-            'دبلوم',
-            'عيد ميلاد',
+            'خطبة',
+            'نجاح',
             'تخرج',
-            'عيد',
-            'مناسبة خاصة',
-            'عمل',
-            'دعوة',
-            'شكر',
+            'مولود',
+            'حفل',
+            'شكر وتقدير',
+            'تهنئة',
+            'غلاف',
+            'رمضان',
+            'عيد الفطر',
+            'عيد الأضحى',
+            'اليوم الوطني',
+            'يوم التأسيس'
         ];
+
+        // Supprimer les anciennes catégories de manière sécurisée
+        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Category::truncate();
+        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         foreach ($categories as $category) {
             Category::create([

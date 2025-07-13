@@ -143,7 +143,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Éditeur de design pour templates
     Route::get('templates/{template}/design', [App\Http\Controllers\Admin\TemplateController::class, 'designEditor'])->name('templates.design');
-    Route::post('templates/{template}/design', [App\Http\Controllers\Admin\TemplateController::class, 'saveDesign'])->name('templates.design.save');
+
+    // Enhanced design operations
+    Route::post('templates/{template}/design', [App\Http\Controllers\Admin\TemplateDesignController::class, 'saveDesign'])->name('templates.design.save');
+    Route::post('templates/{template}/background', [App\Http\Controllers\Admin\TemplateDesignController::class, 'uploadBackground'])->name('templates.background.upload');
+    Route::post('templates/{template}/thumbnail', [App\Http\Controllers\Admin\TemplateDesignController::class, 'generateThumbnail'])->name('templates.thumbnail.generate');
+    Route::get('templates/{template}/export', [App\Http\Controllers\Admin\TemplateDesignController::class, 'exportDesign'])->name('templates.design.export');
+    Route::post('templates/{template}/import', [App\Http\Controllers\Admin\TemplateDesignController::class, 'importDesign'])->name('templates.design.import');
+
+    // Secure export with watermark
+    Route::post('templates/{template}/export-secure', [App\Http\Controllers\Admin\TemplateExportController::class, 'exportWithWatermark'])->name('templates.export.secure');
+    Route::post('templates/{template}/export-client', [App\Http\Controllers\Admin\TemplateExportController::class, 'exportForClient'])->name('templates.export.client');
 
     // Gestion des abonnements (super admin seulement)
     Route::middleware('super_admin')->group(function () {

@@ -180,31 +180,125 @@ class TemplateController extends Controller
      */
     public function designEditor(Template $template): Response
     {
-        return Inertia::render('Admin/Templates/DesignEditor', [
+        return Inertia::render('Admin/Templates/NewDesignEditor', [
             'template' => $template->load('category'),
             'categories' => Category::all(),
+            'locale' => app()->getLocale(),
+            'translations' => [
+                'save' => __('حفظ'),
+                'loading' => __('جاري التحميل...'),
+                'success' => __('تم بنجاح'),
+                'error' => __('حدث خطأ'),
+            ]
         ]);
     }
 
     /**
-     * Save the design data for the specified template.
+     * Save the design data for a template.
      */
     public function saveDesign(Request $request, Template $template)
     {
         $validated = $request->validate([
-            'design_data' => 'required|array',
-        ], [
-            'design_data.required' => 'بيانات التصميم مطلوبة',
-            'design_data.array' => 'بيانات التصميم يجب أن تكون في صيغة صحيحة',
+            'design_data' => 'required|string',
+            'background_image' => 'nullable|string',
+            'editable_elements' => 'nullable|array',
+            'canvas_size' => 'nullable|string',
+            'design_notes' => 'nullable|string',
         ]);
 
+        // Parse design data to extract additional information
+        $designData = json_decode($validated['design_data'], true);
+
         $template->update([
-            'design_data' => $validated['design_data']
+            'design_data' => $validated['design_data'],
+            'background_image' => $validated['background_image'] ?? null,
+            'editable_elements' => $validated['editable_elements'] ?? [],
+            'canvas_size' => $validated['canvas_size'] ?? '800x600',
+            'design_notes' => $validated['design_notes'] ?? null,
+            'version' => $template->version + 1,
+            'last_edited_at' => now(),
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'تم حفظ التصميم بنجاح'
+            'message' => 'تم حفظ التصميم بنجاح',
+            'template' => $template->fresh()
         ]);
     }
+
+    /**
+     * Upload and save background image for template.
+     */
+    public function uploadBackground(Request $request, Template $template)
+    {
+        $request->validate([
+            'background' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+        ]);
+
+        // Delete old background if exists
+        if ($template->background_image) {
+            Storage::disk('public')->delete($template->background_image);
+        }
+
+        // Store new background
+        $path = $request->file('background')->store('templates/backgrounds', 'public');
+
+        $template->update([
+            'background_image' => $path,
+            'last_edited_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم رفع صورة الخلفية بنجاح',
+            'background_url' => asset('storage/' . $path)
+        ]);
+    }
+
+    /**
+     * Generate and save thumbnail for template.
+     */
+    public function generateThumbnail(Request $request, Template $template)
+    {
+        $request->validate([
+            'thumbnail_data' => 'required|string', // Base64 image data
+        ]);
+
+        try {
+            // Decode base64 image
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $request->thumbnail_data));
+
+            // Generate unique filename
+            $filename = 'template_' . $template->id . '_' . time() . '.png';
+            $path = 'templates/thumbnails/' . $filename;
+
+            // Save to storage
+            Storage::disk('public')->put($path, $imageData);
+
+            // Delete old thumbnail if exists
+            if ($template->thumbnail) {
+                Storage::disk('public')->delete($template->thumbnail);
+            }
+
+            // Update template
+            $template->update([
+                'thumbnail' => $path,
+                'last_edited_at' => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم إنشاء المعاينة بنجاح',
+                'thumbnail_url' => asset('storage/' . $path)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'خطأ في إنشاء المعاينة'
+            ], 500);
+        }
+    }
+
+
 }

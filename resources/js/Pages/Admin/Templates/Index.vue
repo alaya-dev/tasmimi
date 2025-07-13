@@ -22,11 +22,94 @@
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <!-- المرشحات -->
+                <!-- إحصائيات سريعة -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="mr-4">
+                                    <div class="text-sm font-medium text-gray-500">إجمالي القوالب</div>
+                                    <div class="text-2xl font-bold text-gray-900">{{ templates.total || 0 }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="mr-4">
+                                    <div class="text-sm font-medium text-gray-500">القوالب النشطة</div>
+                                    <div class="text-2xl font-bold text-gray-900">{{ activeTemplatesCount }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="mr-4">
+                                    <div class="text-sm font-medium text-gray-500">الفئات</div>
+                                    <div class="text-2xl font-bold text-gray-900">{{ categories.length }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="mr-4">
+                                    <div class="text-sm font-medium text-gray-500">محدثة مؤخراً</div>
+                                    <div class="text-2xl font-bold text-gray-900">{{ recentlyUpdatedCount }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- المرشحات المحسنة -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                     <div class="p-6">
-                        <form @submit.prevent="search" class="flex flex-wrap gap-4 flex-row-reverse">
-                            <div class="flex-1 min-w-64">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">البحث والتصفية</h3>
+                            <button @click="resetFilters" class="text-sm text-gray-500 hover:text-gray-700">
+                                إعادة تعيين المرشحات
+                            </button>
+                        </div>
+
+                        <form @submit.prevent="search" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">البحث</label>
                                 <input
                                     v-model="form.search"
                                     type="text"
@@ -34,7 +117,9 @@
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
                                 />
                             </div>
-                            <div class="min-w-48">
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">الفئة</label>
                                 <select
                                     v-model="form.category"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
@@ -45,7 +130,9 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="min-w-48">
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">الحالة</label>
                                 <select
                                     v-model="form.status"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
@@ -188,15 +275,15 @@
                                                 </svg>
                                                 تعديل
                                             </button>
-                                            <Link
-                                                :href="route('admin.templates.design', template.id)"
+                                            <a
+                                                :href="`/admin/templates/${template.id}/design`"
                                                 class="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors duration-200"
                                             >
                                                 <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 24 24">
                                                     <path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
                                                 </svg>
                                                 محرر التصميم
-                                            </Link>
+                                            </a>
                                             <button
                                                 @click="deleteTemplate(template)"
                                                 class="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors duration-200"
@@ -500,7 +587,7 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import AdminLayoutSidebar from '@/Layouts/AdminLayoutSidebar.vue';
 
@@ -508,6 +595,21 @@ const props = defineProps({
     templates: Object,
     categories: Array,
     filters: Object,
+});
+
+// Computed properties for statistics
+const activeTemplatesCount = computed(() => {
+    return props.templates.data?.filter(template => template.is_active).length || 0;
+});
+
+const recentlyUpdatedCount = computed(() => {
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    return props.templates.data?.filter(template => {
+        const updatedAt = new Date(template.updated_at);
+        return updatedAt >= oneWeekAgo;
+    }).length || 0;
 });
 
 // Form for filters
@@ -639,6 +741,95 @@ const handleThumbnailUpload = (event) => {
             thumbnailPreview.value = e.target.result;
         };
         reader.readAsDataURL(file);
+    }
+};
+
+// New methods for enhanced functionality
+const resetFilters = () => {
+    form.search = '';
+    form.category = '';
+    form.status = '';
+    search();
+};
+
+const exportTemplates = () => {
+    // Create CSV export
+    const csvContent = generateCSVContent();
+    downloadCSV(csvContent, 'templates-export.csv');
+};
+
+const generateCSVContent = () => {
+    const headers = ['الاسم', 'الفئة', 'الحالة', 'تاريخ الإنشاء', 'آخر تحديث'];
+    const rows = props.templates.data.map(template => [
+        template.name,
+        template.category?.name || '',
+        template.is_active ? 'نشط' : 'غير نشط',
+        formatDate(template.created_at),
+        formatDate(template.updated_at)
+    ]);
+
+    const csvContent = [headers, ...rows]
+        .map(row => row.map(field => `"${field}"`).join(','))
+        .join('\n');
+
+    return csvContent;
+};
+
+const downloadCSV = (content, filename) => {
+    const blob = new Blob(['\ufeff' + content], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
+const duplicateTemplate = (template) => {
+    if (confirm('هل تريد إنشاء نسخة من هذا القالب؟')) {
+        router.post(route('admin.templates.store'), {
+            name: `نسخة من ${template.name}`,
+            category_id: template.category_id,
+            design_data: template.design_data,
+            is_active: false
+        }, {
+            onSuccess: () => {
+                router.reload();
+            }
+        });
+    }
+};
+
+const bulkAction = (action, selectedIds) => {
+    if (selectedIds.length === 0) {
+        alert('يرجى اختيار قالب واحد على الأقل');
+        return;
+    }
+
+    let confirmMessage = '';
+    switch (action) {
+        case 'activate':
+            confirmMessage = `هل تريد تفعيل ${selectedIds.length} قالب؟`;
+            break;
+        case 'deactivate':
+            confirmMessage = `هل تريد إلغاء تفعيل ${selectedIds.length} قالب؟`;
+            break;
+        case 'delete':
+            confirmMessage = `هل تريد حذف ${selectedIds.length} قالب؟ هذا الإجراء لا يمكن التراجع عنه.`;
+            break;
+    }
+
+    if (confirm(confirmMessage)) {
+        router.post(route('admin.templates.bulk-action'), {
+            action: action,
+            template_ids: selectedIds
+        }, {
+            onSuccess: () => {
+                router.reload();
+            }
+        });
     }
 };
 

@@ -20,9 +20,16 @@ class Template extends Model
         'name',
         'category_id',
         'thumbnail',
+        'background_image',
         'design_data',
+        'editable_elements',
+        'canvas_size',
+        'has_watermark',
+        'design_notes',
+        'version',
         'is_active',
         'created_by',
+        'last_edited_at',
     ];
 
     /**
@@ -32,7 +39,10 @@ class Template extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
+        'has_watermark' => 'boolean',
         'design_data' => 'array',
+        'editable_elements' => 'array',
+        'last_edited_at' => 'datetime',
     ];
 
     /**
@@ -52,12 +62,82 @@ class Template extends Model
     }
 
     /**
-     * Scope a query to only include active templates.
+     * Get the thumbnail URL.
+     */
+    public function getThumbnailUrlAttribute(): ?string
+    {
+        return $this->thumbnail ? asset('storage/' . $this->thumbnail) : null;
+    }
+
+    /**
+     * Get the background image URL.
+     */
+    public function getBackgroundImageUrlAttribute(): ?string
+    {
+        return $this->background_image ? asset('storage/' . $this->background_image) : null;
+    }
+
+    /**
+     * Get canvas dimensions as array.
+     */
+    public function getCanvasDimensionsAttribute(): array
+    {
+        $dimensions = explode('x', $this->canvas_size ?? '800x600');
+        return [
+            'width' => (int) ($dimensions[0] ?? 800),
+            'height' => (int) ($dimensions[1] ?? 600)
+        ];
+    }
+
+    /**
+     * Check if template has editable elements.
+     */
+    public function hasEditableElements(): bool
+    {
+        return !empty($this->editable_elements);
+    }
+
+    /**
+     * Get count of editable elements.
+     */
+    public function getEditableElementsCountAttribute(): int
+    {
+        return count($this->editable_elements ?? []);
+    }
+
+    /**
+     * Update last edited timestamp.
+     */
+    public function touchLastEdited(): void
+    {
+        $this->update(['last_edited_at' => now()]);
+    }
+
+    /**
+     * Scope for active templates.
      */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
+
+    /**
+     * Scope for templates by category.
+     */
+    public function scopeByCategory($query, $categoryId)
+    {
+        return $query->where('category_id', $categoryId);
+    }
+
+    /**
+     * Scope for recently edited templates.
+     */
+    public function scopeRecentlyEdited($query, $days = 7)
+    {
+        return $query->where('last_edited_at', '>=', now()->subDays($days));
+    }
+
+
 
     /**
      * Get the thumbnail URL attribute.

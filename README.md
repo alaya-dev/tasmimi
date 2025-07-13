@@ -743,7 +743,5 @@ Pour obtenir de l'aide ou signaler des problèmes :
 
 ---
 
-**سامقة** - Système de Gestion des Rôles Moderne et Sécurisé
 
-*Développé avec ❤️ par Manus AI*
 
