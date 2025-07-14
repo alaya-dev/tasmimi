@@ -1,0 +1,18 @@
+<svg width="200" height="100" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#EC4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="40" fill="url(#logoGradient)" />
+  
+  <!-- Star icon -->
+  <path d="M50 20l6.18 12.52L70 34.27l-10 9.74 2.36 13.76L50 51.54l-12.36 6.23L40 44.01 30 34.27l13.82-1.75L50 20z" fill="white"/>
+  
+  <!-- Text -->
+  <text x="110" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="url(#logoGradient)">سامقة</text>
+  <text x="110" y="65" font-family="Arial, sans-serif" font-size="12" fill="#6B7280">منصة التصميم الاحترافية</text>
+</svg>

@@ -21,25 +21,7 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('/', function () {
-    // Redirect only admin and super admin users away from landing page
-    if (auth()->check()) {
-        $user = auth()->user();
-        
-        // Redirect to admin dashboard if user has admin privileges (admin or super_admin)
-        if ($user->hasAdminPrivileges()) {
-            return redirect()->route('admin.dashboard');
-        }
-    }
-    
-    // Show landing page to visitors and clients
-    return Inertia::render('Client/Home', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-})->name('client.home');
+Route::get('/', [App\Http\Controllers\Client\HomeController::class, 'index'])->name('client.home');
 
 Route::get('/dashboard', function () {
     $user = auth()->user();
