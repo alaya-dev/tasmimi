@@ -149,6 +149,35 @@ class TemplateController extends Controller
     }
 
     /**
+     * Update only the design data of a template.
+     */
+    public function updateDesign(Request $request, Template $template)
+    {
+        try {
+            $request->validate([
+                'design_data' => 'required|string'
+            ]);
+
+            $template->update([
+                'design_data' => $request->design_data
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حفظ التصميم بنجاح'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Template design update error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'خطأ في حفظ التصميم'
+            ], 500);
+        }
+    }
+
+    /**
      * Remove the specified template from storage.
      */
     public function destroy(Template $template)
@@ -180,7 +209,7 @@ class TemplateController extends Controller
      */
     public function designEditor(Template $template): Response
     {
-        return Inertia::render('Admin/Templates/NewDesignEditor', [
+        return Inertia::render('Admin/Templates/StableDesignEditor', [
             'template' => $template->load('category'),
             'categories' => Category::all(),
             'locale' => app()->getLocale(),

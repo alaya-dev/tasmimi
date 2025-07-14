@@ -137,6 +137,34 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('templates/{template}/export-secure', [App\Http\Controllers\Admin\TemplateExportController::class, 'exportWithWatermark'])->name('templates.export.secure');
     Route::post('templates/{template}/export-client', [App\Http\Controllers\Admin\TemplateExportController::class, 'exportForClient'])->name('templates.export.client');
 
+    // Gestion des ressources utilisateur (fichiers)
+    Route::prefix('user-files')->name('user-files.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\UserFileController::class, 'index'])->name('index');
+        Route::post('/', [App\Http\Controllers\Admin\UserFileController::class, 'store'])->name('store');
+        Route::put('{userFile}', [App\Http\Controllers\Admin\UserFileController::class, 'update'])->name('update');
+        Route::delete('{userFile}', [App\Http\Controllers\Admin\UserFileController::class, 'destroy'])->name('destroy');
+        Route::get('folders', [App\Http\Controllers\Admin\UserFileController::class, 'folders'])->name('folders');
+        Route::get('storage-info', [App\Http\Controllers\Admin\UserFileController::class, 'storageInfo'])->name('storage-info');
+        Route::post('{userFile}/mark-used', [App\Http\Controllers\Admin\UserFileController::class, 'markAsUsed'])->name('mark-used');
+    });
+
+    // API Pexels pour images libres de droits
+    Route::prefix('pexels')->name('pexels.')->group(function () {
+        Route::get('search', [App\Http\Controllers\Admin\PexelsController::class, 'search'])->name('search');
+        Route::get('curated', [App\Http\Controllers\Admin\PexelsController::class, 'curated'])->name('curated');
+        Route::post('download', [App\Http\Controllers\Admin\PexelsController::class, 'download'])->name('download');
+        Route::get('status', [App\Http\Controllers\Admin\PexelsController::class, 'status'])->name('status');
+    });
+
+    // API Remove.bg pour suppression d'arrière-plan
+    Route::prefix('background-removal')->name('background-removal.')->group(function () {
+        Route::post('remove-from-file', [App\Http\Controllers\Admin\BackgroundRemovalController::class, 'removeFromFile'])->name('remove-from-file');
+        Route::post('remove-from-url', [App\Http\Controllers\Admin\BackgroundRemovalController::class, 'removeFromUrl'])->name('remove-from-url');
+        Route::get('account-info', [App\Http\Controllers\Admin\BackgroundRemovalController::class, 'accountInfo'])->name('account-info');
+        Route::get('status', [App\Http\Controllers\Admin\BackgroundRemovalController::class, 'status'])->name('status');
+        Route::post('estimate-credits', [App\Http\Controllers\Admin\BackgroundRemovalController::class, 'estimateCredits'])->name('estimate-credits');
+    });
+
     // Gestion des abonnements (super admin seulement)
     Route::middleware('super_admin')->group(function () {
         Route::resource('subscriptions', App\Http\Controllers\SubscriptionController::class)->except(['show', 'create', 'edit']);

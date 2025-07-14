@@ -108,7 +108,7 @@
                                     src="/images/logo.png"
                                     alt="سامقة"
                                     class="h-16 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
-                                    style="max-height: 64px; min-width: 64px;"
+                                    style="max-height: 64px; min-width: 80px;"
                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                 />
                                 <div class="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300" style="display: none;">
