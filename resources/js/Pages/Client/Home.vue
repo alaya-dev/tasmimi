@@ -2,113 +2,104 @@
     <Head title="الرئيسية - سامقة" />
 
     <ClientLayout>
-        <div class="min-h-screen bg-gradient-to-br from-gray-50 to-white overflow-hidden">
-            <!-- Hero Section with Description -->
-            <div class="bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 text-white py-12">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h1 class="text-4xl md:text-5xl font-black mb-4 leading-tight">
-                        أهلاً بك في سامقة
-                    </h1>
-                    <p class="text-xl md:text-2xl font-light leading-relaxed max-w-3xl mx-auto opacity-90">
-                        منصة سامقة توفر لك أدوات متقدمة وقوالب احترافية لتصميم بطاقات إلكترونية مميزة
-                    </p>
+        <!-- Main Container with Gradient Background -->
+        <div class="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 relative overflow-hidden">
+
+            <!-- Decorative Elements -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <!-- Floating geometric shapes -->
+                <div class="absolute top-20 left-10 w-32 h-32 bg-white/10 rounded-full blur-xl animate-float-slow"></div>
+                <div class="absolute bottom-20 right-10 w-40 h-40 bg-white/5 rounded-full blur-2xl animate-float-slower"></div>
+                <div class="absolute top-1/2 left-1/4 w-24 h-24 bg-white/15 rounded-full blur-lg animate-float"></div>
+
+                <!-- Grid pattern overlay -->
+                <div class="absolute inset-0 opacity-10">
+                    <div class="w-full h-full" style="background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.3) 1px, transparent 0); background-size: 50px 50px;"></div>
                 </div>
             </div>
 
-            <!-- Main Content Section -->
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <!-- Categories and Designs Section -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-                    <!-- Categories Section -->
-                    <div class="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
-                        <div class="flex items-center justify-between mb-8">
-                            <h2 class="text-3xl font-bold text-gray-900">الفئات</h2>
-                            <div class="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                                </svg>
-                            </div>
+            <!-- Main Content -->
+            <div class="relative z-10 flex items-center justify-center min-h-screen px-4 py-8">
+                <div class="max-w-4xl mx-auto text-center text-white">
+
+                    <!-- Logo/Icon -->
+                    <div class="mb-8 animate-fade-in-up" style="animation-delay: 0.2s;">
+                        <div class="w-20 h-20 mx-auto bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6">
+                            <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div
-                                v-for="category in categories.slice(0, 6)"
-                                :key="category.id"
-                                class="p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl hover:from-purple-50 hover:to-pink-50 hover:border-purple-200 border border-gray-200 transition-all duration-300 cursor-pointer group hover:shadow-lg transform hover:-translate-y-1"
+                    </div>
+
+                    <!-- Welcome Message -->
+                    <div class="mb-8 animate-fade-in-up" style="animation-delay: 0.4s;">
+                        <h1 class="text-4xl md:text-6xl font-black mb-4 leading-tight">
+                            أهلاً بك في سَامِقَة
+                        </h1>
+                        <p class="text-lg md:text-xl text-white/90 font-light leading-relaxed max-w-2xl mx-auto">
+                            منصة سامقة توفر لك أدوات متقدمة وقوالب احترافية لتصميم بطاقات إلكترونية مميزة
+                        </p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mb-12 animate-fade-in-up" style="animation-delay: 0.6s;">
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                            <!-- Primary Button -->
+                            <Link
+                                :href="route('client.templates')"
+                                class="group bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-xl font-bold text-lg border border-white/30 hover:bg-white/30 hover:border-white/50 transition-all duration-300 transform hover:scale-105 flex items-center space-x-3 space-x-reverse"
                             >
-                                <div class="text-center">
-                                    <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                                <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                                <span>ابدأ التصميم الآن</span>
+                            </Link>
+
+                            <!-- Secondary Button -->
+                            <Link
+                                :href="route('client.pricing')"
+                                class="group bg-transparent text-white px-8 py-4 rounded-xl font-bold text-lg border-2 border-white/50 hover:bg-white/10 hover:border-white transition-all duration-300 transform hover:scale-105 flex items-center space-x-3 space-x-reverse"
+                            >
+                                <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                                </svg>
+                                <span>تصفح الأسعار</span>
+                            </Link>
+                        </div>
+                    </div>
+
+                    <!-- Categories Section -->
+                    <div class="animate-fade-in-up" style="animation-delay: 0.8s;">
+                        <div class="grid grid-cols-3 md:grid-cols-6 gap-4 max-w-3xl mx-auto">
+                            <Link
+                                v-for="(category, index) in categories.slice(0, 6)"
+                                :key="category.id"
+                                :href="route('client.templates', { category: category.id })"
+                                class="group bg-white/20 backdrop-blur-sm rounded-xl p-4 hover:bg-white/30 transition-all duration-300 border border-white/20 hover:border-white/40 transform hover:scale-105"
+                                :style="`animation-delay: ${1 + index * 0.1}s;`"
+                            >
+                                <div class="flex flex-col items-center space-y-2 text-center">
+                                    <!-- Icon -->
+                                    <div class="w-12 h-12 bg-white/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                                         <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                         </svg>
                                     </div>
-                                    <h3 class="font-bold text-gray-900 text-base mb-2">{{ category.name }}</h3>
-                                    <p class="text-sm text-gray-600 font-medium">{{ category.active_templates_count || 0 }} قالب</p>
+
+                                    <!-- Category Name -->
+                                    <h3 class="font-semibold text-white text-sm group-hover:text-white/90 transition-colors">
+                                        {{ category.name }}
+                                    </h3>
+
+                                    <!-- Templates Count -->
+                                    <span class="text-xs text-white/70 bg-white/20 px-2 py-1 rounded-full">
+                                        {{ category.active_templates_count || 0 }}
+                                    </span>
                                 </div>
-                            </div>
+                            </Link>
                         </div>
                     </div>
 
-                    <!-- Featured Designs Section -->
-                    <div class="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
-                        <div class="flex items-center justify-between mb-8">
-                            <h2 class="text-3xl font-bold text-gray-900">التصاميم المميزة</h2>
-                            <div class="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div
-                                v-for="template in featuredTemplates.slice(0, 6)"
-                                :key="template.id"
-                                class="group relative bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-200 hover:border-purple-200 transform hover:-translate-y-1"
-                            >
-                                <div class="aspect-square bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
-                                    <img
-                                        v-if="template.thumbnail_url"
-                                        :src="template.thumbnail_url"
-                                        :alt="template.name"
-                                        class="w-full h-full object-cover"
-                                    />
-                                    <div v-else class="text-white text-center">
-                                        <svg class="w-10 h-10 mx-auto mb-3" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                        </svg>
-                                        <p class="text-sm font-medium">{{ template.name }}</p>
-                                    </div>
-                                </div>
-                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
-                                    <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <button class="bg-white text-purple-600 px-6 py-3 rounded-xl font-bold text-sm shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200">
-                                            معاينة
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="text-center">
-                    <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                        <Link
-                            :href="route('client.templates')"
-                            class="group bg-gradient-to-r from-purple-600 to-pink-600 text-white px-10 py-5 rounded-3xl font-bold text-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 inline-flex items-center shadow-2xl hover:shadow-purple-500/25 transform hover:scale-105"
-                        >
-                            ابدأ التصميم الآن
-                            <svg class="mr-4 w-7 h-7 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                            </svg>
-                        </Link>
-                        <Link
-                            :href="route('client.pricing')"
-                            class="group border-3 border-purple-600 text-purple-600 px-10 py-5 rounded-3xl font-bold text-xl hover:bg-purple-600 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-                        >
-                            تصفح الأسعار
-                        </Link>
-                    </div>
                 </div>
             </div>
         </div>
@@ -127,21 +118,118 @@ defineProps({
     canRegister: {
         type: Boolean,
     },
-    laravelVersion: {
-        type: String,
-        required: true,
-    },
-    phpVersion: {
-        type: String,
-        required: true,
-    },
     categories: {
-        type: Array,
-        default: () => []
-    },
-    featuredTemplates: {
         type: Array,
         default: () => []
     }
 });
 </script>
+
+<style scoped>
+/* ===== KEYFRAME ANIMATIONS ===== */
+
+/* Fade in with upward movement */
+@keyframes fade-in-up {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Floating animations for decorative elements */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes float-slow {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(2deg); }
+}
+
+@keyframes float-slower {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(-1deg); }
+}
+
+/* ===== ANIMATION CLASSES ===== */
+
+.animate-fade-in-up {
+    opacity: 0;
+    animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-slow {
+    animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-float-slower {
+    animation: float-slower 12s ease-in-out infinite;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2.5rem !important;
+        line-height: 1.1 !important;
+    }
+
+    p {
+        font-size: 1rem !important;
+    }
+
+    .grid.md\\:grid-cols-6 {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .grid.grid-cols-3 {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .flex.sm\\:flex-row {
+        flex-direction: column !important;
+    }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+.group:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
+    border-radius: 0.75rem;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ===== BACKDROP BLUR FALLBACK ===== */
+
+@supports not (backdrop-filter: blur(10px)) {
+    .backdrop-blur-sm {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+    }
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+
+.group {
+    will-change: transform;
+}
+</style>

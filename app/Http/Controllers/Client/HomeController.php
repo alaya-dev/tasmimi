@@ -32,24 +32,10 @@ class HomeController extends Controller
             ->orderBy('name')
             ->get();
 
-        // Get featured templates (latest active templates)
-        $featuredTemplates = Template::with('category')
-            ->where('is_active', true)
-            ->latest()
-            ->take(8)
-            ->get()
-            ->map(function ($template) {
-                $template->thumbnail_url = $template->thumbnail ? asset('storage/' . $template->thumbnail) : null;
-                return $template;
-            });
-
         return Inertia::render('Client/Home', [
             'canLogin' => Route::has('login'),
             'canRegister' => Route::has('register'),
-            'laravelVersion' => Application::VERSION,
-            'phpVersion' => PHP_VERSION,
             'categories' => $categories,
-            'featuredTemplates' => $featuredTemplates,
         ]);
     }
 }
