@@ -126,4 +126,12 @@ class User extends Authenticatable
     {
         $this->notify(new ResetPasswordNotification($token));
     }
+
+    /**
+     * Get the client templates for this user.
+     */
+    public function clientTemplates()
+    {
+        return $this->hasMany(ClientTemplate::class);
+    }
 }

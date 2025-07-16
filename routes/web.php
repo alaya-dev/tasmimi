@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Client\ProfileController as ClientProfileController;
+use App\Http\Controllers\Client\ClientTemplateController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Foundation\Application;
@@ -65,17 +66,15 @@ Route::prefix('client')->name('client.')->group(function () {
         Route::get('/contact', [App\Http\Controllers\Client\ContactController::class, 'index'])->name('contact');
         Route::post('/contact', [App\Http\Controllers\Client\ContactController::class, 'store'])->name('contact.store');
 
-        Route::get('/my-designs', function () {
-            return Inertia::render('Client/MyDesigns', [
-                'designs' => []
-            ]);
-        })->name('my-designs');
-
-        Route::get('/editor/{template?}', function ($template = null) {
-            return Inertia::render('Client/Editor', [
-                'template' => $template ? ['id' => $template, 'name' => 'قالب تجريبي'] : null
-            ]);
-        })->name('editor');
+        // Routes pour la gestion des templates clients
+        Route::get('/my-designs', [ClientTemplateController::class, 'index'])->name('my-designs');
+        Route::get('/templates/{template}/create', [ClientTemplateController::class, 'create'])->name('templates.create');
+        Route::get('/designs/{clientTemplate}/edit', [ClientTemplateController::class, 'edit'])->name('designs.edit');
+        Route::post('/designs', [ClientTemplateController::class, 'store'])->name('designs.store');
+        Route::put('/designs/{clientTemplate}', [ClientTemplateController::class, 'update'])->name('designs.update');
+        Route::delete('/designs/{clientTemplate}', [ClientTemplateController::class, 'destroy'])->name('designs.destroy');
+        Route::post('/designs/{clientTemplate}/export', [ClientTemplateController::class, 'export'])->name('designs.export');
+        Route::post('/designs/{clientTemplate}/duplicate', [ClientTemplateController::class, 'duplicate'])->name('designs.duplicate');
 
         Route::get('/cart', function () {
             return Inertia::render('Client/Cart', [

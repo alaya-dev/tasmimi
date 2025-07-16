@@ -124,8 +124,7 @@
             <!-- Logo Section -->
             <div class="bg-gradient-to-l from-blue-500 to-purple-500 px-6 py-3 border-b border-blue-400">
                 <div class="flex items-center justify-center flex-row-reverse">
-                    <ApplicationLogo class="block h-8 w-auto fill-current text-white" />
-                    <span class="text-white font-bold text-lg mr-3">لوحة تحكم Bitaqati</span>
+                    <span class="text-white font-bold text-lg mr-3">لوحة تحكم سامقة  </span>
                 </div>
             </div>
 

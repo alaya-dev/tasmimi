@@ -49,6 +49,12 @@
                                         </svg>
                                         <span>الملف الشخصي</span>
                                     </DropdownLink>
+                                    <DropdownLink :href="route('client.my-designs')" class="flex items-center space-x-2 space-x-reverse">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
+                                        </svg>
+                                        <span>تصاميمي</span>
+                                    </DropdownLink>
                                     <DropdownLink :href="route('client.orders')" class="flex items-center space-x-2 space-x-reverse">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
