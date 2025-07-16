@@ -1,10 +1,18 @@
 <template>
-    <Head title="محرر التصميم - سامقة">
+    <Head title="محرر التصميم المتقدم - إصدار العملاء">
         <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;600;700&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Changa:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Cairo+Play:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Harmattan:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     </Head>
 
@@ -15,232 +23,260 @@
                 <div class="flex justify-between items-center">
                     <!-- Template Info -->
                     <div class="flex items-center space-x-4 space-x-reverse">
-                        <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                        <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
                             <i class="fas fa-palette text-white"></i>
                         </div>
                         <div>
-                            <h1 class="text-xl font-bold text-gray-800">محرر التصميم</h1>
-                            <p class="text-sm text-gray-600">
-                                {{ mode === 'edit' ? clientTemplate?.name : template?.name }}
-                            </p>
+                            <h1 class="text-xl font-bold text-gray-800">محرر التصميم المتقدم</h1>
+                            <p class="text-sm text-gray-600">{{ template.name }}</p>
                         </div>
                     </div>
 
                     <!-- Actions -->
                     <div class="flex items-center space-x-3 space-x-reverse">
-                        <!-- Save Button -->
+                        <!-- History -->
+                        <div class="flex items-center bg-gray-100 rounded-lg p-1">
+                            <button
+                                @click="undo"
+                                :disabled="!canUndo"
+                                class="p-2 text-gray-600 hover:text-gray-800 rounded disabled:opacity-50"
+                                title="تراجع"
+                            >
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button
+                                @click="redo"
+                                :disabled="!canRedo"
+                                class="p-2 text-gray-600 hover:text-gray-800 rounded disabled:opacity-50"
+                                title="إعادة"
+                            >
+                                <i class="fas fa-redo"></i>
+                            </button>
+                        </div>
+
+                        <!-- Device Preview -->
+                        <div class="flex items-center bg-gray-100 rounded-lg p-1">
+                            <button
+                                v-for="device in devices"
+                                :key="device.id"
+                                @click="setDevice(device.id)"
+                                :class="[
+                                    'p-2 rounded transition-colors',
+                                    currentDevice === device.id
+                                        ? 'bg-purple-600 text-white'
+                                        : 'text-gray-600 hover:text-gray-800'
+                                ]"
+                                :title="device.name"
+                            >
+                                <i :class="device.icon"></i>
+                            </button>
+                        </div>
+
+                        <!-- Save -->
                         <button
                             @click="saveDesign"
-                            :disabled="isSaving"
-                            class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-200 disabled:opacity-50"
+                            :disabled="saving"
+                            class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center space-x-2 space-x-reverse"
                         >
-                            <i class="fas fa-save ml-2"></i>
-                            <span v-if="isSaving">جاري الحفظ...</span>
-                            <span v-else>حفظ التصميم</span>
+                            <i :class="saving ? 'fas fa-spinner fa-spin' : 'fas fa-save'"></i>
+                            <span>{{ saving ? 'جاري الحفظ...' : 'حفظ' }}</span>
                         </button>
 
-                        <!-- Export Button -->
+                        <!-- Export -->
                         <button
                             @click="showExportModal = true"
-                            class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors"
+                            class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 flex items-center space-x-2 space-x-reverse"
+                            title="تصدير التصميم مع العلامة المائية"
                         >
-                            <i class="fas fa-download ml-2"></i>
-                            تصدير
+                            <i class="fas fa-download"></i>
+                            <span>تصدير</span>
                         </button>
 
-                        <!-- Back Button -->
+                        <!-- Preview -->
+                        <button
+                            @click="previewDesign"
+                            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2 space-x-reverse"
+                        >
+                            <i class="fas fa-eye"></i>
+                            <span>معاينة</span>
+                        </button>
+
+                        <!-- Back -->
                         <Link
                             :href="route('client.my-designs')"
-                            class="bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+                            class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 flex items-center space-x-2 space-x-reverse"
                         >
-                            <i class="fas fa-arrow-right ml-2"></i>
-                            العودة
+                            <i class="fas fa-arrow-right"></i>
+                            <span>رجوع</span>
                         </Link>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content -->
+        <!-- Main Editor -->
         <div class="flex h-screen">
             <!-- Sidebar -->
-            <div class="w-80 bg-white shadow-lg border-l border-gray-200 flex flex-col">
+            <div class="w-80 bg-white border-l border-gray-200 flex flex-col">
                 <!-- Tabs -->
-                <div class="flex border-b border-gray-200">
-                    <button
-                        @click="activeTab = 'elements'"
-                        :class="activeTab === 'elements' ? 'bg-purple-50 text-purple-600 border-purple-600' : 'text-gray-600 hover:text-gray-800'"
-                        class="flex-1 py-3 px-4 text-sm font-medium border-b-2 border-transparent transition-colors"
-                    >
-                        <i class="fas fa-shapes ml-2"></i>
-                        العناصر
-                    </button>
-                    <button
-                        @click="activeTab = 'properties'"
-                        :class="activeTab === 'properties' ? 'bg-purple-50 text-purple-600 border-purple-600' : 'text-gray-600 hover:text-gray-800'"
-                        class="flex-1 py-3 px-4 text-sm font-medium border-b-2 border-transparent transition-colors"
-                    >
-                        <i class="fas fa-cog ml-2"></i>
-                        الخصائص
-                    </button>
+                <div class="flex-shrink-0 border-b border-gray-200">
+                    <div class="flex">
+                        <button
+                            v-for="tab in tabs"
+                            :key="tab.id"
+                            @click="activeTab = tab.id"
+                            :class="[
+                                'flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-colors',
+                                activeTab === tab.id
+                                    ? 'border-purple-600 text-purple-600 bg-purple-50'
+                                    : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                            ]"
+                        >
+                            <i :class="tab.icon" class="ml-2"></i>
+                            {{ tab.name }}
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Tab Content -->
                 <div class="flex-1 overflow-hidden">
                     <!-- Elements Tab -->
-                    <div v-if="activeTab === 'elements'" class="h-full p-4 overflow-y-auto">
-                        <div class="space-y-4">
-                            <!-- Text Elements -->
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <h3 class="font-semibold text-gray-800 mb-3">عناصر النص</h3>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <button
-                                        @click="addTextElement"
-                                        class="p-3 bg-white border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors text-center"
-                                    >
-                                        <i class="fas fa-font text-purple-500 mb-1"></i>
-                                        <div class="text-xs">نص</div>
-                                    </button>
-                                    <button
-                                        @click="addHeadingElement"
-                                        class="p-3 bg-white border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors text-center"
-                                    >
-                                        <i class="fas fa-heading text-purple-500 mb-1"></i>
-                                        <div class="text-xs">عنوان</div>
-                                    </button>
-                                </div>
-                            </div>
+                    <div v-if="activeTab === 'elements'" class="h-full">
+                        <ElementsPanel
+                            @add-element="addElement"
+                            @add-background="setCanvasBackground"
+                            @add-image="addImageElement"
+                        />
+                    </div>
 
-                            <!-- Shape Elements -->
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <h3 class="font-semibold text-gray-800 mb-3">الأشكال</h3>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <button
-                                        @click="addRectangleElement"
-                                        class="p-3 bg-white border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors text-center"
-                                    >
-                                        <i class="fas fa-square text-purple-500 mb-1"></i>
-                                        <div class="text-xs">مربع</div>
-                                    </button>
-                                    <button
-                                        @click="addCircleElement"
-                                        class="p-3 bg-white border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors text-center"
-                                    >
-                                        <i class="fas fa-circle text-purple-500 mb-1"></i>
-                                        <div class="text-xs">دائرة</div>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Image Elements -->
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <h3 class="font-semibold text-gray-800 mb-3">الصور</h3>
-                                <button
-                                    @click="addImageElement"
-                                    class="w-full p-3 bg-white border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors text-center"
-                                >
-                                    <i class="fas fa-image text-purple-500 mb-1"></i>
-                                    <div class="text-xs">إضافة صورة</div>
-                                </button>
-                            </div>
-                        </div>
+                    <!-- Layers Tab -->
+                    <div v-if="activeTab === 'layers'" class="h-full">
+                        <LayersPanel
+                            :layers="layers"
+                            :selected-layer-id="selectedElement?.id"
+                            @select-layer="selectLayer"
+                            @request-delete-layer="onRequestDeleteLayer"
+                            @reorder-layers="reorderLayers"
+                            @update-layer="updateLayer"
+                            @duplicate-layer="duplicateLayer"
+                            @move-layer-top="moveLayerToTop"
+                            @move-layer-bottom="moveLayerToBottom"
+                        />
                     </div>
 
                     <!-- Properties Tab -->
-                    <div v-if="activeTab === 'properties'" class="h-full p-4 overflow-y-auto">
-                        <div v-if="selectedElement" class="space-y-4">
-                            <h3 class="font-semibold text-gray-800">خصائص العنصر</h3>
-                            
-                            <!-- Element properties will be rendered here -->
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <p class="text-sm text-gray-600">اختر عنصراً لتحرير خصائصه</p>
-                            </div>
-                        </div>
-                        <div v-else class="text-center py-8">
-                            <i class="fas fa-mouse-pointer text-gray-400 text-3xl mb-3"></i>
-                            <p class="text-gray-500">اختر عنصراً لتحرير خصائصه</p>
-                        </div>
+                    <div v-if="activeTab === 'properties'" class="h-full">
+                        <PropertiesPanel
+                            :selected-element="selectedElement"
+                            @update-properties="updateProperties"
+                            @move-layer="onMoveLayer"
+                            @duplicate-element="onDuplicateElement"
+                            @request-delete="onRequestDeleteElement"
+                        />
                     </div>
                 </div>
             </div>
 
             <!-- Canvas Area -->
-            <div class="flex-1 flex flex-col">
+            <div class="flex-1 bg-gray-50 flex flex-col">
                 <!-- Canvas Toolbar -->
-                <div class="bg-white border-b border-gray-200 px-6 py-3">
+                <div class="flex-shrink-0 bg-white border-b border-gray-200 p-4">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-4 space-x-reverse">
                             <!-- Zoom Controls -->
-                            <div class="flex items-center bg-gray-100 rounded-lg p-1">
+                            <div class="flex items-center space-x-2 space-x-reverse">
                                 <button
                                     @click="zoomOut"
                                     class="p-2 text-gray-600 hover:text-gray-800 rounded"
-                                    title="تصغير"
                                 >
-                                    <i class="fas fa-minus"></i>
+                                    <i class="fas fa-search-minus"></i>
                                 </button>
-                                <span class="px-3 text-sm font-medium">{{ Math.round(zoom * 100) }}%</span>
+                                <span class="text-sm text-gray-600 min-w-16 text-center">{{ Math.round(zoom * 100) }}%</span>
                                 <button
                                     @click="zoomIn"
                                     class="p-2 text-gray-600 hover:text-gray-800 rounded"
-                                    title="تكبير"
                                 >
-                                    <i class="fas fa-plus"></i>
+                                    <i class="fas fa-search-plus"></i>
                                 </button>
                             </div>
-
-                            <!-- Canvas Size -->
-                            <div class="text-sm text-gray-600">
-                                {{ canvasWidth }} × {{ canvasHeight }} px
+                            <!-- Watermark Notice (Non-removable for clients) -->
+                            <div class="flex items-center bg-purple-50 text-purple-700 px-3 py-1 rounded-lg text-sm">
+                                <i class="fas fa-shield-alt ml-2"></i>
+                                <span>علامة مائية محمية</span>
                             </div>
-                        </div>
-
-                        <!-- Watermark Notice -->
-                        <div class="flex items-center text-sm text-purple-600 bg-purple-50 px-3 py-1 rounded-lg">
-                            <i class="fas fa-shield-alt ml-2"></i>
-                            يحتوي التصميم على علامة مائية محمية
                         </div>
                     </div>
                 </div>
 
                 <!-- Canvas Container -->
-                <div class="flex-1 bg-gray-200 overflow-auto p-8">
-                    <div class="flex items-center justify-center min-h-full">
+                <div class="flex-1 overflow-auto p-8 flex items-center justify-center">
+                    <div
+                        ref="canvasContainer"
+                        class="relative bg-white shadow-lg"
+                        :style="{
+                            width: canvasWidth * zoom + 'px',
+                            height: canvasHeight * zoom + 'px',
+                            transform: `scale(${zoom})`,
+                            transformOrigin: 'top left'
+                        }"
+                    >
+                        <!-- Grid Overlay -->
+                        <div
+                            v-if="showGrid"
+                            class="absolute inset-0 pointer-events-none"
+                            :style="gridStyle"
+                        ></div>
+
+                        <!-- Design Canvas -->
                         <div
                             ref="designCanvas"
-                            class="bg-white shadow-lg relative"
+                            class="w-full h-full relative overflow-hidden"
                             :style="{
-                                width: canvasWidth * zoom + 'px',
-                                height: canvasHeight * zoom + 'px',
-                                transform: `scale(${zoom})`,
-                                transformOrigin: 'center center'
+                                backgroundImage: canvasBackground ? `url(${canvasBackground})` : 'none',
+                                backgroundSize: backgroundSize,
+                                backgroundPosition: 'center',
+                                backgroundRepeat: 'no-repeat',
+                                cursor: pendingElementType ? 'crosshair' : 'default'
                             }"
+                            @click="handleCanvasClick"
+                            @drop="handleDrop"
+                            @dragover.prevent
                         >
-                            <!-- Canvas content will be rendered here -->
-                            <div class="w-full h-full relative">
-                                <!-- Design elements -->
-                                <div
-                                    v-for="element in elements"
-                                    :key="element.id"
-                                    :class="['absolute', { 'ring-2 ring-purple-500': selectedElement?.id === element.id }]"
-                                    :style="getElementStyle(element)"
-                                    @click="selectElement(element)"
-                                >
-                                    <!-- Element content based on type -->
-                                    <div v-if="element.type === 'text'" v-html="element.content"></div>
-                                    <img v-else-if="element.type === 'image'" :src="element.src" class="w-full h-full object-cover" />
-                                    <div v-else-if="element.type === 'shape'" :class="element.shapeClass"></div>
-                                </div>
+                            <!-- Render elements here -->
+                            <DesignElement
+                                v-for="element in elements"
+                                :key="element.id"
+                                :element="element"
+                                :selected="selectedElement?.id === element.id"
+                                :zoom="zoom"
+                                :placementMode="!!pendingElementType"
+                                @select="selectElement"
+                                @update="updateElement"
+                                @delete="deleteElement"
+                            />
 
-                                <!-- Client Watermark - Always visible and non-removable -->
-                                <div class="absolute bottom-4 right-4 pointer-events-none select-none">
-                                    <div
-                                        class="text-gray-600 font-bold transform -rotate-12 opacity-60"
-                                        style="font-family: Cairo, sans-serif; font-size: 16px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);"
-                                    >
-                                        سامقة للتصميم
-                                    </div>
-                                </div>
+                            <!-- Watermark - Large diagonal like admin -->
+                            <div
+                                class="absolute pointer-events-none select-none"
+                                :style="{
+                                    top: '50%',
+                                    left: '50%',
+                                    transform: 'translate(-50%, -50%) rotate(-45deg)',
+                                    fontSize: '48px',
+                                    color: 'rgba(0, 0, 0, 0.08)',
+                                    fontFamily: 'Cairo, sans-serif',
+                                    fontWeight: 'bold',
+                                    textShadow: '1px 1px 2px rgba(255, 255, 255, 0.5)',
+                                    zIndex: 9999,
+                                    userSelect: 'none',
+                                    WebkitUserSelect: 'none',
+                                    MozUserSelect: 'none',
+                                    msUserSelect: 'none',
+                                    letterSpacing: '4px',
+                                    whiteSpace: 'nowrap'
+                                }"
+                            >
+                                سامقة للتصميم
                             </div>
                         </div>
                     </div>
@@ -248,440 +284,1228 @@
             </div>
         </div>
 
-        <!-- Save Modal -->
-        <div v-if="showSaveModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
-                <h3 class="text-xl font-semibold mb-4">حفظ التصميم</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">اسم التصميم</label>
-                        <input
-                            v-model="designName"
-                            type="text"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="أدخل اسم التصميم"
-                        />
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ملاحظات (اختياري)</label>
-                        <textarea
-                            v-model="designNotes"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            rows="3"
-                            placeholder="أضف ملاحظات حول التصميم"
-                        ></textarea>
-                    </div>
-                </div>
-                <div class="flex space-x-3 space-x-reverse mt-6">
-                    <button
-                        @click="confirmSave"
-                        :disabled="!designName.trim() || isSaving"
-                        class="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 px-4 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-200 disabled:opacity-50"
-                    >
-                        <span v-if="isSaving">جاري الحفظ...</span>
-                        <span v-else>حفظ</span>
-                    </button>
-                    <button
-                        @click="showSaveModal = false"
-                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                    >
-                        إلغاء
-                    </button>
-                </div>
+        <!-- Photo Editor Modal -->
+        <div
+            v-if="showPhotoEditor"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            @click.self="closePhotoEditor"
+        >
+            <div class="bg-white rounded-lg shadow-xl max-w-6xl max-h-[90vh] w-full mx-4">
+                <PhotoEditor
+                    :image-element="photoEditorImage"
+                    @save="handlePhotoSave"
+                />
             </div>
         </div>
 
-        <!-- Export Modal -->
-        <div v-if="showExportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
-                <h3 class="text-xl font-semibold mb-4">تصدير التصميم</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">صيغة التصدير</label>
-                        <select v-model="exportFormat" class="w-full border border-gray-300 rounded-lg px-3 py-2">
-                            <option value="png">PNG</option>
-                            <option value="jpeg">JPEG</option>
-                            <option value="svg">SVG</option>
-                            <option value="pdf">PDF</option>
-                        </select>
-                    </div>
-                    <div v-if="exportFormat !== 'svg'">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">الجودة (%)</label>
-                        <input v-model="exportQuality" type="range" min="50" max="100" class="w-full">
-                        <div class="text-center text-sm text-gray-600">{{ exportQuality }}%</div>
-                    </div>
-                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                        <div class="flex items-center">
-                            <i class="fas fa-info-circle text-yellow-600 ml-2"></i>
-                            <span class="text-sm text-yellow-800">سيتم تضمين العلامة المائية في التصدير</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex space-x-3 space-x-reverse mt-6">
-                    <button
-                        @click="exportDesign"
-                        :disabled="isExporting"
-                        class="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 px-4 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-200 disabled:opacity-50"
-                    >
-                        <span v-if="isExporting">جاري التصدير...</span>
-                        <span v-else>تصدير</span>
-                    </button>
-                    <button
-                        @click="showExportModal = false"
-                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                    >
-                        إلغاء
-                    </button>
-                </div>
+        <!-- Loading Overlay -->
+        <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
+            <div class="bg-white rounded-lg p-8 flex items-center space-x-4 space-x-reverse">
+                <i class="fas fa-spinner fa-spin text-2xl text-purple-600"></i>
+                <span class="text-lg font-medium">{{ loadingMessage }}</span>
             </div>
         </div>
+
+        <!-- Add a modal for delete confirmation -->
+        <template v-if="showDeleteConfirm">
+            <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                <div class="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full text-center">
+                    <h2 class="text-lg font-bold mb-4">تأكيد الحذف</h2>
+                    <p class="mb-6">هل أنت متأكد أنك تريد حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء.</p>
+                    <div class="flex justify-center gap-4">
+                        <button @click="performDeleteLayer" class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700">حذف</button>
+                        <button @click="cancelDeleteLayer" class="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400">إلغاء</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Export Modal -->
+        <template v-if="showExportModal">
+            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
+                    <h2 class="text-xl font-bold mb-6 text-center">تصدير التصميم</h2>
+
+                    <!-- Format Selection -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">اختر صيغة التصدير:</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button
+                                v-for="format in exportFormats"
+                                :key="format.value"
+                                @click="selectedExportFormat = format.value"
+                                :class="[
+                                    'p-4 border-2 rounded-lg text-center transition-all',
+                                    selectedExportFormat === format.value
+                                        ? 'border-purple-500 bg-purple-50 text-purple-700'
+                                        : 'border-gray-200 hover:border-gray-300'
+                                ]"
+                            >
+                                <i :class="format.icon" class="text-2xl mb-2 block"></i>
+                                <div class="font-medium">{{ format.label }}</div>
+                                <div class="text-xs text-gray-500">{{ format.description }}</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quality Settings for JPEG -->
+                    <div v-if="selectedExportFormat === 'jpeg'" class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">جودة الصورة:</label>
+                        <input
+                            v-model="exportQuality"
+                            type="range"
+                            min="10"
+                            max="100"
+                            step="10"
+                            class="w-full"
+                        >
+                        <div class="text-center text-sm text-gray-600 mt-1">{{ exportQuality }}%</div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex justify-center gap-4">
+                        <button
+                            @click="showExportModal = false"
+                            class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                        >
+                            إلغاء
+                        </button>
+                        <button
+                            @click="exportDesignWithFormat"
+                            :disabled="isExporting"
+                            class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                        >
+                            <span v-if="isExporting">جاري التصدير...</span>
+                            <span v-else>تصدير</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
     </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
-import ClientWatermarkService from '@/Services/ClientWatermarkService.js';
-import ClientExportService from '@/Services/ClientExportService.js';
+import { ref, reactive, onMounted, computed, nextTick } from 'vue'
+import { Head, Link, router } from '@inertiajs/vue3'
+import PhotoEditor from '@/Components/DesignEditor/PhotoEditor.vue'
+import ElementsPanel from '@/Components/DesignEditor/ElementsPanel.vue'
+import LayersPanel from '@/Components/DesignEditor/LayersPanel.vue'
+import PropertiesPanel from '@/Components/DesignEditor/PropertiesPanel.vue'
+import DesignElement from '@/Components/DesignEditor/DesignElement.vue'
 
 // Props
 const props = defineProps({
     template: {
         type: Object,
-        default: null
-    },
-    clientTemplate: {
-        type: Object,
-        default: null
-    },
-    mode: {
-        type: String,
-        default: 'create' // 'create' or 'edit'
+        required: true
     }
-});
+})
 
 // State
-const activeTab = ref('elements');
-const selectedElement = ref(null);
-const elements = ref([]);
-const zoom = ref(1);
-const canvasWidth = ref(800);
-const canvasHeight = ref(600);
+const activeTab = ref('elements')
+const currentDevice = ref('desktop')
+const zoom = ref(1)
+const showGrid = ref(false)
+const snapToGrid = ref(false)
+const canvasWidth = ref(800)
+const canvasHeight = ref(600)
+const saving = ref(false)
+const loading = ref(false)
+const loadingMessage = ref('')
+const showPhotoEditor = ref(false)
+const photoEditorImage = ref(null)
+const canvasBackground = ref('')
+const backgroundSize = ref('contain')
+const showWatermark = ref(true) // Always true for clients - non-removable
+const pendingElementType = ref(null)
+const showDeleteConfirm = ref(false)
+const layerToDelete = ref(null)
 
-// Modals
-const showSaveModal = ref(false);
-const showExportModal = ref(false);
-const designName = ref('');
-const designNotes = ref('');
-const exportFormat = ref('png');
-const exportQuality = ref(90);
+// Export state
+const showExportModal = ref(false)
+const selectedExportFormat = ref('png')
+const exportQuality = ref(90)
+const isExporting = ref(false)
 
-// Loading states
-const isSaving = ref(false);
-const isExporting = ref(false);
+// Design state
+const elements = ref([])
+const selectedElement = ref(null)
+const history = ref([])
+const historyIndex = ref(-1)
+
+// Refs
+const canvasContainer = ref(null)
+const designCanvas = ref(null)
+
+// Configuration
+const tabs = [
+    { id: 'elements', name: 'العناصر', icon: 'fas fa-shapes' },
+    { id: 'layers', name: 'الطبقات', icon: 'fas fa-layer-group' },
+    { id: 'properties', name: 'الخصائص', icon: 'fas fa-cog' }
+]
+
+// Export formats configuration
+const exportFormats = [
+    {
+        value: 'png',
+        label: 'PNG',
+        description: 'جودة عالية مع شفافية',
+        icon: 'fas fa-file-image'
+    },
+    {
+        value: 'jpeg',
+        label: 'JPEG',
+        description: 'حجم أصغر للصور',
+        icon: 'fas fa-image'
+    },
+    {
+        value: 'svg',
+        label: 'SVG',
+        description: 'رسوميات متجهة قابلة للتكبير',
+        icon: 'fas fa-vector-square'
+    },
+    {
+        value: 'pdf',
+        label: 'PDF',
+        description: 'مستند قابل للطباعة',
+        icon: 'fas fa-file-pdf'
+    }
+]
+
+const devices = [
+    { id: 'desktop', name: 'سطح المكتب', icon: 'fas fa-desktop' },
+    { id: 'tablet', name: 'تابلت', icon: 'fas fa-tablet-alt' },
+    { id: 'mobile', name: 'موبايل', icon: 'fas fa-mobile-alt' }
+]
 
 // Computed
-const isEditMode = computed(() => props.mode === 'edit');
+const canUndo = computed(() => historyIndex.value > 0)
+const canRedo = computed(() => historyIndex.value < history.value.length - 1)
+
+const layers = computed(() => {
+    return elements.value.map((element, index) => ({
+        id: element.id,
+        name: element.name || `عنصر ${index + 1}`,
+        type: element.type,
+        visible: element.visible !== false,
+        locked: element.locked || false
+    }))
+})
+
+const gridStyle = computed(() => {
+    const gridSize = 20 * zoom.value
+    return {
+        backgroundImage: `
+            linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+            linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)
+        `,
+        backgroundSize: `${gridSize}px ${gridSize}px`
+    }
+})
 
 // Methods
-const initializeEditor = () => {
-    if (isEditMode.value && props.clientTemplate) {
-        // Load existing client template
-        designName.value = props.clientTemplate.name;
-        designNotes.value = props.clientTemplate.notes || '';
+const setDevice = (device) => {
+    currentDevice.value = device
 
-        if (props.clientTemplate.design_data) {
-            loadDesignData(props.clientTemplate.design_data);
+    // Update canvas size based on device
+    switch (device) {
+        case 'desktop':
+            canvasWidth.value = 1200
+            canvasHeight.value = 800
+            break
+        case 'tablet':
+            canvasWidth.value = 768
+            canvasHeight.value = 1024
+            break
+        case 'mobile':
+            canvasWidth.value = 375
+            canvasHeight.value = 667
+            break
+    }
+}
+
+const zoomIn = () => {
+    zoom.value = Math.min(zoom.value + 0.1, 3)
+}
+
+const zoomOut = () => {
+    zoom.value = Math.max(zoom.value - 0.1, 0.1)
+}
+
+const resetZoom = () => {
+    zoom.value = 1
+}
+
+const toggleGrid = () => {
+    showGrid.value = !showGrid.value
+}
+
+const toggleSnap = () => {
+    snapToGrid.value = !snapToGrid.value
+}
+
+// Update addElement to use placement mode for non-image elements
+const addElement = (elementData) => {
+    if (elementData.type === 'image') {
+        // Add image immediately at center
+        const newElement = {
+            id: generateId(),
+            type: elementData.type,
+            name: elementData.name,
+            x: canvasWidth.value / 2 - 100,
+            y: canvasHeight.value / 2 - 100,
+            width: elementData.width || 200,
+            height: elementData.height || 100,
+            rotation: 0,
+            opacity: 1,
+            visible: true,
+            locked: false,
+            zIndex: elements.value.length,
+            ...elementData.properties
+        }
+        elements.value.push(newElement)
+        selectedElement.value = newElement
+        saveToHistory()
+    } else {
+        // Enter placement mode
+        pendingElementType.value = elementData
+    }
+}
+
+const addImage = (file) => {
+    let newElement
+
+    if (file.is_canvas_background) {
+        // Set as canvas background (CSS background)
+        setCanvasBackground(file.url)
+        return
+    } else if (file.is_background) {
+        // Add as background image element (full canvas size)
+        newElement = {
+            id: generateId(),
+            type: 'image',
+            name: 'صورة خلفية - ' + file.filename,
+            x: 0,
+            y: 0,
+            width: canvasWidth.value,
+            height: canvasHeight.value,
+            rotation: 0,
+            opacity: 1,
+            visible: true,
+            locked: false,
+            zIndex: 0, // Background should be at the bottom
+            src: file.url,
+            isBackground: true,
+            originalWidth: file.width || canvasWidth.value,
+            originalHeight: file.height || canvasHeight.value
         }
 
-        if (props.clientTemplate.canvas_size) {
-            const [width, height] = props.clientTemplate.canvas_size.split('x').map(Number);
-            canvasWidth.value = width;
-            canvasHeight.value = height;
-        }
-    } else if (props.template) {
-        // Load template for new design
-        designName.value = `تصميم جديد - ${props.template.name}`;
-
-        if (props.template.design_data) {
-            loadDesignData(props.template.design_data);
-        }
-
-        if (props.template.canvas_size) {
-            const [width, height] = props.template.canvas_size.split('x').map(Number);
-            canvasWidth.value = width;
-            canvasHeight.value = height;
+        // Move all existing elements up one z-index
+        elements.value.forEach(el => el.zIndex++)
+    } else {
+        // Add as regular image
+        newElement = {
+            id: generateId(),
+            type: 'image',
+            name: file.filename,
+            x: 50,
+            y: 50,
+            width: Math.min(300, canvasWidth.value - 100),
+            height: Math.min(200, canvasHeight.value - 100),
+            rotation: 0,
+            opacity: 1,
+            visible: true,
+            locked: false,
+            zIndex: elements.value.length,
+            src: file.url,
+            originalWidth: file.metadata?.dimensions?.width || 300,
+            originalHeight: file.metadata?.dimensions?.height || 200
         }
     }
-};
 
-const loadDesignData = (designData) => {
-    try {
-        if (typeof designData === 'string') {
-            designData = JSON.parse(designData);
-        }
-
-        // Appliquer et vérifier le filigrane client
-        designData = ClientWatermarkService.sanitizeDesignData(designData);
-
-        if (designData.elements) {
-            elements.value = designData.elements;
-        }
-
-        if (designData.canvas) {
-            canvasWidth.value = designData.canvas.width || 800;
-            canvasHeight.value = designData.canvas.height || 600;
-        }
-    } catch (error) {
-        console.error('Error loading design data:', error);
-    }
-};
+    elements.value.push(newElement)
+    selectedElement.value = newElement
+    saveToHistory()
+}
 
 const selectElement = (element) => {
-    selectedElement.value = element;
-    activeTab.value = 'properties';
-};
-
-const getElementStyle = (element) => {
-    return {
-        left: element.x + 'px',
-        top: element.y + 'px',
-        width: element.width + 'px',
-        height: element.height + 'px',
-        transform: element.rotation ? `rotate(${element.rotation}deg)` : '',
-        zIndex: element.zIndex || 1,
-        ...element.style
+    // Always assign a deep copy to trigger reactivity and watcher
+    selectedElement.value = {
+        ...element,
+        properties: element.properties ? { ...element.properties } : undefined
     };
-};
+    activeTab.value = 'properties'
+}
 
-// Element creation methods
-const addTextElement = () => {
+const selectLayer = (layerId) => {
+    const element = elements.value.find(el => el.id === layerId)
+    if (element) {
+        // Always assign a deep copy to trigger reactivity and watcher
+        selectedElement.value = {
+            ...element,
+            properties: element.properties ? { ...element.properties } : undefined
+        };
+        activeTab.value = 'properties'
+    }
+}
+
+const updateElement = (elementId, updates) => {
+    const elementIndex = elements.value.findIndex(el => el.id === elementId)
+    if (elementIndex !== -1) {
+        elements.value[elementIndex] = { ...elements.value[elementIndex], ...updates }
+        saveToHistory()
+    }
+}
+
+const deleteElement = (elementId) => {
+    const elementIndex = elements.value.findIndex(el => el.id === elementId)
+    if (elementIndex !== -1) {
+        elements.value.splice(elementIndex, 1)
+        if (selectedElement.value?.id === elementId) {
+            selectedElement.value = null
+        }
+        saveToHistory()
+    }
+}
+
+const deleteLayer = (layerId) => {
+    deleteElement(layerId)
+}
+
+const reorderLayers = (newOrder) => {
+    // Reorder elements based on layer order
+    const reorderedElements = newOrder.map(layerId =>
+        elements.value.find(el => el.id === layerId)
+    ).filter(Boolean)
+
+    elements.value = reorderedElements
+    updateAllZIndices()
+    saveToHistory()
+}
+
+// Update handleCanvasClick to place pending element
+const handleCanvasClick = (event) => {
+    if (pendingElementType.value) {
+        // Get click coordinates relative to canvas
+        const rect = designCanvas.value.getBoundingClientRect()
+        const x = (event.clientX - rect.left) / zoom.value
+        const y = (event.clientY - rect.top) / zoom.value
+        const elementData = pendingElementType.value
+        const newElement = {
+            id: generateId(),
+            type: elementData.type,
+            name: elementData.name,
+            x: x,
+            y: y,
+            width: elementData.width || 200,
+            height: elementData.height || 100,
+            rotation: 0,
+            opacity: 1,
+            visible: true,
+            locked: false,
+            zIndex: elements.value.length,
+            ...elementData.properties
+        }
+        elements.value.push(newElement)
+        selectedElement.value = newElement
+        saveToHistory()
+        pendingElementType.value = null
+    } else if (event.target === designCanvas.value) {
+        selectedElement.value = null
+    }
+}
+
+const handleDrop = (event) => {
+    event.preventDefault()
+    // Handle file drops
+    const files = Array.from(event.dataTransfer.files)
+    files.forEach(file => {
+        if (file.type.startsWith('image/')) {
+            // Handle image drop
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                const newElement = {
+                    id: generateId(),
+                    type: 'image',
+                    name: file.name,
+                    x: event.offsetX,
+                    y: event.offsetY,
+                    width: 300,
+                    height: 200,
+                    rotation: 0,
+                    opacity: 1,
+                    visible: true,
+                    locked: false,
+                    zIndex: elements.value.length,
+                    src: e.target.result
+                }
+
+                elements.value.push(newElement)
+                selectedElement.value = newElement
+                saveToHistory()
+            }
+            reader.readAsDataURL(file)
+        }
+    })
+}
+
+const saveToHistory = () => {
+    // Remove any future history if we're not at the end
+    history.value = history.value.slice(0, historyIndex.value + 1)
+
+    // Add current state
+    history.value.push(JSON.parse(JSON.stringify(elements.value)))
+    historyIndex.value++
+
+    // Limit history size
+    if (history.value.length > 50) {
+        history.value.shift()
+        historyIndex.value--
+    }
+}
+
+const undo = () => {
+    if (canUndo.value) {
+        historyIndex.value--
+        elements.value = JSON.parse(JSON.stringify(history.value[historyIndex.value]))
+        selectedElement.value = null
+    }
+}
+
+const redo = () => {
+    if (canRedo.value) {
+        historyIndex.value++
+        elements.value = JSON.parse(JSON.stringify(history.value[historyIndex.value]))
+        selectedElement.value = null
+    }
+}
+
+const generateId = () => {
+    return 'element_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+}
+
+const saveDesign = async () => {
+    saving.value = true
+
+    try {
+        const designData = {
+            elements: elements.value,
+            canvas: {
+                width: canvasWidth.value,
+                height: canvasHeight.value,
+                background: canvasBackground.value,
+                backgroundSize: backgroundSize.value
+            },
+            settings: {
+                device: currentDevice.value,
+                zoom: zoom.value
+            },
+            watermark: {
+                text: 'سامقة للتصميم',
+                enabled: true,
+                position: 'bottom-right',
+                style: {
+                    fontSize: '14px',
+                    color: 'rgba(0, 0, 0, 0.25)',
+                    fontFamily: 'Cairo, sans-serif',
+                    fontWeight: 'bold',
+                    rotation: '-15deg'
+                }
+            }
+        }
+
+        const response = await fetch(`/client/templates/${props.template.id}/design`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({
+                design_data: JSON.stringify(designData)
+            })
+        })
+
+        if (response.ok) {
+            // Show success message
+            console.log('Design saved successfully')
+        } else {
+            throw new Error('Failed to save design')
+        }
+    } catch (error) {
+        console.error('Error saving design:', error)
+        alert('خطأ في حفظ التصميم')
+    } finally {
+        saving.value = false
+    }
+}
+
+const previewDesign = () => {
+    // Open preview in new window
+    const previewData = {
+        elements: elements.value,
+        canvas: {
+            width: canvasWidth.value,
+            height: canvasHeight.value
+        }
+    }
+
+    const previewWindow = window.open('', '_blank')
+    previewWindow.document.write(generatePreviewHTML(previewData))
+}
+
+const generatePreviewHTML = (designData) => {
+    // Generate HTML for preview
+    let html = `
+        <!DOCTYPE html>
+        <html dir="rtl">
+        <head>
+            <meta charset="UTF-8">
+            <title>معاينة التصميم</title>
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+                body {
+                    margin: 0;
+                    padding: 20px;
+                    font-family: 'Cairo', sans-serif;
+                    background: #f5f5f5;
+                }
+                .canvas {
+                    width: ${designData.canvas.width}px;
+                    height: ${designData.canvas.height}px;
+                    position: relative;
+                    background: white;
+                    border: 1px solid #ddd;
+                    margin: 0 auto;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                    ${canvasBackground.value ? `
+                        background-image: url(${canvasBackground.value});
+                        background-size: ${backgroundSize.value};
+                        background-position: center;
+                        background-repeat: no-repeat;
+                    ` : ''}
+                }
+                .element { position: absolute; }
+                h2 { text-align: center; color: #333; margin-bottom: 20px; }
+                .footer {
+                    text-align: center;
+                    margin-top: 20px;
+                    color: #666;
+                    font-size: 12px;
+                }
+            </style>
+        </head>
+        <body>
+            <h2>معاينة التصميم - سامقة</h2>
+            <div class="canvas">
+    `
+
+    designData.elements.forEach(element => {
+        if (element.visible !== false) {
+            html += generateElementHTML(element)
+        }
+    })
+
+    html += `
+                <!-- Always show watermark in preview -->
+                <div style="
+                    position: absolute;
+                    bottom: 15px;
+                    right: 15px;
+                    font-size: 14px;
+                    color: rgba(0, 0, 0, 0.25);
+                    font-family: 'Cairo', sans-serif;
+                    font-weight: bold;
+                    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+                    z-index: 9999;
+                    transform: rotate(-15deg);
+                    transform-origin: center;
+                    user-select: none;
+                    letter-spacing: 1px;
+                    pointer-events: none;
+                ">سامقة للتصميم</div>
+            </div>
+            <div class="footer">
+                <p>© ${new Date().getFullYear()} سامقة للتصميم - جميع الحقوق محفوظة</p>
+                <p>تم إنشاء هذا التصميم باستخدام منصة سامقة للتصميم</p>
+            </div>
+        </body>
+        </html>
+    `
+
+    return html
+}
+
+const generateElementHTML = (element) => {
+    const style = `
+        left: ${element.x}px;
+        top: ${element.y}px;
+        width: ${element.width}px;
+        height: ${element.height}px;
+        transform: rotate(${element.rotation}deg);
+        opacity: ${element.opacity};
+        z-index: ${element.zIndex};
+    `
+
+    switch (element.type) {
+        case 'text':
+            return `<div class="element" style="${style} font-size: ${element.fontSize || 16}px; color: ${element.color || '#000'}; font-weight: ${element.fontWeight || 'normal'};">${element.text || 'نص'}</div>`
+        case 'image':
+            return `<img class="element" src="${element.src}" style="${style} object-fit: cover;" alt="${element.name}">`
+        case 'rectangle':
+            return `<div class="element" style="${style} background-color: ${element.backgroundColor || '#000'}; border-radius: ${element.borderRadius || 0}px;"></div>`
+        default:
+            return ''
+    }
+}
+
+const loadDesign = () => {
+    if (props.template.design_data) {
+        try {
+            const designData = JSON.parse(props.template.design_data)
+            elements.value = designData.elements || []
+
+            if (designData.canvas) {
+                canvasWidth.value = designData.canvas.width || 800
+                canvasHeight.value = designData.canvas.height || 600
+                canvasBackground.value = designData.canvas.background || ''
+                backgroundSize.value = designData.canvas.backgroundSize || 'contain'
+            }
+
+            if (designData.settings) {
+                currentDevice.value = designData.settings.device || 'desktop'
+                zoom.value = designData.settings.zoom || 1
+            }
+
+            // Initialize history
+            saveToHistory()
+        } catch (error) {
+            console.error('Error loading design:', error)
+        }
+    } else {
+        // Initialize with empty design
+        saveToHistory()
+    }
+}
+
+const openPhotoEditor = (imageElement) => {
+    photoEditorImage.value = imageElement
+    showPhotoEditor.value = true
+}
+
+const closePhotoEditor = () => {
+    showPhotoEditor.value = false
+    photoEditorImage.value = null
+}
+
+const handlePhotoSave = (blob) => {
+    // Handle saving edited photo
+    console.log('Photo edited:', blob)
+    closePhotoEditor()
+}
+
+const addQuickText = () => {
     const newElement = {
-        id: Date.now(),
+        id: generateId(),
         type: 'text',
-        content: 'نص جديد',
-        x: 100,
-        y: 100,
+        name: 'نص سريع',
+        x: canvasWidth.value / 2 - 100,
+        y: canvasHeight.value / 2 - 25,
         width: 200,
         height: 50,
-        style: {
-            fontSize: '16px',
-            fontFamily: 'Cairo, sans-serif',
-            color: '#000000',
-            textAlign: 'right'
-        }
-    };
+        rotation: 0,
+        opacity: 1,
+        visible: true,
+        locked: false,
+        zIndex: elements.value.length,
+        text: 'اكتب النص هنا',
+        fontSize: 24,
+        fontFamily: 'Cairo',
+        fontWeight: 'bold',
+        color: '#ffffff',
+        textAlign: 'center',
+        lineHeight: 1.5
+    }
 
-    elements.value.push(newElement);
-    selectElement(newElement);
-};
+    elements.value.push(newElement)
+    selectedElement.value = newElement
+    saveToHistory()
+}
 
-const addHeadingElement = () => {
+const addQuickShape = () => {
     const newElement = {
-        id: Date.now(),
-        type: 'text',
-        content: 'عنوان جديد',
-        x: 100,
-        y: 100,
-        width: 300,
-        height: 60,
-        style: {
-            fontSize: '24px',
-            fontFamily: 'Cairo, sans-serif',
-            fontWeight: 'bold',
-            color: '#000000',
-            textAlign: 'right'
-        }
-    };
-
-    elements.value.push(newElement);
-    selectElement(newElement);
-};
-
-const addRectangleElement = () => {
-    const newElement = {
-        id: Date.now(),
-        type: 'shape',
-        shapeType: 'rectangle',
-        x: 100,
-        y: 100,
+        id: generateId(),
+        type: 'rectangle',
+        name: 'شكل سريع',
+        x: canvasWidth.value / 2 - 75,
+        y: canvasHeight.value / 2 - 50,
         width: 150,
         height: 100,
-        style: {
-            backgroundColor: '#3B82F6',
-            borderRadius: '8px'
-        }
-    };
+        rotation: 0,
+        opacity: 0.8,
+        visible: true,
+        locked: false,
+        zIndex: elements.value.length,
+        backgroundColor: '#8b5cf6',
+        borderRadius: 10,
+        borderWidth: 0
+    }
 
-    elements.value.push(newElement);
-    selectElement(newElement);
-};
+    elements.value.push(newElement)
+    selectedElement.value = newElement
+    saveToHistory()
+}
 
-const addCircleElement = () => {
-    const newElement = {
-        id: Date.now(),
-        type: 'shape',
-        shapeType: 'circle',
-        x: 100,
-        y: 100,
-        width: 100,
-        height: 100,
-        style: {
-            backgroundColor: '#EF4444',
-            borderRadius: '50%'
-        }
-    };
-
-    elements.value.push(newElement);
-    selectElement(newElement);
-};
-
-const addImageElement = () => {
-    // This would typically open a file picker
+function setCanvasBackground(bgDataUrl) {
+    canvasBackground.value = bgDataUrl;
+}
+function addImageElement(imgDataUrl) {
+    // Add a new image element to the canvas
     const newElement = {
         id: Date.now(),
         type: 'image',
-        src: '/images/placeholder.jpg',
-        x: 100,
-        y: 100,
+        src: imgDataUrl,
+        x: canvasWidth.value / 2 - 100,
+        y: canvasHeight.value / 2 - 100,
         width: 200,
-        height: 150,
-        style: {
-            borderRadius: '8px'
-        }
+        height: 200,
+        name: 'صورة'
     };
-
     elements.value.push(newElement);
-    selectElement(newElement);
-};
+    selectedElement.value = newElement;
+}
 
-// Zoom controls
-const zoomIn = () => {
-    zoom.value = Math.min(zoom.value + 0.1, 2);
-};
+const removeCanvasBackground = () => {
+    canvasBackground.value = ''
+    backgroundSize.value = 'contain'
+    saveToHistory()
+}
 
-const zoomOut = () => {
-    zoom.value = Math.max(zoom.value - 0.1, 0.5);
-};
+// New comprehensive export function
+const exportDesignWithFormat = async () => {
+    if (isExporting.value) return
 
-// Save functionality
-const saveDesign = () => {
-    if (isEditMode.value) {
-        // Direct save for edit mode
-        confirmSave();
-    } else {
-        // Show modal for new design
-        showSaveModal.value = true;
-    }
-};
-
-const confirmSave = async () => {
-    if (!designName.value.trim()) return;
-
-    isSaving.value = true;
+    isExporting.value = true
 
     try {
-        let designData = {
-            elements: elements.value,
-            canvas: {
-                width: canvasWidth.value,
-                height: canvasHeight.value
-            }
-        };
+        // Temporarily ensure watermark is visible
+        const originalWatermarkState = showWatermark.value
+        showWatermark.value = true
 
-        // Appliquer le filigrane client obligatoire
-        designData = ClientWatermarkService.applyWatermark(designData);
+        // Wait for DOM update
+        await nextTick()
 
-        const payload = {
-            name: designName.value,
-            design_data: JSON.stringify(designData),
-            editable_elements: elements.value.map(el => el.id),
-            canvas_size: `${canvasWidth.value}x${canvasHeight.value}`,
-            notes: designNotes.value
-        };
-
-        if (isEditMode.value) {
-            // Update existing design
-            await router.put(route('client.designs.update', props.clientTemplate.id), payload);
-        } else {
-            // Create new design
-            payload.template_id = props.template.id;
-            await router.post(route('client.designs.store'), payload);
+        switch (selectedExportFormat.value) {
+            case 'png':
+                await exportAsPNG()
+                break
+            case 'jpeg':
+                await exportAsJPEG()
+                break
+            case 'svg':
+                await exportAsSVG()
+                break
+            case 'pdf':
+                await exportAsPDF()
+                break
         }
 
-        showSaveModal.value = false;
+        // Restore original watermark state
+        showWatermark.value = originalWatermarkState
+        showExportModal.value = false
 
     } catch (error) {
-        console.error('Save error:', error);
-        alert('حدث خطأ أثناء حفظ التصميم');
+        console.error('Export error:', error)
+        alert('خطأ في تصدير التصميم')
     } finally {
-        isSaving.value = false;
+        isExporting.value = false
     }
-};
+}
 
-// Export functionality
-const exportDesign = async () => {
-    isExporting.value = true;
+const exportAsPNG = async () => {
+    await exportDesignWithWatermark()
+}
 
+const exportAsJPEG = async () => {
+    await exportDesignWithWatermark()
+}
+
+// Copie exacte de la fonction admin qui marche
+const exportDesignWithWatermark = async () => {
     try {
-        // Préparer les données de design avec filigrane
-        let designData = {
-            elements: elements.value,
-            canvas: {
-                width: canvasWidth.value,
-                height: canvasHeight.value
-            }
-        };
+        // Temporarily ensure watermark is visible
+        const originalWatermarkState = showWatermark.value
+        showWatermark.value = true
 
-        // Appliquer le filigrane obligatoire
-        designData = ClientWatermarkService.applyWatermark(designData);
+        // Wait for DOM update
+        await nextTick()
 
-        // Options d'export
-        const exportOptions = {
-            format: exportFormat.value,
-            quality: exportQuality.value,
-            width: canvasWidth.value,
-            height: canvasHeight.value,
-            filename: designName.value || 'design'
-        };
+        // Get canvas element
+        const canvas = designCanvas.value
+        if (!canvas) return
 
-        // Exporter avec le service client
-        const result = await ClientExportService.exportDesign(designData, exportOptions);
+        // Create a new canvas for export
+        const exportCanvas = document.createElement('canvas')
+        const ctx = exportCanvas.getContext('2d')
 
-        // Télécharger le fichier
-        ClientExportService.downloadFile(result.blob, result.filename);
+        exportCanvas.width = canvasWidth.value
+        exportCanvas.height = canvasHeight.value
 
-        showExportModal.value = false;
+        // Fill background
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0, 0, canvasWidth.value, canvasHeight.value)
 
-        // Optionnel : enregistrer l'activité d'export côté serveur
-        if (isEditMode.value && props.clientTemplate) {
-            try {
-                await fetch(route('client.designs.export', props.clientTemplate.id), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({
-                        format: exportFormat.value,
-                        quality: exportQuality.value
+        // Draw background image if exists
+        if (canvasBackground.value) {
+            await new Promise((resolve) => {
+                const img = new Image()
+                img.crossOrigin = 'anonymous'
+                img.onload = () => {
+                    ctx.drawImage(img, 0, 0, canvasWidth.value, canvasHeight.value)
+                    resolve()
+                }
+                img.src = canvasBackground.value
+            })
+        }
+
+        // Draw all elements
+        for (const element of elements.value) {
+            if (element.visible === false) continue
+            switch (element.type) {
+                case 'text':
+                    ctx.save()
+                    ctx.font = `${element.fontWeight || 'normal'} ${element.fontSize || 16}px ${element.fontFamily || 'Cairo, sans-serif'}`
+                    ctx.fillStyle = element.color || '#000'
+                    ctx.textAlign = element.textAlign || 'left'
+                    ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                    ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                    ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                    ctx.fillText(element.text || '', 0, 0)
+                    ctx.restore()
+                    break
+                case 'image':
+                    await new Promise((resolve) => {
+                        const img = new Image()
+                        img.crossOrigin = 'anonymous'
+                        img.onload = () => {
+                            ctx.save()
+                            ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                            ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                            ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                            ctx.drawImage(img, -(element.width || 0) / 2, -(element.height || 0) / 2, element.width || 100, element.height || 100)
+                            ctx.restore()
+                            resolve()
+                        }
+                        img.src = element.src
                     })
-                });
-            } catch (serverError) {
-                console.warn('Failed to log export activity:', serverError);
+                    break
+                case 'rectangle':
+                    ctx.save()
+                    ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                    ctx.fillStyle = element.backgroundColor || '#000'
+                    ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                    ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                    ctx.fillRect(-(element.width || 0) / 2, -(element.height || 0) / 2, element.width || 100, element.height || 100)
+                    ctx.restore()
+                    break
+                // Add more element types as needed
             }
         }
 
+        // Draw watermark
+        drawWatermarkOnCanvas(ctx)
+        downloadCanvas(exportCanvas)
+
+        // Restore original watermark state
+        showWatermark.value = originalWatermarkState
+
     } catch (error) {
-        console.error('Export error:', error);
-        alert('حدث خطأ أثناء التصدير: ' + error.message);
-    } finally {
-        isExporting.value = false;
+        console.error('Export error:', error)
+        alert('خطأ في تصدير التصميم')
     }
-};
+}
+
+// Copie exacte de la fonction admin qui marche
+const drawWatermarkOnCanvas = (ctx) => {
+    // Draw watermark
+    ctx.save()
+    ctx.font = 'bold 48px Cairo, sans-serif'
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'
+    ctx.textAlign = 'center'
+
+    // Position at center and rotate diagonally
+    const x = canvasWidth.value / 2
+    const y = canvasHeight.value / 2
+
+    // Rotate text
+    ctx.translate(x, y)
+    ctx.rotate(-45 * Math.PI / 180)
+    ctx.fillText('سامقة للتصميم', 0, 0)
+    ctx.restore()
+}
+
+const downloadCanvas = (canvas) => {
+    const link = document.createElement('a')
+    link.download = `design-${Date.now()}.png`
+    link.href = canvas.toDataURL()
+    link.click()
+}
+
+const exportAsSVG = async () => {
+    // Create SVG string with all elements
+    let svgContent = `<svg width="${canvasWidth.value}" height="${canvasHeight.value}" xmlns="http://www.w3.org/2000/svg">`
+
+    // Background
+    svgContent += `<rect width="100%" height="100%" fill="white"/>`
+
+    // Background image if exists
+    if (canvasBackground.value) {
+        svgContent += `<image href="${canvasBackground.value}" width="100%" height="100%"/>`
+    }
+
+    // Elements
+    for (const element of elements.value) {
+        if (element.visible === false) continue
+
+        const transform = `translate(${element.x + (element.width || 0) / 2}, ${element.y + (element.height || 0) / 2}) rotate(${element.rotation || 0})`
+
+        switch (element.type) {
+            case 'text':
+                svgContent += `<text x="0" y="0" transform="${transform}"
+                    font-family="${element.fontFamily || 'Cairo, sans-serif'}"
+                    font-size="${element.fontSize || 16}"
+                    font-weight="${element.fontWeight || 'normal'}"
+                    fill="${element.color || '#000'}"
+                    text-anchor="middle"
+                    opacity="${element.opacity !== undefined ? element.opacity : 1}">
+                    ${element.text || ''}
+                </text>`
+                break
+            case 'rectangle':
+                svgContent += `<rect x="${-(element.width || 0) / 2}" y="${-(element.height || 0) / 2}"
+                    width="${element.width || 100}" height="${element.height || 100}"
+                    fill="${element.backgroundColor || '#000'}"
+                    transform="${transform}"
+                    opacity="${element.opacity !== undefined ? element.opacity : 1}"/>`
+                break
+            case 'image':
+                svgContent += `<image href="${element.src}"
+                    x="${-(element.width || 0) / 2}" y="${-(element.height || 0) / 2}"
+                    width="${element.width || 100}" height="${element.height || 100}"
+                    transform="${transform}"
+                    opacity="${element.opacity !== undefined ? element.opacity : 1}"/>`
+                break
+        }
+    }
+
+    // Watermark - diagonal in center
+    svgContent += `<text x="${canvasWidth.value / 2}" y="${canvasHeight.value / 2}"
+        font-family="Cairo, sans-serif" font-size="24" font-weight="bold"
+        fill="rgba(0, 0, 0, 0.1)" text-anchor="middle"
+        transform="rotate(-45 ${canvasWidth.value / 2} ${canvasHeight.value / 2})">سامقة للتصميم</text>`
+
+    svgContent += '</svg>'
+
+    // Download SVG
+    const blob = new Blob([svgContent], { type: 'image/svg+xml' })
+    const link = document.createElement('a')
+    link.download = `design-${Date.now()}.svg`
+    link.href = URL.createObjectURL(blob)
+    link.click()
+    URL.revokeObjectURL(link.href)
+}
+
+const exportAsPDF = async () => {
+    // For PDF export, we'll use the canvas approach and convert to PDF
+    // This requires jsPDF library - for now, we'll convert canvas to image and embed in PDF
+    const canvas = await createExportCanvas()
+
+    // Create a simple PDF with the canvas image
+    const imgData = canvas.toDataURL('image/png')
+
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank')
+
+    // Build HTML content using DOM methods to avoid template literal issues
+    printWindow.document.write('<!DOCTYPE html>')
+    printWindow.document.write('<html>')
+    printWindow.document.write('<head>')
+    printWindow.document.write('<title>تصميم سامقة</title>')
+    printWindow.document.write('<style>')
+    printWindow.document.write('body { margin: 0; padding: 20px; text-align: center; }')
+    printWindow.document.write('img { max-width: 100%; height: auto; }')
+    printWindow.document.write('@media print { body { margin: 0; padding: 0; } }')
+    printWindow.document.write('</style>')
+    printWindow.document.write('</head>')
+    printWindow.document.write('<body>')
+    printWindow.document.write(`<img src="${imgData}" alt="Design" />`)
+    printWindow.document.write('<script>')
+    printWindow.document.write('window.onload = function() {')
+    printWindow.document.write('window.print();')
+    printWindow.document.write('setTimeout(function() { window.close(); }, 1000);')
+    printWindow.document.write('}')
+    printWindow.document.write('<' + '/script>')
+    printWindow.document.write('<' + '/body>')
+    printWindow.document.write('<' + '/html>')
+    printWindow.document.close()
+}
 
 // Lifecycle
 onMounted(() => {
-    initializeEditor();
-});
+    loadDesign()
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            switch (e.key) {
+                case 'z':
+                    e.preventDefault()
+                    if (e.shiftKey) {
+                        redo()
+                    } else {
+                        undo()
+                    }
+                    break
+                case 'y':
+                    e.preventDefault()
+                    redo()
+                    break
+                case 's':
+                    e.preventDefault()
+                    saveDesign()
+                    break
+            }
+        }
+
+        if (e.key === 'Delete' && selectedElement.value) {
+            deleteElement(selectedElement.value.id)
+        }
+    })
+})
+
+function updateAllZIndices() {
+    elements.value.forEach((el, idx) => {
+        el.zIndex = idx;
+    });
+}
+
+function onMoveLayer(direction) {
+    if (!selectedElement.value) return;
+    const idx = elements.value.findIndex(el => el.id === selectedElement.value.id);
+    if (idx === -1) return;
+    if (direction === 'front' && idx < elements.value.length - 1) {
+        const temp = elements.value[idx];
+        elements.value.splice(idx, 1);
+        elements.value.splice(idx + 1, 0, temp);
+        updateAllZIndices();
+        saveToHistory();
+    } else if (direction === 'back' && idx > 0) {
+        const temp = elements.value[idx];
+        elements.value.splice(idx, 1);
+        elements.value.splice(idx - 1, 0, temp);
+        updateAllZIndices();
+        saveToHistory();
+    }
+}
+
+function onDuplicateElement() {
+    if (!selectedElement.value) return;
+    const element = { ...selectedElement.value, id: generateId() };
+    elements.value.push(element);
+    updateAllZIndices();
+    selectedElement.value = element;
+    saveToHistory();
+}
+
+function onRequestDeleteElement() {
+    if (!selectedElement.value) return;
+    layerToDelete.value = selectedElement.value.id;
+    showDeleteConfirm.value = true;
+}
+
+function onRequestDeleteLayer(layerId) {
+    layerToDelete.value = layerId;
+    showDeleteConfirm.value = true;
+}
+
+function performDeleteLayer() {
+    if (layerToDelete.value) {
+        deleteElement(layerToDelete.value);
+        layerToDelete.value = null;
+        showDeleteConfirm.value = false;
+    }
+}
+
+function cancelDeleteLayer() {
+    layerToDelete.value = null;
+    showDeleteConfirm.value = false;
+}
+
+// Update updateProperties to merge into .properties if needed
+function updateProperties(properties) {
+    if (selectedElement.value) {
+        const elementIndex = elements.value.findIndex(el => el.id === selectedElement.value.id);
+        if (elementIndex !== -1) {
+            const element = elements.value[elementIndex];
+            Object.keys(properties).forEach(key => {
+                // Always update both root and .properties
+                element[key] = properties[key];
+                if (element.properties) {
+                    element.properties[key] = properties[key];
+                }
+            });
+            elements.value[elementIndex] = { ...element };
+            saveToHistory();
+        }
+    }
+}
 </script>
+
+<style scoped>
+.design-canvas {
+    direction: ltr; /* Canvas should be LTR for proper positioning */
+}
+
+/* Watermark styles */
+.watermark {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.25);
+    font-family: 'Cairo', sans-serif;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+    z-index: 9999;
+    transform: rotate(-15deg);
+    transform-origin: center;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    letter-spacing: 1px;
+    pointer-events: none;
+}
+
+/* Ensure watermark is always visible */
+.watermark::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    z-index: -1;
+}
+
+/* Print styles - ensure watermark appears in prints */
+@media print {
+    .watermark {
+        color: rgba(0, 0, 0, 0.4) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+</style>

@@ -421,4 +421,52 @@ class ClientTemplateController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Save design data for a template (client version)
+     */
+    public function saveDesign(Request $request, Template $template)
+    {
+        try {
+            $validated = $request->validate([
+                'design_data' => 'required|string'
+            ]);
+
+            // Find or create client template for this user and template
+            $clientTemplate = ClientTemplate::firstOrCreate([
+                'user_id' => auth()->id(),
+                'template_id' => $template->id,
+            ], [
+                'name' => $template->name . ' - نسختي',
+                'design_data' => $validated['design_data'],
+                'canvas_size' => json_encode(['width' => 800, 'height' => 600]),
+                'version' => 1,
+            ]);
+
+            // Update existing client template
+            if (!$clientTemplate->wasRecentlyCreated) {
+                $clientTemplate->design_data = $validated['design_data'];
+                $clientTemplate->last_edited_at = now();
+                $clientTemplate->version += 1;
+                $clientTemplate->save();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حفظ التصميم بنجاح'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Client design save error: ' . $e->getMessage(), [
+                'template_id' => $template->id,
+                'user_id' => auth()->id(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء حفظ التصميم'
+            ], 500);
+        }
+    }
 }

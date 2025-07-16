@@ -76,6 +76,9 @@ Route::prefix('client')->name('client.')->group(function () {
         Route::post('/designs/{clientTemplate}/export', [ClientTemplateController::class, 'export'])->name('designs.export');
         Route::post('/designs/{clientTemplate}/duplicate', [ClientTemplateController::class, 'duplicate'])->name('designs.duplicate');
 
+        // Route pour sauvegarder le design côté client
+        Route::post('/templates/{template}/design', [ClientTemplateController::class, 'saveDesign'])->name('client.templates.design.save');
+
         Route::get('/cart', function () {
             return Inertia::render('Client/Cart', [
                 'cartItems' => []

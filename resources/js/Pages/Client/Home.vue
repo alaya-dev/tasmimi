@@ -25,16 +25,33 @@
         <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg shadow p-6">
             <h2 class="text-2xl font-extrabold mb-6 text-center text-purple-700 tracking-tight animate-fade-in">{{ selectedCategoryName }}</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                <div v-for="template in displayedTemplates" :key="template.id" class="group relative border border-gray-200 rounded-2xl p-4 flex flex-col items-center bg-white shadow-md hover:shadow-xl transition-all duration-300 hover:border-purple-400 hover:scale-105 cursor-pointer animate-fade-in-up">
+                <div
+                    v-for="template in displayedTemplates"
+                    :key="template.id"
+                    class="group relative border border-gray-200 rounded-2xl p-4 flex flex-col items-center bg-white shadow-md hover:shadow-xl transition-all duration-300 hover:border-purple-400 hover:scale-105 cursor-pointer animate-fade-in-up"
+                >
                     <div class="relative w-28 h-28 mb-3 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-purple-100 to-pink-100">
                         <img :src="template.thumbnail_url || '/images/placeholder.png'" alt="Template" class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110" />
                         <div v-if="!template.thumbnail_url" class="absolute inset-0 flex items-center justify-center text-purple-300">
                             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke-width="2"/></svg>
                         </div>
+
+                        <!-- Edit Icon Overlay -->
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-xl flex items-center justify-center transition-all duration-300">
+                            <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </div>
                     </div>
                     <div class="font-bold text-lg text-gray-800 text-center mb-1 truncate w-full">{{ template.name }}</div>
                     <div v-if="selectedCategory === 'all'" class="text-xs text-purple-500 bg-purple-100 px-2 py-1 rounded-full mb-2">({{ template.category.name }})</div>
-                    <button class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full font-semibold mt-2 shadow-lg hover:from-purple-600 hover:to-pink-600">عرض القالب</button>
+                    <Link
+                        :href="route('client.templates.create', template.id)"
+                        @click.stop
+                        class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full font-semibold mt-2 shadow-lg hover:from-purple-600 hover:to-pink-600 inline-block text-center"
+                    >
+                        عرض القالب
+                    </Link>
                 </div>
             </div>
         </div>
@@ -77,6 +94,8 @@ const selectedCategoryName = computed(() => {
     const cat = props.categories.find(c => c.id === selectedCategory.value);
     return cat ? cat.name : '';
 });
+
+
 </script>
 
 <style scoped>
