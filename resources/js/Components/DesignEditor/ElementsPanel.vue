@@ -5,6 +5,15 @@
             <h3 class="text-lg font-semibold text-gray-800">العناصر</h3>
         </div>
 
+        <!-- Background Image Upload -->
+        <div class="p-4 border-b border-gray-100 flex flex-col gap-2">
+            <input ref="backgroundInput" type="file" accept="image/*" @change="handleBackgroundSelect" class="hidden" />
+            <button @click="$refs.backgroundInput.click()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 flex items-center justify-center space-x-2 space-x-reverse font-medium shadow-lg">
+                <i class="fas fa-image"></i>
+                <span>إضافة خلفية للصفحة</span>
+            </button>
+        </div>
+
         <!-- Content -->
         <div class="flex-1 overflow-y-auto p-4">
             <!-- Basic Elements -->
@@ -20,12 +29,13 @@
                     </button>
 
                     <button
-                        @click="addElement('image')"
+                        @click="$refs.imageInput.click()"
                         class="p-4 bg-green-50 hover:bg-green-100 rounded-lg border border-green-200 transition-colors group"
                     >
                         <i class="fas fa-image text-2xl text-green-600 mb-2 group-hover:scale-110 transition-transform"></i>
                         <div class="text-sm font-medium text-green-800">صورة</div>
                     </button>
+                    <input ref="imageInput" type="file" accept="image/*" @change="handleImageSelect" class="hidden" />
 
                     <button
                         @click="addElement('rectangle')"
@@ -41,14 +51,6 @@
                     >
                         <i class="fas fa-circle text-2xl text-orange-600 mb-2 group-hover:scale-110 transition-transform"></i>
                         <div class="text-sm font-medium text-orange-800">دائرة</div>
-                    </button>
-
-                    <button
-                        @click="addElement('button')"
-                        class="p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition-colors group"
-                    >
-                        <i class="fas fa-hand-pointer text-2xl text-indigo-600 mb-2 group-hover:scale-110 transition-transform"></i>
-                        <div class="text-sm font-medium text-indigo-800">زر</div>
                     </button>
 
                     <button
@@ -145,7 +147,7 @@
 import { ref, computed } from 'vue'
 
 // Emits
-const emit = defineEmits(['add-element'])
+const emit = defineEmits(['add-element', 'add-background', 'add-image'])
 
 // State
 const selectedTemplateCategory = ref('all')
@@ -761,23 +763,6 @@ const getElementData = (type) => {
                 }
             }
         
-        case 'button':
-            return {
-                type: 'button',
-                name: 'زر',
-                width: 150,
-                height: 40,
-                properties: {
-                    text: 'اضغط هنا',
-                    backgroundColor: '#3b82f6',
-                    color: '#ffffff',
-                    fontSize: 14,
-                    fontWeight: 'bold',
-                    borderRadius: 6,
-                    borderWidth: 0
-                }
-            }
-        
         case 'line':
             return {
                 type: 'line',
@@ -799,6 +784,29 @@ const getElementData = (type) => {
                 properties: {}
             }
     }
+}
+
+function handleBackgroundSelect(e) {
+    const file = e.target.files[0]
+    if (file) {
+        const reader = new FileReader()
+        reader.onload = (event) => {
+            emit('add-background', event.target.result)
+        }
+        reader.readAsDataURL(file)
+    }
+    e.target.value = ''
+}
+function handleImageSelect(e) {
+    const file = e.target.files[0]
+    if (file) {
+        const reader = new FileReader()
+        reader.onload = (event) => {
+            emit('add-image', event.target.result)
+        }
+        reader.readAsDataURL(file)
+    }
+    e.target.value = ''
 }
 </script>
 

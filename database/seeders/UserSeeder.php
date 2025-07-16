@@ -16,7 +16,6 @@ class UserSeeder extends Seeder
     {
         // Créer un admin de test
         User::create([
-            'name' => 'Admin Test',
             'email' => 'admin@bitaqati.com',
             'password' => Hash::make('password'),
             'role' => User::ROLE_ADMIN,
@@ -25,7 +24,6 @@ class UserSeeder extends Seeder
 
         // Créer un client de test
         User::create([
-            'name' => 'Client Test',
             'email' => 'client@bitaqati.com',
             'password' => Hash::make('password'),
             'role' => User::ROLE_CLIENT,

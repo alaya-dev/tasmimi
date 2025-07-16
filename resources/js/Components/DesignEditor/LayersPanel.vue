@@ -216,7 +216,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['select-layer', 'delete-layer', 'reorder-layers', 'update-layer'])
+const emit = defineEmits(['select-layer', 'delete-layer', 'reorder-layers', 'update-layer', 'duplicate-layer', 'move-layer-top', 'move-layer-bottom'])
 
 // State
 const localLayers = ref([...props.layers])
@@ -260,9 +260,7 @@ const toggleLock = (layerId) => {
 }
 
 const deleteLayer = (layerId) => {
-    if (confirm('هل أنت متأكد من حذف هذه الطبقة؟')) {
-        emit('delete-layer', layerId)
-    }
+    emit('request-delete-layer', layerId)
 }
 
 const handleReorder = () => {
@@ -315,30 +313,19 @@ const cancelEdit = () => {
 
 const duplicateSelected = () => {
     if (props.selectedLayerId) {
-        // This would need to be implemented in the parent component
-        console.log('Duplicate layer:', props.selectedLayerId)
+        emit('duplicate-layer', props.selectedLayerId)
     }
 }
 
 const moveToTop = () => {
     if (props.selectedLayerId) {
-        const layerIndex = localLayers.value.findIndex(l => l.id === props.selectedLayerId)
-        if (layerIndex > 0) {
-            const layer = localLayers.value.splice(layerIndex, 1)[0]
-            localLayers.value.unshift(layer)
-            handleReorder()
-        }
+        emit('move-layer-top', props.selectedLayerId)
     }
 }
 
 const moveToBottom = () => {
     if (props.selectedLayerId) {
-        const layerIndex = localLayers.value.findIndex(l => l.id === props.selectedLayerId)
-        if (layerIndex < localLayers.value.length - 1) {
-            const layer = localLayers.value.splice(layerIndex, 1)[0]
-            localLayers.value.push(layer)
-            handleReorder()
-        }
+        emit('move-layer-bottom', props.selectedLayerId)
     }
 }
 

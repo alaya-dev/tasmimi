@@ -1,6 +1,18 @@
 <template>
     <Head title="محرر التصميم المتقدم - إصدار مستقر">
         <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Changa:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Cairo+Play:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Harmattan:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     </Head>
 
@@ -130,21 +142,25 @@
                 <div class="flex-1 overflow-hidden">
                     <!-- Elements Tab -->
                     <div v-if="activeTab === 'elements'" class="h-full">
-                        <ElementsPanel @add-element="addElement" />
-                    </div>
-
-                    <!-- Resources Tab -->
-                    <div v-if="activeTab === 'resources'" class="h-full">
-                        <ResourceManager @file-select="addImage" />
+                        <ElementsPanel
+                            @add-element="addElement"
+                            @add-background="setCanvasBackground"
+                            @add-image="addImageElement"
+                        />
                     </div>
 
                     <!-- Layers Tab -->
                     <div v-if="activeTab === 'layers'" class="h-full">
                         <LayersPanel
                             :layers="layers"
+                            :selected-layer-id="selectedElement?.id"
                             @select-layer="selectLayer"
-                            @delete-layer="deleteLayer"
+                            @request-delete-layer="onRequestDeleteLayer"
                             @reorder-layers="reorderLayers"
+                            @update-layer="updateLayer"
+                            @duplicate-layer="duplicateLayer"
+                            @move-layer-top="moveLayerToTop"
+                            @move-layer-bottom="moveLayerToBottom"
                         />
                     </div>
 
@@ -153,6 +169,9 @@
                         <PropertiesPanel
                             :selected-element="selectedElement"
                             @update-properties="updateProperties"
+                            @move-layer="onMoveLayer"
+                            @duplicate-element="onDuplicateElement"
+                            @request-delete="onRequestDeleteElement"
                         />
                     </div>
                 </div>
@@ -179,93 +198,15 @@
                                 >
                                     <i class="fas fa-search-plus"></i>
                                 </button>
-                                <button
-                                    @click="resetZoom"
-                                    class="p-2 text-gray-600 hover:text-gray-800 rounded"
-                                >
-                                    <i class="fas fa-expand-arrows-alt"></i>
-                                </button>
                             </div>
-
-                            <!-- Grid Toggle -->
-                            <button
-                                @click="toggleGrid"
-                                :class="[
-                                    'p-2 rounded transition-colors',
-                                    showGrid ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:text-gray-800'
-                                ]"
-                            >
-                                <i class="fas fa-th"></i>
-                            </button>
-
-                            <!-- Snap Toggle -->
-                            <button
-                                @click="toggleSnap"
-                                :class="[
-                                    'p-2 rounded transition-colors',
-                                    snapToGrid ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:text-gray-800'
-                                ]"
-                            >
-                                <i class="fas fa-magnet"></i>
-                            </button>
-
                             <!-- Watermark Toggle -->
                             <button
                                 @click="showWatermark = !showWatermark"
-                                :class="[
-                                    'p-2 rounded transition-colors',
-                                    showWatermark ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:text-gray-800'
-                                ]"
-                                title="إظهار/إخفاء العلامة المائية (ستظهر دائماً في التصدير)"
+                                :class="['p-2 rounded transition-colors', showWatermark ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:text-gray-800']"
+                                title="تبديل العلامة المائية"
                             >
-                                <i class="fas fa-copyright"></i>
+                                <i class="fas fa-certificate"></i>
                             </button>
-                        </div>
-
-                        <!-- Quick Actions -->
-                        <div class="space-y-2">
-                            <div class="flex items-center space-x-2 space-x-reverse">
-                                <button
-                                    @click="addQuickText"
-                                    class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 flex items-center space-x-1 space-x-reverse"
-                                >
-                                    <i class="fas fa-font text-xs"></i>
-                                    <span>نص</span>
-                                </button>
-                                <button
-                                    @click="addQuickShape"
-                                    class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 flex items-center space-x-1 space-x-reverse"
-                                >
-                                    <i class="fas fa-square text-xs"></i>
-                                    <span>شكل</span>
-                                </button>
-                            </div>
-
-                            <!-- Background Controls -->
-                            <div v-if="canvasBackground" class="flex items-center space-x-2 space-x-reverse">
-                                <label class="text-xs text-gray-600">حجم الخلفية:</label>
-                                <select
-                                    v-model="backgroundSize"
-                                    class="text-xs border border-gray-300 rounded px-2 py-1"
-                                >
-                                    <option value="contain">احتواء كامل</option>
-                                    <option value="cover">تغطية</option>
-                                    <option value="100% 100%">تمدد كامل</option>
-                                    <option value="auto">حجم طبيعي</option>
-                                </select>
-                                <button
-                                    @click="removeCanvasBackground"
-                                    class="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
-                                    title="إزالة الخلفية"
-                                >
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Canvas Size Info -->
-                        <div class="text-sm text-gray-600">
-                            {{ canvasWidth }} × {{ canvasHeight }} px
                         </div>
                     </div>
                 </div>
@@ -297,7 +238,8 @@
                                 backgroundImage: canvasBackground ? `url(${canvasBackground})` : 'none',
                                 backgroundSize: backgroundSize,
                                 backgroundPosition: 'center',
-                                backgroundRepeat: 'no-repeat'
+                                backgroundRepeat: 'no-repeat',
+                                cursor: pendingElementType ? 'crosshair' : 'default'
                             }"
                             @click="handleCanvasClick"
                             @drop="handleDrop"
@@ -310,6 +252,7 @@
                                 :element="element"
                                 :selected="selectedElement?.id === element.id"
                                 :zoom="zoom"
+                                :placementMode="!!pendingElementType"
                                 @select="selectElement"
                                 @update="updateElement"
                                 @delete="deleteElement"
@@ -366,13 +309,26 @@
                 <span class="text-lg font-medium">{{ loadingMessage }}</span>
             </div>
         </div>
+
+        <!-- Add a modal for delete confirmation -->
+        <template v-if="showDeleteConfirm">
+            <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                <div class="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full text-center">
+                    <h2 class="text-lg font-bold mb-4">تأكيد الحذف</h2>
+                    <p class="mb-6">هل أنت متأكد أنك تريد حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء.</p>
+                    <div class="flex justify-center gap-4">
+                        <button @click="performDeleteLayer" class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700">حذف</button>
+                        <button @click="cancelDeleteLayer" class="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400">إلغاء</button>
+                    </div>
+                </div>
+            </div>
+        </template>
     </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, computed, nextTick } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
-import ResourceManager from '@/Components/DesignEditor/ResourceManager.vue'
 import PhotoEditor from '@/Components/DesignEditor/PhotoEditor.vue'
 import ElementsPanel from '@/Components/DesignEditor/ElementsPanel.vue'
 import LayersPanel from '@/Components/DesignEditor/LayersPanel.vue'
@@ -403,6 +359,9 @@ const photoEditorImage = ref(null)
 const canvasBackground = ref('')
 const backgroundSize = ref('contain')
 const showWatermark = ref(true)
+const pendingElementType = ref(null)
+const showDeleteConfirm = ref(false)
+const layerToDelete = ref(null)
 
 // Design state
 const elements = ref([])
@@ -417,7 +376,6 @@ const designCanvas = ref(null)
 // Configuration
 const tabs = [
     { id: 'elements', name: 'العناصر', icon: 'fas fa-shapes' },
-    { id: 'resources', name: 'الموارد', icon: 'fas fa-images' },
     { id: 'layers', name: 'الطبقات', icon: 'fas fa-layer-group' },
     { id: 'properties', name: 'الخصائص', icon: 'fas fa-cog' }
 ]
@@ -494,26 +452,32 @@ const toggleSnap = () => {
     snapToGrid.value = !snapToGrid.value
 }
 
+// Update addElement to use placement mode for non-image elements
 const addElement = (elementData) => {
-    const newElement = {
-        id: generateId(),
-        type: elementData.type,
-        name: elementData.name,
-        x: 50,
-        y: 50,
-        width: elementData.width || 200,
-        height: elementData.height || 100,
-        rotation: 0,
-        opacity: 1,
-        visible: true,
-        locked: false,
-        zIndex: elements.value.length,
-        ...elementData.properties
+    if (elementData.type === 'image') {
+        // Add image immediately at center
+        const newElement = {
+            id: generateId(),
+            type: elementData.type,
+            name: elementData.name,
+            x: canvasWidth.value / 2 - 100,
+            y: canvasHeight.value / 2 - 100,
+            width: elementData.width || 200,
+            height: elementData.height || 100,
+            rotation: 0,
+            opacity: 1,
+            visible: true,
+            locked: false,
+            zIndex: elements.value.length,
+            ...elementData.properties
+        }
+        elements.value.push(newElement)
+        selectedElement.value = newElement
+        saveToHistory()
+    } else {
+        // Enter placement mode
+        pendingElementType.value = elementData
     }
-
-    elements.value.push(newElement)
-    selectedElement.value = newElement
-    saveToHistory()
 }
 
 const addImage = (file) => {
@@ -573,13 +537,23 @@ const addImage = (file) => {
 }
 
 const selectElement = (element) => {
-    selectedElement.value = element
+    // Always assign a deep copy to trigger reactivity and watcher
+    selectedElement.value = {
+        ...element,
+        properties: element.properties ? { ...element.properties } : undefined
+    };
+    activeTab.value = 'properties'
 }
 
 const selectLayer = (layerId) => {
     const element = elements.value.find(el => el.id === layerId)
     if (element) {
-        selectedElement.value = element
+        // Always assign a deep copy to trigger reactivity and watcher
+        selectedElement.value = {
+            ...element,
+            properties: element.properties ? { ...element.properties } : undefined
+        };
+        activeTab.value = 'properties'
     }
 }
 
@@ -588,12 +562,6 @@ const updateElement = (elementId, updates) => {
     if (elementIndex !== -1) {
         elements.value[elementIndex] = { ...elements.value[elementIndex], ...updates }
         saveToHistory()
-    }
-}
-
-const updateProperties = (properties) => {
-    if (selectedElement.value) {
-        updateElement(selectedElement.value.id, properties)
     }
 }
 
@@ -619,12 +587,38 @@ const reorderLayers = (newOrder) => {
     ).filter(Boolean)
 
     elements.value = reorderedElements
+    updateAllZIndices()
     saveToHistory()
 }
 
+// Update handleCanvasClick to place pending element
 const handleCanvasClick = (event) => {
-    // Deselect if clicking on empty canvas
-    if (event.target === designCanvas.value) {
+    if (pendingElementType.value) {
+        // Get click coordinates relative to canvas
+        const rect = designCanvas.value.getBoundingClientRect()
+        const x = (event.clientX - rect.left) / zoom.value
+        const y = (event.clientY - rect.top) / zoom.value
+        const elementData = pendingElementType.value
+        const newElement = {
+            id: generateId(),
+            type: elementData.type,
+            name: elementData.name,
+            x: x,
+            y: y,
+            width: elementData.width || 200,
+            height: elementData.height || 100,
+            rotation: 0,
+            opacity: 1,
+            visible: true,
+            locked: false,
+            zIndex: elements.value.length,
+            ...elementData.properties
+        }
+        elements.value.push(newElement)
+        selectedElement.value = newElement
+        saveToHistory()
+        pendingElementType.value = null
+    } else if (event.target === designCanvas.value) {
         selectedElement.value = null
     }
 }
@@ -969,10 +963,23 @@ const addQuickShape = () => {
     saveToHistory()
 }
 
-const setCanvasBackground = (imageUrl) => {
-    canvasBackground.value = imageUrl
-    backgroundSize.value = 'contain' // Default to contain for better fit
-    saveToHistory()
+function setCanvasBackground(bgDataUrl) {
+    canvasBackground.value = bgDataUrl;
+}
+function addImageElement(imgDataUrl) {
+    // Add a new image element to the canvas
+    const newElement = {
+        id: Date.now(),
+        type: 'image',
+        src: imgDataUrl,
+        x: canvasWidth.value / 2 - 100,
+        y: canvasHeight.value / 2 - 100,
+        width: 200,
+        height: 200,
+        name: 'صورة'
+    };
+    elements.value.push(newElement);
+    selectedElement.value = newElement;
 }
 
 const removeCanvasBackground = () => {
@@ -1007,18 +1014,64 @@ const exportDesignWithWatermark = async () => {
 
         // Draw background image if exists
         if (canvasBackground.value) {
-            const img = new Image()
-            img.crossOrigin = 'anonymous'
-            img.onload = () => {
-                ctx.drawImage(img, 0, 0, canvasWidth.value, canvasHeight.value)
-                drawWatermarkOnCanvas(ctx)
-                downloadCanvas(exportCanvas)
-            }
-            img.src = canvasBackground.value
-        } else {
-            drawWatermarkOnCanvas(ctx)
-            downloadCanvas(exportCanvas)
+            await new Promise((resolve) => {
+                const img = new Image()
+                img.crossOrigin = 'anonymous'
+                img.onload = () => {
+                    ctx.drawImage(img, 0, 0, canvasWidth.value, canvasHeight.value)
+                    resolve()
+                }
+                img.src = canvasBackground.value
+            })
         }
+
+        // Draw all elements
+        for (const element of elements.value) {
+            if (element.visible === false) continue
+            switch (element.type) {
+                case 'text':
+                    ctx.save()
+                    ctx.font = `${element.fontWeight || 'normal'} ${element.fontSize || 16}px ${element.fontFamily || 'Cairo, sans-serif'}`
+                    ctx.fillStyle = element.color || '#000'
+                    ctx.textAlign = element.textAlign || 'left'
+                    ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                    ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                    ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                    ctx.fillText(element.text || '', 0, 0)
+                    ctx.restore()
+                    break
+                case 'image':
+                    await new Promise((resolve) => {
+                        const img = new Image()
+                        img.crossOrigin = 'anonymous'
+                        img.onload = () => {
+                            ctx.save()
+                            ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                            ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                            ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                            ctx.drawImage(img, -(element.width || 0) / 2, -(element.height || 0) / 2, element.width || 100, element.height || 100)
+                            ctx.restore()
+                            resolve()
+                        }
+                        img.src = element.src
+                    })
+                    break
+                case 'rectangle':
+                    ctx.save()
+                    ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                    ctx.fillStyle = element.backgroundColor || '#000'
+                    ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                    ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                    ctx.fillRect(-(element.width || 0) / 2, -(element.height || 0) / 2, element.width || 100, element.height || 100)
+                    ctx.restore()
+                    break
+                // Add more element types as needed
+            }
+        }
+
+        // Draw watermark
+        drawWatermarkOnCanvas(ctx)
+        downloadCanvas(exportCanvas)
 
         // Restore original watermark state
         showWatermark.value = originalWatermarkState
@@ -1086,6 +1139,83 @@ onMounted(() => {
         }
     })
 })
+
+function updateAllZIndices() {
+    elements.value.forEach((el, idx) => {
+        el.zIndex = idx;
+    });
+}
+
+function onMoveLayer(direction) {
+    if (!selectedElement.value) return;
+    const idx = elements.value.findIndex(el => el.id === selectedElement.value.id);
+    if (idx === -1) return;
+    if (direction === 'front' && idx < elements.value.length - 1) {
+        const temp = elements.value[idx];
+        elements.value.splice(idx, 1);
+        elements.value.splice(idx + 1, 0, temp);
+        updateAllZIndices();
+        saveToHistory();
+    } else if (direction === 'back' && idx > 0) {
+        const temp = elements.value[idx];
+        elements.value.splice(idx, 1);
+        elements.value.splice(idx - 1, 0, temp);
+        updateAllZIndices();
+        saveToHistory();
+    }
+}
+
+function onDuplicateElement() {
+    if (!selectedElement.value) return;
+    const element = { ...selectedElement.value, id: generateId() };
+    elements.value.push(element);
+    updateAllZIndices();
+    selectedElement.value = element;
+    saveToHistory();
+}
+
+function onRequestDeleteElement() {
+    if (!selectedElement.value) return;
+    layerToDelete.value = selectedElement.value.id;
+    showDeleteConfirm.value = true;
+}
+
+function onRequestDeleteLayer(layerId) {
+    layerToDelete.value = layerId;
+    showDeleteConfirm.value = true;
+}
+
+function performDeleteLayer() {
+    if (layerToDelete.value) {
+        deleteElement(layerToDelete.value);
+        layerToDelete.value = null;
+        showDeleteConfirm.value = false;
+    }
+}
+
+function cancelDeleteLayer() {
+    layerToDelete.value = null;
+    showDeleteConfirm.value = false;
+}
+
+// Update updateProperties to merge into .properties if needed
+function updateProperties(properties) {
+    if (selectedElement.value) {
+        const elementIndex = elements.value.findIndex(el => el.id === selectedElement.value.id);
+        if (elementIndex !== -1) {
+            const element = elements.value[elementIndex];
+            Object.keys(properties).forEach(key => {
+                // Always update both root and .properties
+                element[key] = properties[key];
+                if (element.properties) {
+                    element.properties[key] = properties[key];
+                }
+            });
+            elements.value[elementIndex] = { ...element };
+            saveToHistory();
+        }
+    }
+}
 </script>
 
 <style scoped>

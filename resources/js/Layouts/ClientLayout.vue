@@ -1,11 +1,11 @@
 <template>
     <div :dir="direction" class="min-h-screen bg-gray-50">
-        <!-- Navigation Header -->
-        <nav class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+        <!-- Custom Header (replaces navbar) -->
+        <header class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-20">
-                    <!-- Auth Links (moved to left) -->
-                    <div class="flex items-center">
+                <div class="flex justify-between items-center h-24">
+                    <!-- Login/Register or User Menu (left) -->
+                    <div class="flex items-center justify-start min-w-[180px]">
                         <div v-if="!$page.props.auth.user" class="flex items-center space-x-4 space-x-reverse">
                             <Link :href="route('login')" class="group flex items-center text-gray-700 hover:text-purple-600 font-semibold transition-all duration-200 px-4 py-2 rounded-xl hover:bg-purple-50">
                                 تسجيل الدخول
@@ -20,7 +20,6 @@
                                 </svg>
                             </Link>
                         </div>
-                        <!-- User menu for authenticated users (moved to left) -->
                         <div v-else class="flex items-center space-x-4 space-x-reverse">
                             <!-- Cart Icon -->
                             <Link :href="route('client.cart')" class="relative p-3 text-gray-600 hover:text-purple-600 transition-colors duration-200 hover:bg-purple-50 rounded-xl group">
@@ -31,7 +30,6 @@
                                     {{ cartCount }}
                                 </span>
                             </Link>
-
                             <!-- User Dropdown -->
                             <Dropdown align="left" width="48">
                                 <template #trigger>
@@ -44,7 +42,6 @@
                                         </svg>
                                     </button>
                                 </template>
-
                                 <template #content>
                                     <DropdownLink :href="route('client.profile')" class="flex items-center space-x-2 space-x-reverse">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,32 +72,12 @@
                             </Dropdown>
                         </div>
                     </div>
-
-                    <!-- Desktop Navigation -->
-                    <div class="hidden md:flex items-center space-x-8 space-x-reverse flex-1 justify-center">
-                        <NavLink :href="route('client.home')" :active="route().current('client.home')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
-                            الرئيسية
-                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
-                        </NavLink>
-                        <NavLink :href="route('client.templates')" :active="route().current('client.templates')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
-                            القوالب
-                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
-                        </NavLink>
-                        <NavLink :href="route('client.my-designs')" :active="route().current('client.my-designs')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
-                            تصاميمي
-                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
-                        </NavLink>
-                        <NavLink :href="route('client.pricing')" :active="route().current('client.pricing')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
-                            الأسعار
-                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
-                        </NavLink>
-                        <NavLink v-if="$page.props.auth.user" :href="route('client.contact')" :active="route().current('client.contact')" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors duration-200 relative group">
-                            اتصل بنا
-                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
-                        </NavLink>
+                    <!-- Description (center) -->
+                    <div class="flex-1 text-center">
+                        <h1 class="text-2xl font-bold mb-2">أهلاً بك في سَامِقَة</h1>
+                        <p class="text-gray-600">منصة سامقة توفر لك أدوات متقدمة وقوالب احترافية لتصميم بطاقات إلكترونية مميزة</p>
                     </div>
-
-                    <!-- Logo and Brand (moved to right) -->
+                    <!-- Logo (right) -->
                     <div class="flex items-center">
                         <Link :href="route('client.home')" class="flex items-center group">
                             <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100 group-hover:shadow-md transition-all duration-300">
@@ -118,51 +95,10 @@
                                 </div>
                             </div>
                         </Link>
-
-                        <!-- Mobile menu button -->
-                        <button @click="showMobileMenu = !showMobileMenu" class="md:hidden ml-4 p-2 text-gray-600 hover:text-blue-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path v-if="!showMobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
                     </div>
                 </div>
             </div>
-
-            <!-- Mobile Navigation -->
-            <div v-show="showMobileMenu" class="md:hidden bg-white border-t border-gray-200">
-                <div class="px-4 py-2 space-y-1">
-                    <MobileNavLink :href="route('client.home')" :active="route().current('client.home')">
-                        {{ __('client.home') }}
-                    </MobileNavLink>
-                    <MobileNavLink :href="route('client.templates')" :active="route().current('client.templates')">
-                        {{ __('client.templates') }}
-                    </MobileNavLink>
-                    <MobileNavLink :href="route('client.my-designs')" :active="route().current('client.my-designs')">
-                        {{ __('client.my_designs') }}
-                    </MobileNavLink>
-                    <MobileNavLink :href="route('client.pricing')" :active="route().current('client.pricing')">
-                        {{ __('client.pricing') }}
-                    </MobileNavLink>
-
-                    <div v-if="$page.props.auth.user" class="pt-2 border-t border-gray-200">
-                        <MobileNavLink :href="route('client.contact')" :active="route().current('client.contact')">
-                            اتصل بنا
-                        </MobileNavLink>
-                    </div>
-
-                    <div v-if="!$page.props.auth.user" class="pt-4 border-t border-gray-200">
-                        <MobileNavLink :href="route('login')">
-                            {{ __('auth.login') }}
-                        </MobileNavLink>
-                        <MobileNavLink :href="route('register')">
-                            {{ __('auth.register') }}
-                        </MobileNavLink>
-                    </div>
-                </div>
-            </div>
-        </nav>
+        </header>
 
         <!-- Page Content -->
         <main class="flex-1">

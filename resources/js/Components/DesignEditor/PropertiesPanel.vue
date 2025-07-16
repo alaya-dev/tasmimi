@@ -151,6 +151,16 @@
                                 <option value="Noto Sans Arabic">Noto Sans Arabic</option>
                                 <option value="Arial">Arial</option>
                                 <option value="Times New Roman">Times New Roman</option>
+                                <option value="Tajawal">Tajawal</option>
+                                <option value="Changa">Changa</option>
+                                <option value="Cairo Play">Cairo Play</option>
+                                <option value="El Messiri">El Messiri</option>
+                                <option value="Reem Kufi">Reem Kufi</option>
+                                <option value="Lalezar">Lalezar</option>
+                                <option value="Harmattan">Harmattan</option>
+                                <option value="Markazi Text">Markazi Text</option>
+                                <option value="Noto Kufi Arabic">Noto Kufi Arabic</option>
+                                <option value="Amiri Quran">Amiri Quran</option>
                             </select>
                         </div>
                         <div>
@@ -339,7 +349,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['update-properties'])
+const emit = defineEmits(['update-properties', 'move-layer', 'duplicate-element', 'request-delete'])
 
 // State
 const localProperties = reactive({})
@@ -354,35 +364,31 @@ const textAlignments = [
 // Watchers
 watch(() => props.selectedElement, (newElement) => {
     if (newElement) {
-        Object.assign(localProperties, newElement)
+        // Flatten properties for editing
+        Object.keys(localProperties).forEach(key => { delete localProperties[key] })
+        Object.assign(localProperties, newElement, newElement.properties || {})
     } else {
-        Object.keys(localProperties).forEach(key => {
-            delete localProperties[key]
-        })
+        Object.keys(localProperties).forEach(key => { delete localProperties[key] })
     }
 }, { immediate: true, deep: true })
 
 // Methods
 const updateProperty = (key, value) => {
     localProperties[key] = value
+    // If the property is part of the element's properties, update that
     emit('update-properties', { [key]: value })
 }
 
 const moveLayer = (direction) => {
-    // This would be handled by the parent component
-    console.log('Move layer:', direction)
+    emit('move-layer', direction)
 }
 
 const duplicateElement = () => {
-    // This would be handled by the parent component
-    console.log('Duplicate element')
+    emit('duplicate-element')
 }
 
 const deleteElement = () => {
-    if (confirm('هل أنت متأكد من حذف هذا العنصر؟')) {
-        // This would be handled by the parent component
-        console.log('Delete element')
-    }
+    emit('request-delete')
 }
 
 const getElementIcon = (type) => {

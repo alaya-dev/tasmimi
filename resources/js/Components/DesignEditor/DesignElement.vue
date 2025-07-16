@@ -2,16 +2,15 @@
     <div
         :class="[
             'design-element absolute select-none',
+            placementMode ? 'cursor-crosshair' : (element.locked ? 'cursor-not-allowed' : 'cursor-move'),
             {
                 'ring-2 ring-purple-500 ring-opacity-50': selected,
-                'cursor-move': !element.locked,
-                'cursor-not-allowed': element.locked,
                 'border-2 border-dashed border-blue-300': element.isBackground && selected
             }
         ]"
         :style="elementStyle"
         @mousedown="startDrag"
-        @click.stop="selectElement"
+        @click="handleClick"
     >
         <!-- Text Element -->
         <div
@@ -137,6 +136,10 @@ const props = defineProps({
     zoom: {
         type: Number,
         default: 1
+    },
+    placementMode: {
+        type: Boolean,
+        default: false
     }
 })
 
@@ -398,6 +401,13 @@ const getShapeIcon = (shapeType) => {
         polygon: 'fas fa-draw-polygon'
     }
     return icons[shapeType] || 'fas fa-square'
+}
+
+function handleClick(event) {
+    if (!props.placementMode) {
+        event.stopPropagation();
+        selectElement();
+    }
 }
 </script>
 
