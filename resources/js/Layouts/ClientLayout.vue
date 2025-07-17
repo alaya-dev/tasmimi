@@ -5,7 +5,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-4 lg:px-6">
                 <div class="flex justify-between items-center h-24 w-full">
                     <!-- Login/Register or User Menu (right) -->
-                    <div class="flex items-center justify-start flex-shrink-0 min-w-[120px] pr-2 lg:pr-4 xl:pr-6">
+                    <div class="flex items-center justify-start flex-shrink-0 min-w-[120px] pr-2">
                         <div v-if="!$page.props.auth.user" class="flex items-center space-x-4 space-x-reverse">
                             <Link :href="route('login')" class="group flex items-center text-gray-700 hover:text-purple-600 font-semibold transition-all duration-200 px-6 py-3 rounded-xl hover:bg-purple-50 border border-gray-200 hover:border-purple-300">
                                 تسجيل الدخول
