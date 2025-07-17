@@ -456,24 +456,24 @@ const toggleSnap = () => {
 const addElement = (elementData) => {
     if (elementData.type === 'image') {
         // Add image immediately at center
-        const newElement = {
-            id: generateId(),
-            type: elementData.type,
-            name: elementData.name,
+    const newElement = {
+        id: generateId(),
+        type: elementData.type,
+        name: elementData.name,
             x: canvasWidth.value / 2 - 100,
             y: canvasHeight.value / 2 - 100,
-            width: elementData.width || 200,
-            height: elementData.height || 100,
-            rotation: 0,
-            opacity: 1,
-            visible: true,
-            locked: false,
-            zIndex: elements.value.length,
-            ...elementData.properties
-        }
-        elements.value.push(newElement)
-        selectedElement.value = newElement
-        saveToHistory()
+        width: elementData.width || 200,
+        height: elementData.height || 100,
+        rotation: 0,
+        opacity: 1,
+        visible: true,
+        locked: false,
+        zIndex: elements.value.length,
+        ...elementData.properties
+    }
+    elements.value.push(newElement)
+    selectedElement.value = newElement
+    saveToHistory()
     } else {
         // Enter placement mode
         pendingElementType.value = elementData
@@ -1015,13 +1015,13 @@ const exportDesignWithWatermark = async () => {
         // Draw background image if exists
         if (canvasBackground.value) {
             await new Promise((resolve) => {
-                const img = new Image()
-                img.crossOrigin = 'anonymous'
-                img.onload = () => {
-                    ctx.drawImage(img, 0, 0, canvasWidth.value, canvasHeight.value)
+            const img = new Image()
+            img.crossOrigin = 'anonymous'
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0, canvasWidth.value, canvasHeight.value)
                     resolve()
-                }
-                img.src = canvasBackground.value
+            }
+            img.src = canvasBackground.value
             })
         }
 
@@ -1070,8 +1070,8 @@ const exportDesignWithWatermark = async () => {
         }
 
         // Draw watermark
-        drawWatermarkOnCanvas(ctx)
-        downloadCanvas(exportCanvas)
+            drawWatermarkOnCanvas(ctx)
+            downloadCanvas(exportCanvas)
 
         // Restore original watermark state
         showWatermark.value = originalWatermarkState

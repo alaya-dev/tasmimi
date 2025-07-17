@@ -240,6 +240,38 @@
                     </div>
                 </div>
 
+                <!-- Icon Properties -->
+                <div v-if="selectedElement.type === 'icon'">
+                    <h4 class="font-semibold text-gray-700 mb-3">خصائص الأيقونة</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">لون الأيقونة</label>
+                            <input
+                                v-model="localProperties.color"
+                                @input="updateProperty('color', $event.target.value)"
+                                type="color"
+                                class="w-full h-10 border border-gray-300 rounded-lg"
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shape Properties (for custom shapes, not rectangle/circle/button) -->
+                <div v-if="selectedElement.type === 'shape'">
+                    <h4 class="font-semibold text-gray-700 mb-3">خصائص الشكل</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">لون الشكل</label>
+                            <input
+                                v-model="localProperties.color"
+                                @input="updateProperty('color', $event.target.value)"
+                                type="color"
+                                class="w-full h-10 border border-gray-300 rounded-lg"
+                            >
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Shape Properties -->
                 <div v-if="['rectangle', 'circle', 'button'].includes(selectedElement.type)">
                     <h4 class="font-semibold text-gray-700 mb-3">خصائص الشكل</h4>

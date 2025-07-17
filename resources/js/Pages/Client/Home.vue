@@ -19,7 +19,7 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 {{ cat.name }}
             </button>
-                    </div>
+                </div>
 
         <!-- Templates Section -->
         <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg shadow p-6">
@@ -34,7 +34,7 @@
                         <img :src="template.thumbnail_url || '/images/placeholder.png'" alt="Template" class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110" />
                         <div v-if="!template.thumbnail_url" class="absolute inset-0 flex items-center justify-center text-purple-300">
                             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke-width="2"/></svg>
-                        </div>
+            </div>
 
                         <!-- Edit Icon Overlay -->
                         <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-xl flex items-center justify-center transition-all duration-300">
@@ -45,15 +45,15 @@
                     </div>
                     <div class="font-bold text-lg text-gray-800 text-center mb-1 truncate w-full">{{ template.name }}</div>
                     <div v-if="selectedCategory === 'all'" class="text-xs text-purple-500 bg-purple-100 px-2 py-1 rounded-full mb-2">({{ template.category.name }})</div>
-                    <Link
+                            <Link
                         :href="route('client.templates.create', template.id)"
                         @click.stop
                         class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full font-semibold mt-2 shadow-lg hover:from-purple-600 hover:to-pink-600 inline-block text-center"
                     >
                         عرض القالب
-                    </Link>
-                </div>
-            </div>
+                            </Link>
+                        </div>
+                    </div>
 
             <!-- Pagination Controls -->
             <div v-if="totalPages > 1" class="flex justify-center mt-8 items-center gap-2 rtl">
@@ -67,7 +67,7 @@
                 >
                     <svg class="w-5 h-5 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
+                                        </svg>
                 </button>
 
                 <div class="flex items-center gap-1">

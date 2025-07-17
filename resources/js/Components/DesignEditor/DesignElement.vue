@@ -42,11 +42,21 @@
         ></div>
 
         <!-- Circle Element -->
-        <div
+        <svg
             v-else-if="element.type === 'circle'"
-            :style="circleStyle"
-            class="w-full h-full rounded-full"
-        ></div>
+            :width="element.width"
+            :height="element.height"
+            class="w-full h-full"
+        >
+            <circle
+                :cx="element.width / 2"
+                :cy="element.height / 2"
+                :r="Math.min(element.width, element.height) / 2"
+                :fill="element.backgroundColor || '#10b981'"
+                :stroke="element.borderColor || 'none'"
+                :stroke-width="element.borderWidth || 0"
+            />
+        </svg>
 
         <!-- Button Element -->
         <button
@@ -71,17 +81,62 @@
             :style="iconStyle"
             class="w-full h-full flex items-center justify-center"
         >
-            <i :class="element.iconClass || 'fas fa-star'" :style="{ fontSize: element.fontSize + 'px' }"></i>
+            <i :class="element.iconClass || 'fas fa-star'" :style="{ fontSize: Math.min(props.element.width, props.element.height) + 'px', color: props.element.color || '#374151' }"></i>
         </div>
 
         <!-- Shape Element -->
-        <div
+        <svg
             v-else-if="element.type === 'shape'"
-            :style="shapeStyle"
-            class="w-full h-full flex items-center justify-center"
+            :width="element.width"
+            :height="element.height"
+            class="w-full h-full"
         >
-            <i :class="getShapeIcon(element.shapeType)" class="text-4xl"></i>
-        </div>
+            <template v-if="element.shapeType === 'triangle'">
+                <polygon
+                    :points="`
+                        ${element.width / 2},0
+                        0,${element.height}
+                        ${element.width},${element.height}
+                    `"
+                    :fill="element.color || element.backgroundColor || '#8b5cf6'"
+                />
+            </template>
+            <template v-else-if="element.shapeType === 'diamond'">
+                <polygon
+                    :points="`
+                        ${element.width / 2},0
+                        0,${element.height / 2}
+                        ${element.width / 2},${element.height}
+                        ${element.width},${element.height / 2}
+                    `"
+                    :fill="element.color || element.backgroundColor || '#8b5cf6'"
+                />
+            </template>
+            <template v-else-if="element.shapeType === 'star'">
+                <polygon
+                    :points="getStarPoints(element.width / 2, element.height / 2, Math.min(element.width, element.height) / 2, Math.min(element.width, element.height) / 4, 5)"
+                    :fill="element.color || element.backgroundColor || '#8b5cf6'"
+                />
+            </template>
+            <template v-else-if="element.shapeType === 'heart'">
+                <path
+                    :d="getHeartPath(element.width, element.height)"
+                    :fill="element.color || element.backgroundColor || '#8b5cf6'"
+                />
+            </template>
+            <template v-else-if="element.shapeType === 'arrow'">
+                <polygon
+                    :points="getArrowPoints(element.width, element.height)"
+                    :fill="element.color || element.backgroundColor || '#8b5cf6'"
+                />
+            </template>
+            <template v-else-if="element.shapeType === 'polygon'">
+                <polygon
+                    :points="getPolygonPoints(element.width / 2, element.height / 2, Math.min(element.width, element.height) / 2, 6)"
+                    :fill="element.color || element.backgroundColor || '#8b5cf6'"
+                />
+            </template>
+        </svg>
 
         <!-- Selection Handles -->
         <div v-if="selected" class="selection-handles">
@@ -408,6 +463,50 @@ function handleClick(event) {
         event.stopPropagation();
         selectElement();
     }
+}
+
+// Helper functions for SVG shapes
+function getStarPoints(cx, cy, outerRadius, innerRadius, numPoints) {
+    const points = []
+    const angle = Math.PI / numPoints
+    for (let i = 0; i < 2 * numPoints; i++) {
+        const r = i % 2 === 0 ? outerRadius : innerRadius
+        const a = i * angle - Math.PI / 2
+        points.push([
+            cx + r * Math.cos(a),
+            cy + r * Math.sin(a)
+        ])
+    }
+    return points.map(p => p.join(",")).join(" ")
+}
+
+function getHeartPath(width, height) {
+    const x = width / 2
+    const y = height / 2
+    const scale = Math.min(width, height) / 32
+    return `M ${x} ${y + 8 * scale}
+        C ${x} ${y + 2 * scale}, ${x - 12 * scale} ${y - 2 * scale}, ${x - 8 * scale} ${y - 10 * scale}
+        C ${x - 4 * scale} ${y - 18 * scale}, ${x + 4 * scale} ${y - 18 * scale}, ${x + 8 * scale} ${y - 10 * scale}
+        C ${x + 12 * scale} ${y - 2 * scale}, ${x} ${y + 2 * scale}, ${x} ${y + 8 * scale} Z`
+}
+
+function getArrowPoints(width, height) {
+    // Simple right arrow
+    const w = width
+    const h = height
+    return `0,${h / 3} ${w * 0.7},${h / 3} ${w * 0.7},0 ${w},${h / 2} ${w * 0.7},${h} ${w * 0.7},${h * 2 / 3} 0,${h * 2 / 3}`
+}
+
+function getPolygonPoints(cx, cy, radius, numSides) {
+    const points = []
+    for (let i = 0; i < numSides; i++) {
+        const angle = (2 * Math.PI * i) / numSides - Math.PI / 2
+        points.push([
+            cx + radius * Math.cos(angle),
+            cy + radius * Math.sin(angle)
+        ])
+    }
+    return points.map(p => p.join(",")).join(" ")
 }
 </script>
 
