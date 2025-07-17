@@ -11,7 +11,7 @@
                     </div>
                     <div class="flex items-center space-x-4 space-x-reverse">
                         <Link
-                            :href="route('client.templates')"
+                            :href="route('client.home')"
                             class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-xl font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                         >
                             <svg class="w-5 h-5 inline-block ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,7 +35,7 @@
                     <h3 class="text-xl font-semibold text-gray-900 mb-3">ليس لديك أي تصاميم بعد</h3>
                     <p class="text-gray-600 mb-6">يمكنك البدء الآن من خلال اختيار قالب وإنشاء تصميمك الأول</p>
                     <Link
-                        :href="route('client.templates')"
+                        :href="route('client.home')"
                         class="inline-flex items-center bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-xl font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                     >
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

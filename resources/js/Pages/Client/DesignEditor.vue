@@ -323,8 +323,32 @@
         <!-- Export Modal -->
         <template v-if="showExportModal">
             <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
+                <div class="bg-white rounded-lg shadow-xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
                     <h2 class="text-xl font-bold mb-6 text-center">تصدير التصميم</h2>
+
+                    <!-- Preset Format Selection -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">اختر الحجم والجودة:</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
+                            <button
+                                v-for="preset in presetFormats"
+                                :key="preset.value"
+                                @click="selectedPresetFormat = preset.value"
+                                :class="[
+                                    'p-3 border-2 rounded-lg text-right transition-all',
+                                    selectedPresetFormat === preset.value
+                                        ? 'border-purple-500 bg-purple-50 text-purple-700'
+                                        : 'border-gray-200 hover:border-gray-300'
+                                ]"
+                            >
+                                <div class="font-medium text-sm">{{ preset.label }}</div>
+                                <div class="text-xs text-gray-500 mt-1">{{ preset.description }}</div>
+                                <div v-if="preset.width && preset.height" class="text-xs text-purple-600 mt-1">
+                                    {{ preset.width }} × {{ preset.height }} ({{ preset.dpi }} DPI)
+                                </div>
+                            </button>
+                        </div>
+                    </div>
 
                     <!-- Format Selection -->
                     <div class="mb-6">
@@ -360,6 +384,16 @@
                             class="w-full"
                         >
                         <div class="text-center text-sm text-gray-600 mt-1">{{ exportQuality }}%</div>
+                    </div>
+
+                    <!-- Preview Info -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <h3 class="font-medium text-gray-700 mb-2">معلومات التصدير:</h3>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <div>الصيغة: {{ exportFormats.find(f => f.value === selectedExportFormat)?.label }}</div>
+                            <div>الحجم: {{ getExportDimensions() }}</div>
+                            <div v-if="selectedExportFormat === 'jpeg'">الجودة: {{ exportQuality }}%</div>
+                        </div>
                     </div>
 
                     <!-- Actions -->
@@ -425,6 +459,7 @@ const layerToDelete = ref(null)
 // Export state
 const showExportModal = ref(false)
 const selectedExportFormat = ref('png')
+const selectedPresetFormat = ref('current')
 const exportQuality = ref(90)
 const isExporting = ref(false)
 
@@ -470,6 +505,106 @@ const exportFormats = [
         label: 'PDF',
         description: 'مستند قابل للطباعة',
         icon: 'fas fa-file-pdf'
+    }
+]
+
+// Formats prédéfinis avec dimensions optimisées
+const presetFormats = [
+    {
+        value: 'current',
+        label: 'الحجم الحالي',
+        description: 'استخدام أبعاد التصميم الحالية',
+        width: null,
+        height: null,
+        dpi: 72
+    },
+    {
+        value: 'a4-portrait',
+        label: 'A4 عمودي',
+        description: '210 × 297 مم - جودة طباعة عالية',
+        width: 2480,
+        height: 3508,
+        dpi: 300
+    },
+    {
+        value: 'a4-landscape',
+        label: 'A4 أفقي',
+        description: '297 × 210 مم - جودة طباعة عالية',
+        width: 3508,
+        height: 2480,
+        dpi: 300
+    },
+    {
+        value: 'a5-portrait',
+        label: 'A5 عمودي',
+        description: '148 × 210 مم - مناسب للبروشورات',
+        width: 1748,
+        height: 2480,
+        dpi: 300
+    },
+    {
+        value: 'a5-landscape',
+        label: 'A5 أفقي',
+        description: '210 × 148 مم - مناسب للبروشورات',
+        width: 2480,
+        height: 1748,
+        dpi: 300
+    },
+    {
+        value: 'hd-169',
+        label: '16:9 HD',
+        description: '1920 × 1080 بكسل - مناسب للعروض',
+        width: 1920,
+        height: 1080,
+        dpi: 72
+    },
+    {
+        value: '4k-169',
+        label: '16:9 4K',
+        description: '3840 × 2160 بكسل - جودة فائقة',
+        width: 3840,
+        height: 2160,
+        dpi: 72
+    },
+    {
+        value: 'square-hd',
+        label: 'مربع HD',
+        description: '1080 × 1080 بكسل - مناسب لوسائل التواصل',
+        width: 1080,
+        height: 1080,
+        dpi: 72
+    },
+    {
+        value: 'instagram-post',
+        label: 'منشور إنستغرام',
+        description: '1080 × 1080 بكسل - مُحسَّن للإنستغرام',
+        width: 1080,
+        height: 1080,
+        dpi: 72
+    },
+    {
+        value: 'instagram-story',
+        label: 'ستوري إنستغرام',
+        description: '1080 × 1920 بكسل - مُحسَّن للستوريز',
+        width: 1080,
+        height: 1920,
+        dpi: 72
+    },
+    {
+        value: 'facebook-cover',
+        label: 'غلاف فيسبوك',
+        description: '1200 × 630 بكسل - مُحسَّن لفيسبوك',
+        width: 1200,
+        height: 630,
+        dpi: 72
+    },
+    {
+        value: 'business-card',
+        label: 'بطاقة عمل',
+        description: '89 × 51 مم - حجم بطاقة عمل قياسي',
+        width: 1050,
+        height: 600,
+        dpi: 300
     }
 ]
 
@@ -864,6 +999,7 @@ const generatePreviewHTML = (designData) => {
             <title>معاينة التصميم</title>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+                @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
                 body {
                     margin: 0;
                     padding: 20px;
@@ -910,20 +1046,20 @@ const generatePreviewHTML = (designData) => {
                 <!-- Always show watermark in preview -->
                 <div style="
                     position: absolute;
-                    bottom: 15px;
-                    right: 15px;
-                    font-size: 14px;
-                    color: rgba(0, 0, 0, 0.25);
+                    top: 50%;
+                    left: 50%;
+                    font-size: 48px;
+                    color: rgba(0, 0, 0, 0.08);
                     font-family: 'Cairo', sans-serif;
                     font-weight: bold;
-                    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
                     z-index: 9999;
-                    transform: rotate(-15deg);
+                    transform: translate(-50%, -50%) rotate(-45deg);
                     transform-origin: center;
                     user-select: none;
-                    letter-spacing: 1px;
+                    letter-spacing: 2px;
                     pointer-events: none;
-                ">سامقة للتصميم</div>
+                    white-space: nowrap;
+                ">منصة سامقة للتصميم</div>
             </div>
             <div class="footer">
                 <p>© ${new Date().getFullYear()} سامقة للتصميم - جميع الحقوق محفوظة</p>
@@ -954,9 +1090,154 @@ const generateElementHTML = (element) => {
             return `<img class="element" src="${element.src}" style="${style} object-fit: cover;" alt="${element.name}">`
         case 'rectangle':
             return `<div class="element" style="${style} background-color: ${element.backgroundColor || '#000'}; border-radius: ${element.borderRadius || 0}px;"></div>`
+        case 'circle':
+            return `<div class="element" style="${style} background-color: ${element.backgroundColor || '#10b981'}; border-radius: 50%;"></div>`
+        case 'shape':
+            // Utiliser une div avec une classe FontAwesome pour les formes
+            const shapeClass = getShapeIconClass(element.shapeType);
+            return `<div class="element" style="${style} display: flex; align-items: center; justify-content: center;">
+                <i class="${shapeClass}" style="font-size: ${element.width/2}px; color: ${element.backgroundColor || '#8b5cf6'};"></i>
+            </div>`
+        case 'icon':
+            // Utiliser une div avec une classe FontAwesome pour les icônes
+            return `<div class="element" style="${style} display: flex; align-items: center; justify-content: center;">
+                <i class="${element.iconClass || 'fas fa-star'}" style="font-size: ${element.fontSize || 24}px; color: ${element.color || '#374151'};"></i>
+            </div>`
         default:
             return ''
     }
+}
+
+const getShapeIconClass = (shapeType) => {
+    const icons = {
+        triangle: 'fas fa-play fa-rotate-90',
+        diamond: 'fas fa-diamond',
+        star: 'fas fa-star',
+        heart: 'fas fa-heart',
+        arrow: 'fas fa-arrow-right',
+        polygon: 'fas fa-draw-polygon'
+    }
+    return icons[shapeType] || 'fas fa-square'
+}
+
+// Fonction pour dessiner une étoile
+const drawStar = (ctx, cx, cy, spikes, outerRadius, innerRadius) => {
+    let rot = Math.PI / 2 * 3
+    let x = cx
+    let y = cy
+    const step = Math.PI / spikes
+
+    ctx.beginPath()
+    ctx.moveTo(cx, cy - outerRadius)
+    for (let i = 0; i < spikes; i++) {
+        x = cx + Math.cos(rot) * outerRadius
+        y = cy + Math.sin(rot) * outerRadius
+        ctx.lineTo(x, y)
+        rot += step
+
+        x = cx + Math.cos(rot) * innerRadius
+        y = cy + Math.sin(rot) * innerRadius
+        ctx.lineTo(x, y)
+        rot += step
+    }
+    ctx.lineTo(cx, cy - outerRadius)
+    ctx.closePath()
+}
+
+// Fonction pour dessiner un cœur
+const drawHeart = (ctx, cx, cy, size) => {
+    const width = size
+    const height = size
+
+    ctx.beginPath()
+    const topCurveHeight = height * 0.3
+    ctx.moveTo(cx, cy + topCurveHeight)
+    // Left curve
+    ctx.bezierCurveTo(
+        cx, cy,
+        cx - width / 2, cy,
+        cx - width / 2, cy + topCurveHeight
+    )
+    ctx.bezierCurveTo(
+        cx - width / 2, cy + (height + topCurveHeight) / 2,
+        cx, cy + (height + topCurveHeight) / 2,
+        cx, cy + height
+    )
+    ctx.bezierCurveTo(
+        cx, cy + (height + topCurveHeight) / 2,
+        cx + width / 2, cy + (height + topCurveHeight) / 2,
+        cx + width / 2, cy + topCurveHeight
+    )
+    // Right curve
+    ctx.bezierCurveTo(
+        cx + width / 2, cy,
+        cx, cy,
+        cx, cy + topCurveHeight
+    )
+    ctx.closePath()
+}
+
+// Fonction pour obtenir un symbole simple pour les icônes
+const getIconSymbol = (iconClass) => {
+    if (!iconClass) return '★'
+
+    const symbols = {
+        'fa-star': '★',
+        'fa-heart': '♥',
+        'fa-home': '🏠',
+        'fa-user': '👤',
+        'fa-phone': '📞',
+        'fa-envelope': '✉',
+        'fa-camera': '📷',
+        'fa-location': '📍',
+        'fa-clock': '🕐',
+        'fa-gift': '🎁',
+        'fa-car': '🚗',
+        'fa-plane': '✈',
+        'fa-trophy': '🏆',
+        'fa-graduation-cap': '🎓',
+        'fa-music': '♪',
+        'fa-video': '📹'
+    }
+
+    // Chercher une correspondance partielle
+    for (const [key, symbol] of Object.entries(symbols)) {
+        if (iconClass.includes(key.replace('fa-', ''))) {
+            return symbol
+        }
+    }
+
+    return '●' // Symbole par défaut
+}
+
+// Fonction pour générer les points d'une étoile pour SVG
+const generateStarPoints = (cx, cy, spikes, outerRadius, innerRadius) => {
+    let points = []
+    let rot = Math.PI / 2 * 3
+    const step = Math.PI / spikes
+
+    for (let i = 0; i < spikes; i++) {
+        let x = cx + Math.cos(rot) * outerRadius
+        let y = cy + Math.sin(rot) * outerRadius
+        points.push(`${x},${y}`)
+        rot += step
+
+        x = cx + Math.cos(rot) * innerRadius
+        y = cy + Math.sin(rot) * innerRadius
+        points.push(`${x},${y}`)
+        rot += step
+    }
+
+    return points.join(' ')
+}
+
+// Fonction pour obtenir les dimensions d'export
+const getExportDimensions = () => {
+    const preset = presetFormats.find(p => p.value === selectedPresetFormat.value)
+    if (!preset || preset.value === 'current') {
+        return `${canvasWidth.value} × ${canvasHeight.value} بكسل`
+    }
+    return `${preset.width} × ${preset.height} بكسل (${preset.dpi} DPI)`
 }
 
 const loadDesign = () => {
@@ -1123,11 +1404,11 @@ const exportDesignWithFormat = async () => {
 }
 
 const exportAsPNG = async () => {
-    await exportDesignWithWatermark()
+    await exportDesignWithWatermarkSimple()
 }
 
 const exportAsJPEG = async () => {
-    await exportDesignWithWatermark()
+    await exportDesignWithWatermarkSimple()
 }
 
 // Copie exacte de la fonction admin qui marche
@@ -1208,12 +1489,103 @@ const exportDesignWithWatermark = async () => {
                     ctx.fillRect(-(element.width || 0) / 2, -(element.height || 0) / 2, element.width || 100, element.height || 100)
                     ctx.restore()
                     break
+                case 'circle':
+                    ctx.save()
+                    ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                    ctx.fillStyle = element.backgroundColor || '#10b981'
+                    ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                    ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                    ctx.beginPath()
+                    ctx.arc(0, 0, Math.min(element.width || 100, element.height || 100) / 2, 0, 2 * Math.PI)
+                    ctx.fill()
+                    ctx.restore()
+                    break
+                case 'shape':
+                    ctx.save()
+                    ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                    ctx.fillStyle = element.backgroundColor || '#8b5cf6'
+                    ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                    ctx.rotate((element.rotation || 0) * Math.PI / 180)
+
+                    // Dessiner selon le type de forme
+                    switch (element.shapeType) {
+                        case 'circle':
+                            ctx.beginPath()
+                            ctx.arc(0, 0, Math.min(element.width || 50, element.height || 50) / 2, 0, 2 * Math.PI)
+                            ctx.fill()
+                            break
+                        case 'triangle':
+                            ctx.beginPath()
+                            ctx.moveTo(0, -(element.height || 50) / 2)
+                            ctx.lineTo(-(element.width || 50) / 2, (element.height || 50) / 2)
+                            ctx.lineTo((element.width || 50) / 2, (element.height || 50) / 2)
+                            ctx.closePath()
+                            ctx.fill()
+                            break
+                        case 'star':
+                            drawStar(ctx, 0, 0, 5, (element.width || 50) / 2, (element.width || 50) / 4)
+                            ctx.fill()
+                            break
+                        case 'heart':
+                            drawHeart(ctx, 0, 0, element.width || 50)
+                            ctx.fill()
+                            break
+                        default:
+                            // Rectangle par défaut
+                            ctx.fillRect(-(element.width || 50) / 2, -(element.height || 50) / 2, element.width || 50, element.height || 50)
+                    }
+                    ctx.restore()
+                    break
+                case 'icon':
+                    // Pour les icônes, dessiner un cercle avec la première lettre de l'icône
+                    ctx.save()
+                    ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                    ctx.fillStyle = element.color || '#374151'
+                    ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                    ctx.rotate((element.rotation || 0) * Math.PI / 180)
+
+                    // Dessiner un cercle de fond
+                    ctx.beginPath()
+                    ctx.arc(0, 0, Math.min(element.width || 50, element.height || 50) / 2, 0, 2 * Math.PI)
+                    ctx.fill()
+
+                    // Ajouter un symbole simple au centre
+                    ctx.fillStyle = '#ffffff'
+                    ctx.font = `${(element.fontSize || 24)}px Arial`
+                    ctx.textAlign = 'center'
+                    ctx.textBaseline = 'middle'
+                    ctx.fillText(getIconSymbol(element.iconClass), 0, 0)
+                    ctx.restore()
+                    break
                 // Add more element types as needed
             }
         }
 
         // Draw watermark
         drawWatermarkOnCanvas(ctx)
+        downloadCanvas(exportCanvas)
+
+        // Restore original watermark state
+        showWatermark.value = originalWatermarkState
+
+    } catch (error) {
+        console.error('Export error:', error)
+        alert('خطأ في تصدير التصميم')
+    }
+}
+
+// Version simplifiée utilisant createExportCanvas
+const exportDesignWithWatermarkSimple = async () => {
+    try {
+        // Temporarily ensure watermark is visible
+        const originalWatermarkState = showWatermark.value
+        showWatermark.value = true
+
+        // Wait for DOM update
+        await nextTick()
+
+        // Create export canvas using the new function
+        const exportCanvas = await createExportCanvas()
         downloadCanvas(exportCanvas)
 
         // Restore original watermark state
@@ -1244,6 +1616,27 @@ const drawWatermarkOnCanvas = (ctx) => {
     ctx.restore()
 }
 
+// Fonction pour dessiner la filigrane sur le canvas d'export avec dimensions personnalisées
+const drawWatermarkOnExportCanvas = (ctx, width, height) => {
+    ctx.save()
+
+    // Ajuster la taille de la police selon les dimensions
+    const fontSize = Math.min(width, height) * 0.08 // 8% de la plus petite dimension
+    ctx.font = `bold ${fontSize}px Cairo, sans-serif`
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'
+    ctx.textAlign = 'center'
+
+    // Position at center and rotate diagonally
+    const x = width / 2
+    const y = height / 2
+
+    // Rotate text
+    ctx.translate(x, y)
+    ctx.rotate(-45 * Math.PI / 180)
+    ctx.fillText('منصة سامقة للتصميم', 0, 0)
+    ctx.restore()
+}
+
 const downloadCanvas = (canvas) => {
     const link = document.createElement('a')
     link.download = `design-${Date.now()}.png`
@@ -1252,15 +1645,35 @@ const downloadCanvas = (canvas) => {
 }
 
 const exportAsSVG = async () => {
+    // Get export dimensions based on selected preset
+    const preset = presetFormats.find(p => p.value === selectedPresetFormat.value)
+    let exportWidth = canvasWidth.value
+    let exportHeight = canvasHeight.value
+    let scaleFactor = 1
+
+    if (preset && preset.width && preset.height) {
+        exportWidth = preset.width
+        exportHeight = preset.height
+        // Calculate scale factor to fit content
+        scaleFactor = Math.min(exportWidth / canvasWidth.value, exportHeight / canvasHeight.value)
+    }
+
+    // Center the content if needed
+    const offsetX = (exportWidth - canvasWidth.value * scaleFactor) / 2
+    const offsetY = (exportHeight - canvasHeight.value * scaleFactor) / 2
+
     // Create SVG string with all elements
-    let svgContent = `<svg width="${canvasWidth.value}" height="${canvasHeight.value}" xmlns="http://www.w3.org/2000/svg">`
+    let svgContent = `<svg width="${exportWidth}" height="${exportHeight}" xmlns="http://www.w3.org/2000/svg">`
 
     // Background
     svgContent += `<rect width="100%" height="100%" fill="white"/>`
 
+    // Create a group for scaled content
+    svgContent += `<g transform="translate(${offsetX}, ${offsetY}) scale(${scaleFactor})">`
+
     // Background image if exists
     if (canvasBackground.value) {
-        svgContent += `<image href="${canvasBackground.value}" width="100%" height="100%"/>`
+        svgContent += `<image href="${canvasBackground.value}" width="${canvasWidth.value}" height="${canvasHeight.value}"/>`
     }
 
     // Elements
@@ -1288,6 +1701,62 @@ const exportAsSVG = async () => {
                     transform="${transform}"
                     opacity="${element.opacity !== undefined ? element.opacity : 1}"/>`
                 break
+            case 'circle':
+                svgContent += `<circle cx="0" cy="0"
+                    r="${Math.min(element.width || 100, element.height || 100) / 2}"
+                    fill="${element.backgroundColor || '#10b981'}"
+                    transform="${transform}"
+                    opacity="${element.opacity !== undefined ? element.opacity : 1}"/>`
+                break
+            case 'shape':
+                // Dessiner selon le type de forme
+                switch (element.shapeType) {
+                    case 'circle':
+                        svgContent += `<circle cx="0" cy="0"
+                            r="${Math.min(element.width || 50, element.height || 50) / 2}"
+                            fill="${element.backgroundColor || '#8b5cf6'}"
+                            transform="${transform}"
+                            opacity="${element.opacity !== undefined ? element.opacity : 1}"/>`
+                        break
+                    case 'triangle':
+                        const w = element.width || 50
+                        const h = element.height || 50
+                        svgContent += `<polygon points="0,${-h/2} ${-w/2},${h/2} ${w/2},${h/2}"
+                            fill="${element.backgroundColor || '#8b5cf6'}"
+                            transform="${transform}"
+                            opacity="${element.opacity !== undefined ? element.opacity : 1}"/>`
+                        break
+                    case 'star':
+                        // Créer les points d'une étoile à 5 branches
+                        const starPoints = generateStarPoints(0, 0, 5, (element.width || 50) / 2, (element.width || 50) / 4)
+                        svgContent += `<polygon points="${starPoints}"
+                            fill="${element.backgroundColor || '#8b5cf6'}"
+                            transform="${transform}"
+                            opacity="${element.opacity !== undefined ? element.opacity : 1}"/>`
+                        break
+                    default:
+                        // Rectangle par défaut
+                        svgContent += `<rect x="${-(element.width || 50) / 2}" y="${-(element.height || 50) / 2}"
+                            width="${element.width || 50}" height="${element.height || 50}"
+                            fill="${element.backgroundColor || '#8b5cf6'}"
+                            transform="${transform}"
+                            opacity="${element.opacity !== undefined ? element.opacity : 1}"/>`
+                }
+                break
+            case 'icon':
+                // Pour les icônes, dessiner un cercle avec du texte
+                svgContent += `<circle cx="0" cy="0"
+                    r="${Math.min(element.width || 50, element.height || 50) / 2}"
+                    fill="${element.color || '#374151'}"
+                    transform="${transform}"
+                    opacity="${element.opacity !== undefined ? element.opacity : 1}"/>
+                <text x="0" y="0" text-anchor="middle" dominant-baseline="central"
+                    font-size="${element.fontSize || 24}" fill="white"
+                    transform="${transform}"
+                    opacity="${element.opacity !== undefined ? element.opacity : 1}">
+                    ${getIconSymbol(element.iconClass)}
+                </text>`
+                break
             case 'image':
                 svgContent += `<image href="${element.src}"
                     x="${-(element.width || 0) / 2}" y="${-(element.height || 0) / 2}"
@@ -1298,11 +1767,15 @@ const exportAsSVG = async () => {
         }
     }
 
-    // Watermark - diagonal in center
-    svgContent += `<text x="${canvasWidth.value / 2}" y="${canvasHeight.value / 2}"
-        font-family="Cairo, sans-serif" font-size="24" font-weight="bold"
-        fill="rgba(0, 0, 0, 0.1)" text-anchor="middle"
-        transform="rotate(-45 ${canvasWidth.value / 2} ${canvasHeight.value / 2})">سامقة للتصميم</text>`
+    // Close the scaled content group
+    svgContent += '</g>'
+
+    // Add watermark (outside the scaled group, on the full export canvas)
+    const watermarkFontSize = Math.min(exportWidth, exportHeight) * 0.08
+    svgContent += `<text x="${exportWidth / 2}" y="${exportHeight / 2}"
+        font-family="Cairo, sans-serif" font-size="${watermarkFontSize}" font-weight="bold"
+        fill="rgba(0, 0, 0, 0.08)" text-anchor="middle"
+        transform="rotate(-45 ${exportWidth / 2} ${exportHeight / 2})">منصة سامقة للتصميم</text>`
 
     svgContent += '</svg>'
 
@@ -1313,6 +1786,176 @@ const exportAsSVG = async () => {
     link.href = URL.createObjectURL(blob)
     link.click()
     URL.revokeObjectURL(link.href)
+}
+
+// Fonction pour créer un canvas d'export
+const createExportCanvas = async () => {
+    // Get export dimensions based on selected preset
+    const preset = presetFormats.find(p => p.value === selectedPresetFormat.value)
+    let exportWidth = canvasWidth.value
+    let exportHeight = canvasHeight.value
+    let scaleFactor = 1
+
+    if (preset && preset.width && preset.height) {
+        exportWidth = preset.width
+        exportHeight = preset.height
+        // Calculate scale factor to fit content
+        scaleFactor = Math.min(exportWidth / canvasWidth.value, exportHeight / canvasHeight.value)
+    }
+
+    // Create a new canvas for export
+    const exportCanvas = document.createElement('canvas')
+    const ctx = exportCanvas.getContext('2d')
+
+    exportCanvas.width = exportWidth
+    exportCanvas.height = exportHeight
+
+    // Fill background
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0, 0, exportWidth, exportHeight)
+
+    // Center the content if needed
+    const offsetX = (exportWidth - canvasWidth.value * scaleFactor) / 2
+    const offsetY = (exportHeight - canvasHeight.value * scaleFactor) / 2
+
+    // Apply scaling and centering
+    ctx.save()
+    ctx.translate(offsetX, offsetY)
+    ctx.scale(scaleFactor, scaleFactor)
+
+    // Draw background image if exists
+    if (canvasBackground.value) {
+        await new Promise((resolve) => {
+            const bgImg = new Image()
+            bgImg.crossOrigin = 'anonymous'
+            bgImg.onload = () => {
+                ctx.drawImage(bgImg, 0, 0, canvasWidth.value, canvasHeight.value)
+                resolve()
+            }
+            bgImg.onerror = () => resolve() // Continue even if background fails
+            bgImg.src = canvasBackground.value
+        })
+    }
+
+    // Draw all elements
+    for (const element of elements.value) {
+        if (element.visible === false) continue
+        switch (element.type) {
+            case 'text':
+                ctx.save()
+                ctx.font = `${element.fontWeight || 'normal'} ${element.fontSize || 16}px ${element.fontFamily || 'Cairo, sans-serif'}`
+                ctx.fillStyle = element.color || '#000'
+                ctx.textAlign = element.textAlign || 'left'
+                ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                ctx.fillText(element.text || '', 0, 0)
+                ctx.restore()
+                break
+            case 'image':
+                await new Promise((resolve) => {
+                    const img = new Image()
+                    img.crossOrigin = 'anonymous'
+                    img.onload = () => {
+                        ctx.save()
+                        ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                        ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                        ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                        ctx.drawImage(img, -(element.width || 0) / 2, -(element.height || 0) / 2, element.width || 100, element.height || 100)
+                        ctx.restore()
+                        resolve()
+                    }
+                    img.onerror = () => resolve()
+                    img.src = element.src
+                })
+                break
+            case 'rectangle':
+                ctx.save()
+                ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                ctx.fillStyle = element.backgroundColor || '#000'
+                ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                ctx.fillRect(-(element.width || 0) / 2, -(element.height || 0) / 2, element.width || 100, element.height || 100)
+                ctx.restore()
+                break
+            case 'circle':
+                ctx.save()
+                ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                ctx.fillStyle = element.backgroundColor || '#10b981'
+                ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                ctx.beginPath()
+                ctx.arc(0, 0, Math.min(element.width || 100, element.height || 100) / 2, 0, 2 * Math.PI)
+                ctx.fill()
+                ctx.restore()
+                break
+            case 'shape':
+                ctx.save()
+                ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                ctx.fillStyle = element.backgroundColor || '#8b5cf6'
+                ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                ctx.rotate((element.rotation || 0) * Math.PI / 180)
+
+                // Dessiner selon le type de forme
+                switch (element.shapeType) {
+                    case 'circle':
+                        ctx.beginPath()
+                        ctx.arc(0, 0, Math.min(element.width || 50, element.height || 50) / 2, 0, 2 * Math.PI)
+                        ctx.fill()
+                        break
+                    case 'triangle':
+                        ctx.beginPath()
+                        ctx.moveTo(0, -(element.height || 50) / 2)
+                        ctx.lineTo(-(element.width || 50) / 2, (element.height || 50) / 2)
+                        ctx.lineTo((element.width || 50) / 2, (element.height || 50) / 2)
+                        ctx.closePath()
+                        ctx.fill()
+                        break
+                    case 'star':
+                        drawStar(ctx, 0, 0, 5, (element.width || 50) / 2, (element.width || 50) / 4)
+                        ctx.fill()
+                        break
+                    case 'heart':
+                        drawHeart(ctx, 0, 0, element.width || 50)
+                        ctx.fill()
+                        break
+                    default:
+                        // Rectangle par défaut
+                        ctx.fillRect(-(element.width || 50) / 2, -(element.height || 50) / 2, element.width || 50, element.height || 50)
+                }
+                ctx.restore()
+                break
+            case 'icon':
+                // Pour les icônes, dessiner un cercle avec la première lettre de l'icône
+                ctx.save()
+                ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                ctx.fillStyle = element.color || '#374151'
+                ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                ctx.rotate((element.rotation || 0) * Math.PI / 180)
+
+                // Dessiner un cercle de fond
+                ctx.beginPath()
+                ctx.arc(0, 0, Math.min(element.width || 50, element.height || 50) / 2, 0, 2 * Math.PI)
+                ctx.fill()
+
+                // Ajouter un symbole simple au centre
+                ctx.fillStyle = '#ffffff'
+                ctx.font = `${(element.fontSize || 24)}px Arial`
+                ctx.textAlign = 'center'
+                ctx.textBaseline = 'middle'
+                ctx.fillText(getIconSymbol(element.iconClass), 0, 0)
+                ctx.restore()
+                break
+        }
+    }
+
+    // Restore transformation context
+    ctx.restore()
+
+    // Draw watermark on the full export canvas (not scaled)
+    drawWatermarkOnExportCanvas(ctx, exportWidth, exportHeight)
+
+    return exportCanvas
 }
 
 const exportAsPDF = async () => {

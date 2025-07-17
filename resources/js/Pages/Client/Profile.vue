@@ -3,99 +3,14 @@
 
     <ClientLayout>
         <div class="py-12 bg-gray-50 min-h-screen" dir="rtl">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-svp                <!-- Page Header - STRICT RTL -->
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Page Header - STRICT RTL -->
                 <div class="mb-8 text-right">
                     <h1 class="text-3xl font-bold text-gray-900 mb-2 text-right">الملف الشخصي</h1>
                     <p class="text-gray-600 text-right">إدارة معلوماتك الشخصية وإعدادات حسابك</p>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                    <!-- Profile Sidebar - Right Side -->
-                    <div class="lg:col-span-1 lg:order-2">
-                        <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                            <div class="text-right mb-6">
-                                <!-- Profile Image -->
-                                <div class="relative inline-block mb-4">
-                                    <img 
-                                        v-if="user.image" 
-                                        :src="user.image" 
-                                        :alt="user.email"
-                                        class="w-28 h-28 object-cover rounded-full border-4 border-blue-200 shadow-lg"
-                                    />
-                                    <div v-else class="w-28 h-28 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-full flex items-center justify-center border-4 border-blue-200 shadow-lg">
-                                        <span class="text-3xl font-bold text-white">
-                                            {{ user.email.charAt(0).toUpperCase() }}
-                                        </span>
-                                    </div>
-                                    <!-- Online Status Indicator -->
-                                    <div class="absolute bottom-1 right-1 w-6 h-6 bg-green-500 border-2 border-white rounded-full"></div>
-                                </div>
-                                
-                                <h3 class="text-xl font-bold text-gray-900 mb-1 text-right">{{ user.email }}</h3>
-                                <p class="text-gray-500 text-sm mb-3 text-right">{{ user.email }}</p>
-                                
-                                <div class="flex justify-end">
-                                    <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-green-100 text-green-800 border border-green-200">
-                                        <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                        </svg>
-                                        حريف 
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Stats -->
-                        <div class="mt-6 bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                            <h4 class="text-lg font-bold text-gray-900 mb-6 text-right flex items-center justify-end">
-                                إحصائيات سريعة
-                                <svg class="w-5 h-5 ml-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
-                                </svg>
-                            </h4>
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-100 flex-row-reverse">
-                                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                                        <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <div class="text-right flex-1 mr-3">
-                                        <p class="text-sm text-gray-600 mb-1 text-right">التصاميم المنشأة</p>
-                                        <p class="text-2xl font-bold text-purple-600 text-right">{{ stats.designs_count || 0 }}</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-100 flex-row-reverse">
-                                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
-                                        </svg>
-                                    </div>
-                                    <div class="text-right flex-1 mr-3">
-                                        <p class="text-sm text-gray-600 mb-1 text-right">الطلبات المقدمة</p>
-                                        <p class="text-2xl font-bold text-blue-600 text-right">{{ stats.orders_count || 0 }}</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100 flex-row-reverse">
-                                    <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                                        <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <div class="text-right flex-1 mr-3">
-                                        <p class="text-sm text-gray-600 mb-1 text-right">عضو منذ</p>
-                                        <p class="text-lg font-bold text-gray-600 text-right">{{ formatDate(user.created_at) }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Main Content - Left Side -->
-                    <div class="lg:col-span-3 lg:order-1 space-y-8">
+                <div class="space-y-8">
                         <!-- Personal Information Form -->
                         <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                             <div class="px-8 py-6 bg-gradient-to-l from-purple-600 via-blue-600 to-indigo-700">
@@ -191,10 +106,8 @@ svp                <!-- Page Header - STRICT RTL -->
                                                 dir="rtl"
                                             />
                                             <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
-                                                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                                                     <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                                                     <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                                                </svg>
                                             </div>
                                         </div>
                                         <div v-if="profileForm.errors.email" class="text-sm text-red-600 text-right bg-red-50 p-3 rounded-lg border border-red-200">
@@ -341,8 +254,7 @@ svp                <!-- Page Header - STRICT RTL -->
                         </div>
 
                         <!-- Account Settings -->
-                        
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -402,26 +314,14 @@ const removeImage = () => {
     if (imageInput.value) {
         imageInput.value.value = '';
     }
-    
+
     // Submit the form to remove the image
-    if (profileForm.image) {
-        profileForm.transform((data) => ({
-            ...data,
-            _method: 'PATCH'
-        })).post(route('client.profile.update'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                profileForm.remove_image = false;
-            },
-        });
-    } else {
-        profileForm.patch(route('client.profile.update'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                profileForm.remove_image = false;
-            },
-        });
-    }
+    profileForm.patch(route('client.profile.update'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            profileForm.remove_image = false;
+        },
+    });
 };
 
 const updateProfile = () => {
@@ -461,14 +361,6 @@ const updatePassword = () => {
                 passwordForm.reset('current_password');
             }
         },
-    });
-};
-
-const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('fr-FR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
     });
 };
 </script>

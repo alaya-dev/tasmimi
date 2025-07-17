@@ -28,7 +28,7 @@
                     <div class="flex-1 text-center">
                         <h1 class="text-3xl font-bold mb-2" style="font-family: 'Cairo', 'Amiri', 'Noto Sans Arabic', Arial, sans-serif;">
                             أهلاً بكم في
-                            <span class="font-black text-4xl" style="background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-family: 'Cairo', 'Amiri', 'Noto Sans Arabic', Arial, sans-serif; font-weight: 900; letter-spacing: 1px;">سَامِقَة</span>
+                            <span class="font-black text-4xl" style="color: #8d39c5; font-family: 'Dark Star Bold', 'Cairo', 'Amiri', 'Noto Sans Arabic', Arial, sans-serif; font-weight: 900; letter-spacing: 1px;">سَامِقَة</span>
                         </h1>
                         <p class="text-gray-600">منصة سامقة توفر لك أدوات متقدمة وقوالب احترافية لتصميم بطاقات إلكترونية مميزة</p>
                     </div>
@@ -95,6 +95,12 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                         </svg>
                                         <span>الفواتير</span>
+                                    </DropdownLink>
+                                    <DropdownLink :href="route('client.contact')" class="flex items-center space-x-2 space-x-reverse">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                        </svg>
+                                        <span>اتصل بنا</span>
                                     </DropdownLink>
                                     <hr class="my-1">
                                     <DropdownLink :href="route('logout')" method="post" as="button" class="flex items-center space-x-2 space-x-reverse text-red-600 hover:text-red-800">

@@ -189,8 +189,8 @@
                     <p class="text-gray-600 mb-8 max-w-md mx-auto">
                         سلة التسوق فارغة. تصفح قوالبنا وأضف التصاميم التي تعجبك.
                     </p>
-                    <Link 
-                        :href="route('client.templates')" 
+                    <Link
+                        :href="route('client.home')"
                         class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors inline-flex items-center"
                     >
                         <svg :class="isRTL ? 'mr-2' : 'ml-2'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

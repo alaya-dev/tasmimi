@@ -105,8 +105,8 @@
                     <p class="text-gray-600 mb-8 max-w-md mx-auto">
                         لم تقم بتقديم أي طلبات حتى الآن. ابدأ في تصفح قوالبنا وأنشئ طلبك الأول.
                     </p>
-                    <Link 
-                        :href="route('client.templates')" 
+                    <Link
+                        :href="route('client.home')"
                         class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors inline-flex items-center"
                     >
                         تصفح القوالب
