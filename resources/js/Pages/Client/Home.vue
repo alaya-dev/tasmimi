@@ -55,24 +55,25 @@
                         </div>
                     </div>
 
-            <!-- Pagination Controls -->
-            <div v-if="totalPages > 1" class="flex justify-center mt-8 items-center gap-2 rtl">
+            <!-- Pagination Controls - Ordre RTL: [السابق ➡️] [1] [2] [⬅️ التالي] -->
+            <div v-if="totalPages > 1" class="flex justify-center mt-8 items-center gap-2">
+                <!-- Bouton السابق (Previous) à gauche -->
                 <button
                     @click="prevPage"
                     :disabled="currentPage === 1"
-                    :class="['px-4 py-2 rounded-lg border transition-all duration-200',
+                    :class="['px-4 py-2 rounded-lg border transition-all duration-200 flex items-center gap-2',
                         currentPage === 1
                             ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
                             : 'bg-white text-purple-600 border-purple-200 hover:bg-purple-50 hover:border-purple-300']"
                 >
-                    <svg class="w-5 h-5 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                        </svg>
+                    <span>➡️</span>
+                    <span>السابق</span>
                 </button>
 
+                <!-- Numéros de pages en ordre croissant -->
                 <div class="flex items-center gap-1">
                     <button
-                        v-for="page in Math.min(5, totalPages)"
+                        v-for="page in getPageNumbers()"
                         :key="page"
                         @click="goToPage(page)"
                         :class="['w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 font-medium',
@@ -82,32 +83,19 @@
                     >
                         {{ page }}
                     </button>
-
-                    <span v-if="totalPages > 5" class="px-2">...</span>
-
-                    <button
-                        v-if="totalPages > 5"
-                        @click="goToPage(totalPages)"
-                        :class="['w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 font-medium',
-                            currentPage === totalPages
-                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'
-                                : 'bg-white text-gray-700 border border-gray-200 hover:bg-purple-50 hover:text-purple-600']"
-                    >
-                        {{ totalPages }}
-                    </button>
                 </div>
 
+                <!-- Bouton التالي (Next) à droite -->
                 <button
                     @click="nextPage"
                     :disabled="currentPage === totalPages"
-                    :class="['px-4 py-2 rounded-lg border transition-all duration-200',
+                    :class="['px-4 py-2 rounded-lg border transition-all duration-200 flex items-center gap-2',
                         currentPage === totalPages
                             ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
                             : 'bg-white text-purple-600 border-purple-200 hover:bg-purple-50 hover:border-purple-300']"
                 >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
+                    <span>التالي</span>
+                    <span>⬅️</span>
                 </button>
             </div>
         </div>
@@ -198,6 +186,20 @@ const prevPage = () => {
     if (currentPage.value > 1) {
         currentPage.value--;
     }
+};
+
+// Get page numbers in ascending order
+const getPageNumbers = () => {
+    const pages = [];
+    const maxPagesToShow = Math.min(5, totalPages.value);
+
+    // Créer un tableau des numéros de page en ordre croissant (1, 2, 3...)
+    for (let i = 1; i <= totalPages.value; i++) {
+        pages.push(i);
+        if (pages.length >= maxPagesToShow) break;
+    }
+
+    return pages;
 };
 
 // Get selected category name
