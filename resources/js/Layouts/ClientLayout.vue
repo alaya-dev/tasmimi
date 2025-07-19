@@ -4,8 +4,37 @@
         <header class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-4 lg:px-6">
                 <div class="flex justify-between items-center h-24 w-full">
-                    <!-- Login/Register or User Menu (right) -->
-                    <div class="flex items-center justify-start flex-shrink-0 min-w-[120px] pr-2">
+                    <!-- Logo (left) - espace réduit -->
+                    <div class="flex items-center justify-start flex-shrink-0 min-w-[200px] pl-4 lg:pl-6">
+                        <Link :href="route('client.home')" class="flex items-center group">
+                            <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100 group-hover:shadow-md transition-all duration-300">
+                                <img
+                                    src="/images/logo.png"
+                                    alt="سامقة"
+                                    class="h-16 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+                                    style="max-height: 64px; min-width: 80px;"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                />
+                                <div class="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300" style="display: none;">
+                                    <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </Link>
+                    </div>
+
+                    <!-- Welcome Message (center) - parfaitement centré -->
+                    <div class="absolute left-1/2 transform -translate-x-1/2 text-center px-4">
+                        <h1 class="text-3xl font-bold mb-2" style="font-family: 'Cairo', 'Amiri', 'Noto Sans Arabic', Arial, sans-serif;">
+                            أهلاً بكم في
+                            <span class="font-black text-4xl" style="color: #8d39c5; font-family: 'Dark Star Bold', 'Cairo', 'Amiri', 'Noto Sans Arabic', Arial, sans-serif; font-weight: 900; letter-spacing: 1px;">سامقة</span>
+                        </h1>
+                        <p class="text-gray-600">منصة سامقة توفر لك أدوات متقدمة وقوالب احترافية لتصميم بطاقات إلكترونية مميزة</p>
+                    </div>
+
+                    <!-- Login/Register or User Menu (right) - forcé vers la gauche -->
+                    <div class="flex items-center justify-center flex-shrink-0 min-w-[200px] -ml-16 lg:-ml-22">
                         <div v-if="!$page.props.auth.user" class="flex items-center space-x-4 space-x-reverse">
                             <Link :href="route('login')" class="group flex items-center text-gray-700 hover:text-purple-600 font-semibold transition-all duration-200 px-6 py-3 rounded-xl hover:bg-purple-50 border border-gray-200 hover:border-purple-300">
                                 تسجيل الدخول
@@ -85,34 +114,8 @@
                         </div>
                     </div>
 
-                    <!-- Welcome Message (center) -->
-                    <div class="flex-1 text-center px-1">
-                        <h1 class="text-3xl font-bold mb-2" style="font-family: 'Cairo', 'Amiri', 'Noto Sans Arabic', Arial, sans-serif;">
-                            أهلاً بكم في
-                            <span class="font-black text-4xl" style="color: #8d39c5; font-family: 'Dark Star Bold', 'Cairo', 'Amiri', 'Noto Sans Arabic', Arial, sans-serif; font-weight: 900; letter-spacing: 1px;">سامقة</span>
-                        </h1>
-                        <p class="text-gray-600">منصة سامقة توفر لك أدوات متقدمة وقوالب احترافية لتصميم بطاقات إلكترونية مميزة</p>
-                    </div>
 
-                    <!-- Logo (left) -->
-                    <div class="flex items-center justify-end flex-shrink-0 min-w-[120px] pl-2 lg:pl-4 xl:pl-6">
-                        <Link :href="route('client.home')" class="flex items-center group">
-                            <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100 group-hover:shadow-md transition-all duration-300">
-                                <img
-                                    src="/images/logo.png"
-                                    alt="سامقة"
-                                    class="h-16 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
-                                    style="max-height: 64px; min-width: 80px;"
-                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                                />
-                                <div class="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300" style="display: none;">
-                                    <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                    </svg>
-                                </div>
-                            </div>
-                        </Link>
-                    </div>
+
                 </div>
             </div>
         </header>
