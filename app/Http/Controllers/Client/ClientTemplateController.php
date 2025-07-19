@@ -428,9 +428,52 @@ class ClientTemplateController extends Controller
     public function saveDesign(Request $request, Template $template)
     {
         try {
-            $validated = $request->validate([
-                'design_data' => 'required|string'
+            $validator = Validator::make($request->all(), [
+                'design_data' => 'required|string',
+            ], [
+                'design_data.required' => 'بيانات التصميم مطلوبة',
+                'design_data.string' => 'بيانات التصميم يجب أن تكون في صيغة نصية صحيحة',
             ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'خطأ في التحقق من البيانات',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            // Validate JSON structure
+            $designData = json_decode($request->design_data, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'بيانات التصميم غير صحيحة'
+                ], 400);
+            }
+
+            // Check data size and optimize if necessary
+            $dataSize = strlen($request->design_data);
+            if ($dataSize > 16777215) { // 16MB limit for MEDIUMTEXT
+                \Log::warning('Client design data too large', [
+                    'template_id' => $template->id,
+                    'user_id' => auth()->id(),
+                    'data_size' => $dataSize
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'بيانات التصميم كبيرة جداً. يرجى تقليل حجم الصور أو عدد العناصر.'
+                ], 413);
+            }
+
+            // Extract canvas size from design data
+            $canvasSize = '800x600';
+            if (isset($designData['canvas'])) {
+                $width = $designData['canvas']['width'] ?? 800;
+                $height = $designData['canvas']['height'] ?? 600;
+                $canvasSize = "{$width}x{$height}";
+            }
 
             // Find or create client template for this user and template
             $clientTemplate = ClientTemplate::firstOrCreate([
@@ -438,34 +481,39 @@ class ClientTemplateController extends Controller
                 'template_id' => $template->id,
             ], [
                 'name' => $template->name . ' - نسختي',
-                'design_data' => $validated['design_data'],
-                'canvas_size' => json_encode(['width' => 800, 'height' => 600]),
+                'design_data' => $request->design_data,
+                'canvas_size' => $canvasSize,
                 'version' => 1,
+                'last_edited_at' => now(),
             ]);
 
             // Update existing client template
             if (!$clientTemplate->wasRecentlyCreated) {
-                $clientTemplate->design_data = $validated['design_data'];
+                $clientTemplate->design_data = $request->design_data;
+                $clientTemplate->canvas_size = $canvasSize;
                 $clientTemplate->last_edited_at = now();
-                $clientTemplate->version += 1;
+                $clientTemplate->version = ($clientTemplate->version ?? 0) + 1;
                 $clientTemplate->save();
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم حفظ التصميم بنجاح'
+                'message' => 'تم حفظ التصميم بنجاح',
+                'client_template' => $clientTemplate->fresh(),
+                'timestamp' => now()->toISOString()
             ]);
 
         } catch (\Exception $e) {
             \Log::error('Client design save error: ' . $e->getMessage(), [
                 'template_id' => $template->id,
                 'user_id' => auth()->id(),
+                'request_data' => $request->all(),
                 'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حفظ التصميم'
+                'message' => 'حدث خطأ أثناء حفظ التصميم: ' . $e->getMessage()
             ], 500);
         }
     }

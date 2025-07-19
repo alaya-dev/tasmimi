@@ -433,6 +433,14 @@ const props = defineProps({
     template: {
         type: Object,
         required: true
+    },
+    clientTemplate: {
+        type: Object,
+        default: null
+    },
+    mode: {
+        type: String,
+        default: 'create'
     }
 })
 
@@ -920,21 +928,95 @@ const generateId = () => {
     return 'element_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
 }
 
+// Utility function to compress base64 images
+const compressBase64Image = (base64String, maxWidth = 800, quality = 0.7) => {
+    return new Promise((resolve) => {
+        if (!base64String.startsWith('data:image/')) {
+            resolve(base64String)
+            return
+        }
+
+        const img = new Image()
+        img.onload = () => {
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+
+            // Calculate new dimensions with more aggressive compression for large images
+            let { width, height } = img
+            const originalSize = base64String.length
+
+            // More aggressive compression for very large images
+            if (originalSize > 1000000) { // > 1MB
+                maxWidth = 600
+                quality = 0.5
+            } else if (originalSize > 500000) { // > 500KB
+                maxWidth = 700
+                quality = 0.6
+            }
+
+            if (width > maxWidth || height > maxWidth) {
+                if (width > height) {
+                    height = (height * maxWidth) / width
+                    width = maxWidth
+                } else {
+                    width = (width * maxWidth) / height
+                    height = maxWidth
+                }
+            }
+
+            canvas.width = width
+            canvas.height = height
+
+            // Draw and compress
+            ctx.drawImage(img, 0, 0, width, height)
+            const compressedBase64 = canvas.toDataURL('image/jpeg', quality)
+
+            console.log(`Image compressed: ${Math.round(originalSize/1024)}KB -> ${Math.round(compressedBase64.length/1024)}KB`)
+            resolve(compressedBase64)
+        }
+        img.src = base64String
+    })
+}
+
 const saveDesign = async () => {
     saving.value = true
 
     try {
+        // Check if template ID exists
+        if (!props.template?.id) {
+            throw new Error('Template ID is missing')
+        }
+
+        // Check CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
+        if (!csrfToken) {
+            throw new Error('CSRF token not found')
+        }
+
+        // Compress images in elements before saving
+        console.log('Compressing images...')
+        const compressedElements = await Promise.all(
+            (elements.value || []).map(async (element) => {
+                if (element.type === 'image' && element.src && element.src.startsWith('data:image/')) {
+                    const compressedSrc = await compressBase64Image(element.src)
+                    return { ...element, src: compressedSrc }
+                }
+                return element
+            })
+        )
+        console.log('Image compression complete')
+
         const designData = {
-            elements: elements.value,
+            elements: compressedElements,
             canvas: {
-                width: canvasWidth.value,
-                height: canvasHeight.value,
-                background: canvasBackground.value,
-                backgroundSize: backgroundSize.value
+                width: canvasWidth.value || 800,
+                height: canvasHeight.value || 600,
+                background: canvasBackground.value || '',
+                backgroundSize: backgroundSize.value || 'contain'
             },
             settings: {
-                device: currentDevice.value,
-                zoom: zoom.value
+                device: currentDevice.value || 'desktop',
+                zoom: zoom.value || 1
             },
             watermark: {
                 text: 'سامقة للتصميم',
@@ -950,26 +1032,70 @@ const saveDesign = async () => {
             }
         }
 
+        // Validate design data and check size
+        let designDataString
+        try {
+            designDataString = JSON.stringify(designData)
+
+            // Check data size (16MB limit)
+            const dataSize = new Blob([designDataString]).size
+            if (dataSize > 16777215) {
+                throw new Error(`بيانات التصميم كبيرة جداً (${Math.round(dataSize / 1024 / 1024)}MB). يرجى تقليل حجم الصور.`)
+            }
+        } catch (e) {
+            throw new Error('Invalid design data: ' + e.message)
+        }
+
+        console.log('Saving design data:', designData)
+        console.log('Template ID:', props.template.id)
+        console.log('Data size:', Math.round(new Blob([designDataString]).size / 1024), 'KB')
+
+        const requestPayload = {
+            design_data: designDataString
+        }
+        console.log('Request payload size:', Math.round(new Blob([JSON.stringify(requestPayload)]).size / 1024), 'KB')
+
         const response = await fetch(`/client/templates/${props.template.id}/design`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                'X-CSRF-TOKEN': csrfToken
             },
-            body: JSON.stringify({
-                design_data: JSON.stringify(designData)
-            })
+            body: JSON.stringify(requestPayload)
         })
 
         if (response.ok) {
-            // Show success message
-            console.log('Design saved successfully')
+            const result = await response.json()
+            console.log('Design saved successfully', result)
+
+            // Show success notification
+            if (result.success) {
+                alert('تم حفظ التصميم بنجاح')
+            }
         } else {
-            throw new Error('Failed to save design')
+            // Get detailed error information
+            let errorMessage = 'Failed to save design'
+            try {
+                const errorData = await response.json()
+                errorMessage = errorData.message || errorMessage
+                console.error('Server error details:', errorData)
+            } catch (e) {
+                console.error('Could not parse error response:', e)
+            }
+
+            console.error('HTTP Status:', response.status, response.statusText)
+            throw new Error(errorMessage)
         }
     } catch (error) {
         console.error('Error saving design:', error)
-        alert('خطأ في حفظ التصميم')
+
+        // Show more detailed error information
+        let errorMessage = 'خطأ في حفظ التصميم'
+        if (error.message) {
+            errorMessage += ': ' + error.message
+        }
+
+        alert(errorMessage)
     } finally {
         saving.value = false
     }
@@ -1241,9 +1367,31 @@ const getExportDimensions = () => {
 }
 
 const loadDesign = () => {
-    if (props.template.design_data) {
+    // Déterminer quelle source de données utiliser
+    let designDataSource = null
+
+    if (props.clientTemplate && props.clientTemplate.design_data) {
+        // Mode édition : utiliser les données du client template
+        designDataSource = props.clientTemplate.design_data
+        console.log('Loading from clientTemplate:', designDataSource)
+    } else if (props.template.design_data) {
+        // Mode création : utiliser les données du template original
+        designDataSource = props.template.design_data
+        console.log('Loading from template:', designDataSource)
+    }
+
+    if (designDataSource) {
         try {
-            const designData = JSON.parse(props.template.design_data)
+            // Gérer les données qui peuvent être déjà un objet ou une string JSON
+            let designData
+            if (typeof designDataSource === 'string') {
+                designData = JSON.parse(designDataSource)
+            } else if (typeof designDataSource === 'object') {
+                designData = designDataSource
+            } else {
+                throw new Error('Invalid design data format')
+            }
+
             elements.value = designData.elements || []
 
             if (designData.canvas) {
@@ -1258,13 +1406,24 @@ const loadDesign = () => {
                 zoom.value = designData.settings.zoom || 1
             }
 
+            console.log('Design loaded successfully:', {
+                elementsCount: elements.value.length,
+                canvas: { width: canvasWidth.value, height: canvasHeight.value },
+                mode: props.mode
+            })
+
             // Initialize history
             saveToHistory()
         } catch (error) {
             console.error('Error loading design:', error)
+            // Initialize with empty design on error
+            elements.value = []
+            saveToHistory()
         }
     } else {
+        console.log('No design data found, initializing empty design')
         // Initialize with empty design
+        elements.value = []
         saveToHistory()
     }
 }

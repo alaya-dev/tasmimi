@@ -97,25 +97,30 @@ class ClientTemplate extends Model
     public function getDesignDataWithWatermarkAttribute(): array
     {
         $designData = $this->design_data;
-        
-        // Ajouter le filigrane obligatoire pour les clients
-        if (is_array($designData)) {
-            $designData['watermark'] = [
-                'text' => 'سامقة للتصميم',
-                'enabled' => true,
-                'position' => 'bottom-right',
-                'style' => [
-                    'fontSize' => '16px',
-                    'color' => 'rgba(0, 0, 0, 0.4)', // Plus visible que l'admin
-                    'fontFamily' => 'Cairo, sans-serif',
-                    'fontWeight' => 'bold',
-                    'rotation' => '-15deg',
-                    'opacity' => '0.6'
-                ],
-                'removable' => false // Ne peut jamais être supprimé
-            ];
+
+        // S'assurer que nous avons un array
+        if (is_string($designData)) {
+            $designData = json_decode($designData, true) ?? [];
+        } elseif (!is_array($designData)) {
+            $designData = [];
         }
-        
+
+        // Ajouter le filigrane obligatoire pour les clients
+        $designData['watermark'] = [
+            'text' => 'سامقة للتصميم',
+            'enabled' => true,
+            'position' => 'bottom-right',
+            'style' => [
+                'fontSize' => '16px',
+                'color' => 'rgba(0, 0, 0, 0.4)', // Plus visible que l'admin
+                'fontFamily' => 'Cairo, sans-serif',
+                'fontWeight' => 'bold',
+                'rotation' => '-15deg',
+                'opacity' => '0.6'
+            ],
+            'removable' => false // Ne peut jamais être supprimé
+        ];
+
         return $designData;
     }
 

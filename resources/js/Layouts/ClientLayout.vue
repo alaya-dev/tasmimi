@@ -2,10 +2,10 @@
     <div :dir="direction" class="min-h-screen bg-gray-50">
         <!-- Custom Header (replaces navbar) -->
         <header class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-4 lg:px-6">
-                <div class="flex justify-between items-center h-24 w-full">
-                    <!-- Logo (left) - espace réduit -->
-                    <div class="flex items-center justify-start flex-shrink-0 min-w-[200px] pl-4 lg:pl-6">
+            <div class="w-full px-0 relative">
+                <div class="flex justify-between items-center h-24 w-full max-w-7xl mx-auto">
+                    <!-- Logo (right) - position absolue collé au bord droit -->
+                    <div class="absolute right-0 top-1/2 transform -translate-y-1/2 flex items-center justify-end flex-shrink-0 pr-1">
                         <Link :href="route('client.home')" class="flex items-center group">
                             <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100 group-hover:shadow-md transition-all duration-300">
                                 <img
@@ -25,7 +25,7 @@
                     </div>
 
                     <!-- Welcome Message (center) - parfaitement centré -->
-                    <div class="absolute left-1/2 transform -translate-x-1/2 text-center px-4">
+                    <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center px-4 w-full max-w-2xl">
                         <h1 class="text-3xl font-bold mb-2" style="font-family: 'Cairo', 'Amiri', 'Noto Sans Arabic', Arial, sans-serif;">
                             أهلاً بكم في
                             <span class="font-black text-4xl" style="color: #8d39c5; font-family: 'Dark Star Bold', 'Cairo', 'Amiri', 'Noto Sans Arabic', Arial, sans-serif; font-weight: 900; letter-spacing: 1px;">سامقة</span>
@@ -33,8 +33,8 @@
                         <p class="text-gray-600">منصة سامقة توفر لك أدوات متقدمة وقوالب احترافية لتصميم بطاقات إلكترونية مميزة</p>
                     </div>
 
-                    <!-- Login/Register or User Menu (right) - forcé vers la gauche -->
-                    <div class="flex items-center justify-center flex-shrink-0 min-w-[200px] -ml-16 lg:-ml-22">
+                    <!-- Login/Register or User Menu (left) - collé au coin gauche -->
+                    <div class="absolute left-0 top-1/2 transform -translate-y-1/2 flex items-center justify-start flex-shrink-0 pl-1">
                         <div v-if="!$page.props.auth.user" class="flex items-center space-x-4 space-x-reverse">
                             <Link :href="route('login')" class="group flex items-center text-gray-700 hover:text-purple-600 font-semibold transition-all duration-200 px-6 py-3 rounded-xl hover:bg-purple-50 border border-gray-200 hover:border-purple-300">
                                 تسجيل الدخول
