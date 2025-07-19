@@ -12,11 +12,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Ensure design_data can handle very large data
-        DB::statement('ALTER TABLE templates MODIFY design_data LONGTEXT');
-        
-        // Set MySQL session variables for large data handling
-        DB::statement('SET SESSION max_allowed_packet = 67108864'); // 64MB
+        // Modify the column type to LONGTEXT to handle large base64 data
+        DB::statement('ALTER TABLE client_templates MODIFY generated_image_url LONGTEXT NULL');
     }
 
     /**
@@ -24,6 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // No need to reverse this optimization
+        DB::statement('ALTER TABLE client_templates MODIFY generated_image_url TEXT NULL');
     }
 };

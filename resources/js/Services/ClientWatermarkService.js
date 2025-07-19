@@ -8,7 +8,7 @@ export class ClientWatermarkService {
      */
     static getWatermarkConfig() {
         return {
-            text: 'سامقة للتصميم',
+            text: 'منصة سامقة للتصميم ',
             enabled: true,
             position: 'bottom-right',
             style: {

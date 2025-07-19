@@ -23,6 +23,21 @@
                 </div>
             </div>
 
+            <!-- Success/Error Messages -->
+            <div v-if="$page.props.flash?.success" class="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-xl flex items-center">
+                <svg class="w-5 h-5 ml-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ $page.props.flash.success }}
+            </div>
+
+            <div v-if="$page.props.flash?.error" class="mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl flex items-center">
+                <svg class="w-5 h-5 ml-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ $page.props.flash.error }}
+            </div>
+
             <!-- Content -->
             <div v-if="designs.length === 0" class="text-center py-16">
                 <!-- Empty State -->
@@ -56,8 +71,8 @@
                     <!-- Thumbnail -->
                     <div class="relative aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
                         <img
-                            v-if="design.thumbnail_url"
-                            :src="design.thumbnail_url"
+                            v-if="design.generated_image_url || design.thumbnail_url"
+                            :src="design.generated_image_url || design.thumbnail_url"
                             :alt="design.name"
                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
@@ -79,31 +94,36 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                     </svg>
                                 </button>
-                                <button
-                                    @click="duplicateDesign(design)"
-                                    class="bg-white text-gray-900 p-3 rounded-full hover:bg-gray-100 transition-colors duration-200 shadow-lg"
-                                    title="نسخ"
-                                >
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                                    </svg>
-                                </button>
-                                <button
-                                    @click="showExportModal(design)"
-                                    class="bg-white text-gray-900 p-3 rounded-full hover:bg-gray-100 transition-colors duration-200 shadow-lg"
-                                    title="تصدير"
-                                >
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                    </svg>
-                                </button>
+                                
                             </div>
                         </div>
                     </div>
 
                     <!-- Content -->
                     <div class="p-4">
-                        <h3 class="font-semibold text-gray-900 mb-2 truncate">{{ design.name }}</h3>
+                        <!-- Editable Name -->
+                        <div class="mb-2">
+                            <input
+                                v-if="editingName === design.id"
+                                v-model="editingNameValue"
+                                @blur="saveDesignName(design)"
+                                @keyup.enter="saveDesignName(design)"
+                                @keyup.escape="cancelEditName"
+                                class="w-full font-semibold text-gray-900 bg-transparent border-b-2 border-purple-500 focus:outline-none focus:border-purple-600 px-1 py-1"
+                                ref="nameInput"
+                            />
+                            <h3
+                                v-else
+                                @click="startEditName(design)"
+                                class="font-semibold text-gray-900 truncate cursor-pointer hover:text-purple-600 transition-colors duration-200 group/name"
+                                title="انقر لتعديل الاسم"
+                            >
+                                {{ design.name }}
+                                <svg class="w-4 h-4 inline-block ml-1 opacity-0 group-hover/name:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </h3>
+                        </div>
                         <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
                             <span>{{ design.template.category }}</span>
                             <span>الإصدار {{ design.version }}</span>
@@ -203,7 +223,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import ClientLayout from '@/Layouts/ClientLayout.vue';
 
@@ -223,6 +243,9 @@ const exportFormat = ref('png');
 const exportQuality = ref(90);
 const isExporting = ref(false);
 const isDeleting = ref(false);
+const editingName = ref(null);
+const editingNameValue = ref('');
+const nameInput = ref(null);
 
 // Methods
 const editDesign = (design) => {
@@ -274,11 +297,11 @@ const exportDesign = async () => {
             console.log('Export successful:', result.export_data);
             closeExportModal();
         } else {
-            alert('حدث خطأ أثناء التصدير: ' + result.message);
+            showNotification('حدث خطأ أثناء التصدير: ' + result.message, 'error');
         }
     } catch (error) {
         console.error('Export error:', error);
-        alert('حدث خطأ أثناء التصدير');
+        showNotification('حدث خطأ أثناء التصدير', 'error');
     } finally {
         isExporting.value = false;
     }
@@ -300,22 +323,79 @@ const deleteDesign = async () => {
     isDeleting.value = true;
 
     try {
-        await router.delete(route('client.designs.destroy', selectedDesign.value.id));
-        closeDeleteModal();
+        await router.delete(route('client.designs.destroy', selectedDesign.value.id), {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                closeDeleteModal();
+            },
+            onError: () => {
+                showNotification('حدث خطأ أثناء حذف التصميم', 'error');
+            },
+            onFinish: () => {
+                isDeleting.value = false;
+            }
+        });
     } catch (error) {
         console.error('Error deleting design:', error);
         alert('حدث خطأ أثناء حذف التصميم');
-    } finally {
         isDeleting.value = false;
+    }
+};
+
+const startEditName = async (design) => {
+    editingName.value = design.id;
+    editingNameValue.value = design.name;
+    // Focus the input after Vue updates the DOM
+    await nextTick();
+    const input = document.querySelector(`input[ref="nameInput"]`);
+    if (input) {
+        input.focus();
+        input.select();
+    }
+};
+
+const cancelEditName = () => {
+    editingName.value = null;
+    editingNameValue.value = '';
+};
+
+const saveDesignName = async (design) => {
+    if (!editingNameValue.value.trim()) {
+        cancelEditName();
+        return;
+    }
+
+    try {
+        await router.patch(route('client.designs.update-name', design.id), {
+            name: editingNameValue.value.trim()
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                // Update the design name locally
+                design.name = editingNameValue.value.trim();
+                cancelEditName();
+            },
+            onError: () => {
+                alert('حدث خطأ أثناء تحديث اسم التصميم');
+                cancelEditName();
+            }
+        });
+    } catch (error) {
+        console.error('Error updating design name:', error);
+        alert('حدث خطأ أثناء تحديث اسم التصميم');
+        cancelEditName();
     }
 };
 
 const formatDate = (date) => {
     if (!date) return '';
-    return new Date(date).toLocaleDateString('ar-SA', {
+    return new Date(date).toLocaleDateString('ar', {
         year: 'numeric',
-        month: 'short',
-        day: 'numeric'
+        month: 'long',
+        day: 'numeric',
+        calendar: 'gregory' // Force Gregorian calendar
     });
 };
 </script>

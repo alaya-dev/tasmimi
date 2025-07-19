@@ -29,6 +29,7 @@ class ClientTemplateController extends Controller
                     'id' => $clientTemplate->id,
                     'name' => $clientTemplate->name,
                     'thumbnail_url' => $clientTemplate->thumbnail_url,
+                    'generated_image_url' => asset('images/samqa-watermark.svg'), // Image placeholder par défaut
                     'canvas_size' => $clientTemplate->canvas_size,
                     'version' => $clientTemplate->version,
                     'last_edited_at' => $clientTemplate->last_edited_at?->format('Y-m-d H:i:s'),
@@ -242,16 +243,57 @@ class ClientTemplateController extends Controller
     }
 
     /**
+     * Update only the name of the specified client template.
+     */
+    public function updateName(Request $request, ClientTemplate $clientTemplate)
+    {
+        // Vérifier que le design appartient à l'utilisateur connecté
+        if ($clientTemplate->user_id !== auth()->id()) {
+            abort(403, 'غير مصرح لك بتعديل هذا التصميم');
+        }
+
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+            ], [
+                'name.required' => 'اسم التصميم مطلوب',
+                'name.max' => 'اسم التصميم يجب ألا يتجاوز 255 حرف',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'خطأ في التحقق من البيانات',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $clientTemplate->update([
+                'name' => $request->name,
+                'last_edited_at' => now(),
+            ]);
+
+            return redirect()->back()->with('success', 'تم تحديث اسم التصميم بنجاح');
+
+        } catch (\Exception $e) {
+            \Log::error('Client template name update error: ' . $e->getMessage(), [
+                'client_template_id' => $clientTemplate->id,
+                'user_id' => auth()->id(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', 'حدث خطأ أثناء تحديث اسم التصميم');
+        }
+    }
+
+    /**
      * Remove the specified client template.
      */
     public function destroy(ClientTemplate $clientTemplate)
     {
         // Vérifier que le design appartient à l'utilisateur connecté
         if ($clientTemplate->user_id !== auth()->id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'غير مصرح لك بحذف هذا التصميم'
-            ], 403);
+            abort(403, 'غير مصرح لك بحذف هذا التصميم');
         }
 
         try {
@@ -260,12 +302,14 @@ class ClientTemplateController extends Controller
                 \Storage::disk('public')->delete($clientTemplate->thumbnail);
             }
 
+            // Supprimer l'image générée si elle existe
+            if ($clientTemplate->generated_image_url) {
+                \Storage::disk('public')->delete($clientTemplate->generated_image_url);
+            }
+
             $clientTemplate->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'تم حذف التصميم بنجاح'
-            ]);
+            return redirect()->back()->with('success', 'تم حذف التصميم بنجاح');
 
         } catch (\Exception $e) {
             \Log::error('Client template delete error: ' . $e->getMessage(), [
@@ -274,10 +318,7 @@ class ClientTemplateController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء حذف التصميم'
-            ], 500);
+            return redirect()->back()->with('error', 'حدث خطأ أثناء حذف التصميم');
         }
     }
 
@@ -496,6 +537,8 @@ class ClientTemplateController extends Controller
                 $clientTemplate->save();
             }
 
+
+
             return response()->json([
                 'success' => true,
                 'message' => 'تم حفظ التصميم بنجاح',
@@ -517,4 +560,10 @@ class ClientTemplateController extends Controller
             ], 500);
         }
     }
+
+
+
+
+
+
 }

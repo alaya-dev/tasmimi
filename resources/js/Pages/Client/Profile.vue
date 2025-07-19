@@ -89,7 +89,7 @@
 
                                     <!-- Email Field -->
                                     <div class="space-y-4">
-                                        <div class="text-right">
+                                        <div style="text-align: right !important;">
                                             <label for="email" class="text-lg font-bold text-gray-900">
                                                 البريد الإلكتروني
                                             </label>
@@ -101,6 +101,7 @@
                                                 v-model="profileForm.email"
                                                 required
                                                 class="w-full border-2 border-gray-300 rounded-xl px-6 py-4 pr-14 text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 text-right bg-gray-50"
+                                                style="text-align: right !important; direction: rtl !important;"
                                                 :class="{ 'border-red-500 bg-red-50': profileForm.errors.email }"
                                                 placeholder="أدخل عنوان بريدك الإلكتروني"
                                                 dir="rtl"
@@ -115,7 +116,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="flex justify-end pt-4">
+                                    <div class="flex justify-center pt-4">
                                         <button
                                             type="submit"
                                             :disabled="profileForm.processing"
@@ -207,19 +208,22 @@
                                         </div>
 
                                         <div>
-                                            <label for="password_confirmation" class="block text-lg font-bold text-gray-900 mb-3 text-right">
-                                                تأكيد كلمة المرور الجديدة
-                                            </label>
+                                            <div class="mb-3" style="text-align: right !important;">
+                                                <label for="password_confirmation" class="text-lg font-bold text-gray-900" style="text-align: right !important; display: block;">
+                                                    تأكيد كلمة المرور الجديدة
+                                                </label>
+                                            </div>
                                             <div class="relative">
                                                 <input
                                                     id="password_confirmation"
                                                     type="password"
                                                     v-model="passwordForm.password_confirmation"
                                                     required
-                                                    class="w-full border-2 border-gray-300 rounded-xl px-6 py-4 pr-14 text-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 text-right bg-gray-50"
+                                                    class="w-full border-2 border-gray-300 rounded-xl px-6 py-4 pr-14 text-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-gray-50"
                                                     :class="{ 'border-red-500 bg-red-50': passwordForm.errors.password_confirmation }"
                                                     placeholder="أعد إدخال كلمة المرور الجديدة"
                                                     dir="rtl"
+                                                    style="text-align: right !important; direction: rtl !important;"
                                                 />
                                                 <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
                                                     <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">

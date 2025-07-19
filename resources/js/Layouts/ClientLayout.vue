@@ -1,10 +1,11 @@
 <template>
     <div :dir="direction" class="min-h-screen bg-gray-50">
-        <!-- Custom Header (replaces navbar) -->
+        <!-- Custom Header (replaces navbar) - Responsive -->
         <header class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-            <div class="w-full px-0 relative">
-                <div class="flex justify-between items-center h-24 w-full max-w-7xl mx-auto">
-                    <!-- Logo (right) - position absolue collé au bord droit -->
+            <div class="w-full px-2 sm:px-4 lg:px-6">
+                <!-- Desktop Layout -->
+                <div class="hidden lg:block relative h-24 w-full">
+                    <!-- Logo (right) - collé au bord droit -->
                     <div class="absolute right-0 top-1/2 transform -translate-y-1/2 flex items-center justify-end flex-shrink-0 pr-1">
                         <Link :href="route('client.home')" class="flex items-center group">
                             <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100 group-hover:shadow-md transition-all duration-300">
@@ -33,7 +34,7 @@
                         <p class="text-gray-600">منصة سامقة توفر لك أدوات متقدمة وقوالب احترافية لتصميم بطاقات إلكترونية مميزة</p>
                     </div>
 
-                    <!-- Login/Register or User Menu (left) - collé au coin gauche -->
+                    <!-- Login/Register or User Menu (left) - collé au bord gauche -->
                     <div class="absolute left-0 top-1/2 transform -translate-y-1/2 flex items-center justify-start flex-shrink-0 pl-1">
                         <div v-if="!$page.props.auth.user" class="flex items-center space-x-4 space-x-reverse">
                             <Link :href="route('login')" class="group flex items-center text-gray-700 hover:text-purple-600 font-semibold transition-all duration-200 px-6 py-3 rounded-xl hover:bg-purple-50 border border-gray-200 hover:border-purple-300">
@@ -50,28 +51,33 @@
                             </Link>
                         </div>
                         <div v-else class="flex items-center space-x-4 space-x-reverse">
-                            <!-- Cart Icon -->
-                            <Link :href="route('client.cart')" class="relative p-3 text-gray-600 hover:text-purple-600 transition-colors duration-200 hover:bg-purple-50 rounded-xl group">
-                                <svg class="w-6 h-6 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6m0 0h15.5M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/>
-                                </svg>
-                                <span v-if="cartCount > 0" class="absolute -top-1 -left-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold animate-pulse">
-                                    {{ cartCount }}
-                                </span>
-                            </Link>
                             <!-- User Dropdown -->
-                            <Dropdown align="left" width="48">
+                            <Dropdown align="right" width="48">
                                 <template #trigger>
                                     <button class="flex items-center text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors duration-200 group">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center ml-2 group-hover:scale-110 transition-transform duration-200">
-                                            <span class="text-white font-bold text-lg">{{ $page.props.auth.user.email.charAt(0).toUpperCase() }}</span>
-                                        </div>
                                         <svg class="w-5 h-5 group-hover:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                         </svg>
+                                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mr-2 group-hover:scale-110 transition-transform duration-200 overflow-hidden">
+                                            <img
+                                                v-if="$page.props.auth.user.image"
+                                                :src="$page.props.auth.user.image"
+                                                :alt="$page.props.auth.user.email"
+                                                class="w-full h-full object-cover rounded-2xl"
+                                            />
+                                            <div v-else class="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+                                                <span class="text-white font-bold text-xl">{{ $page.props.auth.user.email.charAt(0).toUpperCase() }}</span>
+                                            </div>
+                                        </div>
                                     </button>
                                 </template>
                                 <template #content>
+                                    <DropdownLink :href="route('client.home')" class="flex items-center space-x-2 space-x-reverse">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                        </svg>
+                                        <span>الصفحة الرئيسية</span>
+                                    </DropdownLink>
                                     <DropdownLink :href="route('client.profile')" class="flex items-center space-x-2 space-x-reverse">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
@@ -111,11 +117,118 @@
                                     </DropdownLink>
                                 </template>
                             </Dropdown>
+                            <!-- Cart Icon -->
+                            <Link :href="route('client.cart')" class="relative p-3 text-gray-600 hover:text-purple-600 transition-colors duration-200 hover:bg-purple-50 rounded-xl group">
+                                <svg class="w-6 h-6 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6m0 0h15.5M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/>
+                                </svg>
+                                <span v-if="cartCount > 0" class="absolute -top-1 -left-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold animate-pulse">
+                                    {{ cartCount }}
+                                </span>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile/Tablet Layout -->
+                <div class="lg:hidden">
+                    <!-- Mobile Header -->
+                    <div class="flex justify-between items-center h-16 px-4">
+                        <!-- Logo (right) -->
+                        <div class="flex items-center">
+                            <Link :href="route('client.home')" class="flex items-center group">
+                                <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100">
+                                    <img
+                                        src="/images/logo.png"
+                                        alt="سامقة"
+                                        class="h-8 w-auto object-contain"
+                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                    />
+                                    <div class="w-8 h-8 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center" style="display: none;">
+                                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </Link>
+                        </div>
+
+                        <!-- Mobile Menu Button & User Actions -->
+                        <div class="flex items-center space-x-2 space-x-reverse">
+                            <!-- Mobile Menu Toggle -->
+                            <button @click="showMobileMenu = !showMobileMenu" class="p-2 text-gray-600 hover:text-purple-600 transition-colors duration-200 hover:bg-purple-50 rounded-lg">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path v-if="!showMobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                                    <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+
+                            <!-- Cart Icon (Mobile) -->
+                            <Link v-if="$page.props.auth.user" :href="route('client.cart')" class="relative p-2 text-gray-600 hover:text-purple-600 transition-colors duration-200 hover:bg-purple-50 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6m0 0h15.5M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/>
+                                </svg>
+                                <span v-if="cartCount > 0" class="absolute -top-1 -left-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                                    {{ cartCount }}
+                                </span>
+                            </Link>
                         </div>
                     </div>
 
+                    <!-- Mobile Welcome Message -->
+                    <div class="text-center px-4 py-4 border-t border-gray-100">
+                        <h1 class="text-xl sm:text-2xl font-bold mb-1" style="font-family: 'Cairo', 'Amiri', 'Noto Sans Arabic', Arial, sans-serif;">
+                            أهلاً بكم في
+                            <span class="font-black text-2xl sm:text-3xl" style="color: #8d39c5; font-family: 'Dark Star Bold', 'Cairo', 'Amiri', 'Noto Sans Arabic', Arial, sans-serif; font-weight: 900;">سامقة</span>
+                        </h1>
+                        <p class="text-gray-600 text-sm">منصة سامقة توفر لك أدوات متقدمة وقوالب احترافية لتصميم بطاقات إلكترونية مميزة</p>
+                    </div>
 
-
+                    <!-- Mobile Menu -->
+                    <div v-if="showMobileMenu" class="border-t border-gray-100 bg-white">
+                        <div class="px-4 py-4 space-y-3">
+                            <div v-if="!$page.props.auth.user" class="space-y-3">
+                                <Link :href="route('login')" class="block w-full text-center py-3 px-4 text-gray-700 hover:text-purple-600 font-semibold transition-all duration-200 rounded-xl hover:bg-purple-50 border border-gray-200">
+                                    تسجيل الدخول
+                                </Link>
+                                <Link :href="route('register')" class="block w-full text-center bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-xl font-bold">
+                                    إنشاء حساب
+                                </Link>
+                            </div>
+                            <div v-else class="space-y-3">
+                                <Link :href="route('client.home')" class="flex items-center space-x-3 space-x-reverse py-3 px-4 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                    </svg>
+                                    <span>الصفحة الرئيسية</span>
+                                </Link>
+                                <Link :href="route('client.profile')" class="flex items-center space-x-3 space-x-reverse py-3 px-4 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    <span>الملف الشخصي</span>
+                                </Link>
+                                <Link :href="route('client.my-designs')" class="flex items-center space-x-3 space-x-reverse py-3 px-4 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
+                                    </svg>
+                                    <span>تصاميمي</span>
+                                </Link>
+                                <Link :href="route('client.orders')" class="flex items-center space-x-3 space-x-reverse py-3 px-4 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                    </svg>
+                                    <span>الطلبات</span>
+                                </Link>
+                                <Link :href="route('logout')" method="post" class="flex items-center space-x-3 space-x-reverse py-3 px-4 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                                    </svg>
+                                    <span>تسجيل الخروج</span>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -133,8 +246,6 @@
 import { ref } from 'vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
-import MobileNavLink from '@/Components/MobileNavLink.vue';
 import { Link } from '@inertiajs/vue3';
 import { useTranslations } from '@/Composables/useTranslations';
 
@@ -147,7 +258,7 @@ defineProps({
 });
 
 // Composables
-const { __, direction } = useTranslations();
+const { direction } = useTranslations();
 
 // State
 const showMobileMenu = ref(false);

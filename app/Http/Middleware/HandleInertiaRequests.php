@@ -37,6 +37,12 @@ class HandleInertiaRequests extends Middleware
             'locale' => app()->getLocale(),
             'translations' => $this->getTranslations(),
             'appName' => config('app.name'),
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+                'warning' => $request->session()->get('warning'),
+                'info' => $request->session()->get('info'),
+            ],
         ];
     }
 

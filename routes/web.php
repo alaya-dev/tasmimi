@@ -72,6 +72,7 @@ Route::prefix('client')->name('client.')->group(function () {
         Route::get('/designs/{clientTemplate}/edit', [ClientTemplateController::class, 'edit'])->name('designs.edit');
         Route::post('/designs', [ClientTemplateController::class, 'store'])->name('designs.store');
         Route::put('/designs/{clientTemplate}', [ClientTemplateController::class, 'update'])->name('designs.update');
+        Route::patch('/designs/{clientTemplate}/name', [ClientTemplateController::class, 'updateName'])->name('designs.update-name');
         Route::delete('/designs/{clientTemplate}', [ClientTemplateController::class, 'destroy'])->name('designs.destroy');
         Route::post('/designs/{clientTemplate}/export', [ClientTemplateController::class, 'export'])->name('designs.export');
         Route::post('/designs/{clientTemplate}/duplicate', [ClientTemplateController::class, 'duplicate'])->name('designs.duplicate');
