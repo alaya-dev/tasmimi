@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Template;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,7 +16,7 @@ class HomeController extends Controller
     /**
      * Display the home page with categories and templates
      */
-    public function index(): Response
+    public function index(): Response|RedirectResponse
     {
         // Redirect only admin and super admin users away from landing page
         if (auth()->check()) {
@@ -51,3 +52,4 @@ class HomeController extends Controller
         ]);
     }
 }
+

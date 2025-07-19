@@ -45,6 +45,20 @@ class TemplateDesignController extends Controller
                 ], 400);
             }
 
+            // Check data size and optimize if necessary
+            $dataSize = strlen($request->design_data);
+            if ($dataSize > 16777215) { // 16MB limit for MEDIUMTEXT
+                \Log::warning('Design data too large', [
+                    'template_id' => $template->id,
+                    'data_size' => $dataSize
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'بيانات التصميم كبيرة جداً. يرجى تقليل حجم الصور أو عدد العناصر.'
+                ], 413);
+            }
+
             // Skip structure validation for now to allow saving
             // $validation = $this->validateDesignDataStructure($designData);
             // if (!$validation['isValid']) {
@@ -57,9 +71,9 @@ class TemplateDesignController extends Controller
 
             // Update template with enhanced data
             $updateData = [
-                'design_data' => $request->design_data,
+                'design_data' => $request->design_data, // Store as JSON string, model will cast it
                 'last_edited_at' => now(),
-                'version' => $template->version + 1,
+                'version' => ($template->version ?? 0) + 1, // Handle null version
             ];
 
             // Handle editable elements
@@ -98,12 +112,13 @@ class TemplateDesignController extends Controller
             \Log::error('Design save error: ' . $e->getMessage(), [
                 'template_id' => $template->id,
                 'user_id' => auth()->id(),
+                'request_data' => $request->all(),
                 'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حفظ التصميم'
+                'message' => 'حدث خطأ أثناء حفظ التصميم: ' . $e->getMessage()
             ], 500);
         }
     }
