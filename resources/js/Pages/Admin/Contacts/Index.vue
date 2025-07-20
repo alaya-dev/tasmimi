@@ -68,7 +68,7 @@
 
                 <!-- Liste des contacts -->
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 text-right">
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 text-center">
                         <h3 class="text-lg font-semibold text-white">{{ __('common.contacts') }}</h3>
                         <p class="text-blue-100 text-sm">{{ __('common.manage_contacts_description') }}</p>
                     </div>

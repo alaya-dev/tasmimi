@@ -71,43 +71,34 @@
                     </div>
                     
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200" dir="rtl">
+                        <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th :class="[
-                                        'px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider',
-                                        isRTL ? 'text-right' : 'text-left'
-                                    ]">
-                                        <div :class="isRTL ? 'flex-row-reverse' : 'flex'" class="flex items-center">
-                                            <svg :class="isRTL ? 'ml-2' : 'mr-2'" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider text-right">
+                                        <div class="flex items-center flex-row-reverse">
+                                            <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                                             </svg>
                                             البريد الإلكتروني
                                         </div>
                                     </th>
-                                    <th :class="[
-                                        'px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider',
-                                        isRTL ? 'text-right' : 'text-left'
-                                    ]">
-                                        <div :class="isRTL ? 'flex-row-reverse' : 'flex'" class="flex items-center">
-                                            <svg :class="isRTL ? 'ml-2' : 'mr-2'" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+                                        <div class="flex items-center justify-center">
+                                            <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                                             </svg>
                                             الدور
                                         </div>
                                     </th>
-                                    <th :class="[
-                                        'px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider',
-                                        isRTL ? 'text-right' : 'text-left'
-                                    ]">
-                                        <div :class="isRTL ? 'flex-row-reverse' : 'flex'" class="flex items-center">
-                                            <svg :class="isRTL ? 'ml-2' : 'mr-2'" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+                                        <div class="flex items-center justify-center">
+                                            <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
                                             </svg>
                                             تاريخ الإنشاء
                                         </div>
                                     </th>
-                                    <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider text-right">
+                                    <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
                                         الإجراءات
                                     </th>
                                 </tr>
@@ -118,54 +109,39 @@
                                         لا توجد مستخدمين
                                     </td>
                                 </tr>
-                                <tr v-for="(user, index) in filteredUsers" :key="user.id" 
-                                    class="hover:bg-gray-50 transition-all duration-300 ease-out transform hover:translate-x-2 hover:shadow-md"
-                                    :style="{ animationDelay: `${index * 100}ms` }"
-                                    @mouseenter="onRowHover"
-                                    @mouseleave="onRowLeave">
-                                    <td :class="[
-                                        'px-6 py-4 whitespace-nowrap',
-                                        isRTL ? 'text-right' : 'text-left'
-                                    ]">
-                                        <div :class="isRTL ? 'justify-end' : 'justify-start'" class="flex items-center">
-                                            <div :class="isRTL ? 'mr-3' : 'ml-3'" class="order-2">
-                                                <div :class="isRTL ? 'text-right' : 'text-left'" class="text-sm font-medium text-gray-900">{{ user.email }}</div>
+                                <tr v-for="(user, index) in filteredUsers" :key="user.id" class="hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                        <div class="flex items-center flex-row-reverse">
+                                            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center ml-3">
+                                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                                </svg>
                                             </div>
-                                            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center order-1">
-                                                <span class="text-white font-semibold text-sm">{{ user.email.charAt(0).toUpperCase() }}</span>
+                                            <div>
+                                                <div class="font-medium">{{ user.email }}</div>
+                                                <div class="text-xs text-gray-500">مستخدم في النظام</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td :class="[
-                                        'px-6 py-4 whitespace-nowrap',
-                                        isRTL ? 'text-right' : 'text-left'
-                                    ]">
-                                        <div :class="isRTL ? 'justify-end' : 'justify-start'" class="flex">
-                                            <span :class="getRoleBadgeClass(user.role)" class="inline-flex px-3 py-1 text-xs font-semibold rounded-full">
-                                                {{ getRoleLabel(user.role) }}
-                                            </span>
-                                        </div>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                        <span :class="getRoleBadgeClass(user.role)" class="inline-flex px-3 py-1 text-xs font-semibold rounded-full">
+                                            {{ getRoleLabel(user.role) }}
+                                        </span>
                                     </td>
-                                    <td :class="[
-                                        'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
-                                        isRTL ? 'text-right' : 'text-left'
-                                    ]">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                         {{ formatDate(user.created_at) }}
                                     </td>
-                                    <td :class="[
-                                        'px-6 py-4 whitespace-nowrap text-sm font-medium',
-                                        isRTL ? 'text-right' : 'text-left'
-                                    ]">
-                                        <div :class="isRTL ? 'justify-end space-x-reverse' : 'justify-start'" class="flex space-x-3">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                                        <div class="flex justify-center space-x-2 space-x-reverse">
                                             <button
                                                 v-if="canDeleteUser(user)"
                                                 @click="deleteUser(user)"
                                                 class="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors duration-200"
                                             >
-                                                <svg :class="isRTL ? 'ml-1' : 'mr-1'" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 24 24">
                                                     <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
                                                 </svg>
-                                                <span>حذف</span>
+                                                حذف
                                             </button>
                                         </div>
                                     </td>
@@ -388,10 +364,25 @@ const availableRoles = computed(() => {
     return [];
 });
 
-// Filtrer les utilisateurs (exclure les super_admin)
+// Filtrer les utilisateurs selon le rôle de l'utilisateur connecté
 const filteredUsers = computed(() => {
     if (props.users?.data) {
-        return props.users.data.filter(user => user.role !== 'super_admin');
+        const currentUserRole = usePage().props.auth.user.role;
+        
+        return props.users.data.filter(user => {
+            // Exclure les super_admin pour tous
+            if (user.role === 'super_admin') {
+                return false;
+            }
+            
+            // Si l'utilisateur connecté est un admin, il ne peut voir que les clients
+            if (currentUserRole === 'admin') {
+                return user.role === 'client';
+            }
+            
+            // Super admin peut voir tous les autres rôles
+            return true;
+        });
     }
     return [];
 });

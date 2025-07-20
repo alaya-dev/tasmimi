@@ -22,6 +22,11 @@ class UserManagementController extends Controller
         // Exclure les super_admin de la liste
         $query->where('role', '!=', User::ROLE_SUPER_ADMIN);
 
+        // Si l'utilisateur connecté est un admin, il ne peut voir que les clients
+        if (auth()->user()->role === User::ROLE_ADMIN) {
+            $query->where('role', User::ROLE_CLIENT);
+        }
+
         // Filtrer par rôle si spécifié
         if ($request->has('role') && $request->role !== '') {
             $query->where('role', $request->role);
@@ -34,9 +39,17 @@ class UserManagementController extends Controller
 
         $users = $query->paginate(10)->withQueryString();
 
-        // Filtrer les rôles disponibles (exclure super_admin)
+        // Filtrer les rôles disponibles selon le rôle de l'utilisateur connecté
         $availableRoles = array_filter(User::getRoles(), function($role) {
-            return $role !== User::ROLE_SUPER_ADMIN;
+            // Exclure super_admin pour tous
+            if ($role === User::ROLE_SUPER_ADMIN) {
+                return false;
+            }
+            // Si l'utilisateur connecté est un admin, il ne peut voir que les clients
+            if (auth()->user()->role === User::ROLE_ADMIN) {
+                return $role === User::ROLE_CLIENT;
+            }
+            return true;
         });
 
         return Inertia::render('Admin/Users/Index', [
