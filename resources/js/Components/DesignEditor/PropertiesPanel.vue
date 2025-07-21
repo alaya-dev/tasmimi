@@ -273,11 +273,13 @@
                 </div>
 
                 <!-- Shape Properties -->
-                <div v-if="['rectangle', 'circle', 'button'].includes(selectedElement.type)">
+                <div v-if="['rectangle', 'circle', 'button', 'line'].includes(selectedElement.type)">
                     <h4 class="font-semibold text-gray-700 mb-3">خصائص الشكل</h4>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">لون الخلفية</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ selectedElement.type === 'line' ? 'لون الخط' : 'لون الخلفية' }}
+                            </label>
                             <input
                                 v-model="localProperties.backgroundColor"
                                 @input="updateProperty('backgroundColor', $event.target.value)"
@@ -285,7 +287,7 @@
                                 class="w-full h-10 border border-gray-300 rounded-lg"
                             >
                         </div>
-                        <div v-if="selectedElement.type !== 'circle'">
+                        <div v-if="selectedElement.type !== 'circle' && selectedElement.type !== 'line'">
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 انحناء الزوايا: {{ localProperties.borderRadius }}px
                             </label>
@@ -299,7 +301,7 @@
                                 class="w-full"
                             >
                         </div>
-                        <div>
+                        <div v-if="selectedElement.type !== 'line'">
                             <label class="block text-sm font-medium text-gray-700 mb-1">لون الحدود</label>
                             <input
                                 v-model="localProperties.borderColor"
@@ -308,7 +310,7 @@
                                 class="w-full h-10 border border-gray-300 rounded-lg"
                             >
                         </div>
-                        <div>
+                        <div v-if="selectedElement.type !== 'line'">
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 سمك الحدود: {{ localProperties.borderWidth }}px
                             </label>

@@ -204,6 +204,47 @@
                                 <i class="fas fa-shield-alt ml-2"></i>
                                 <span>علامة مائية محمية</span>
                             </div>
+
+                            <!-- BOUTONS DE TEST ET DIAGNOSTIC -->
+                            <div class="flex items-center space-x-2 space-x-reverse">
+                                <button
+                                    @click="runFullDiagnostic"
+                                    class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                                    title="Diagnostic complet avec logs"
+                                >
+                                    🔍 Diagnostic
+                                </button>
+                                <button
+                                    @click="addTestElements"
+                                    class="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+                                    title="Ajouter des éléments de test"
+                                >
+                                    Test Complet
+                                </button>
+                                <button
+                                    @click="debugExport"
+                                    class="px-3 py-1 bg-orange-500 text-white rounded text-sm hover:bg-orange-600"
+                                    title="Export avec debug détaillé"
+                                >
+                                    🐛 Debug Export
+                                </button>
+                                <button
+                                    @click="comparePreviewAndExport"
+                                    class="px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600"
+                                    title="Comparer prévisualisation et export"
+                                >
+                                    ⚖️ Comparer
+                                </button>
+                            </div>
+
+                            <!-- BOUTON DE TEST TEMPORAIRE -->
+                            <button
+                                @click="addTestDiamond"
+                                class="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+                                title="Ajouter un losange noir pour test"
+                            >
+                                Test ◆
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1219,15 +1260,13 @@ const generateElementHTML = (element) => {
         case 'circle':
             return `<div class="element" style="${style} background-color: ${element.backgroundColor || '#10b981'}; border-radius: 50%;"></div>`
         case 'shape':
-            // Utiliser une div avec une classe FontAwesome pour les formes
-            const shapeClass = getShapeIconClass(element.shapeType);
-            return `<div class="element" style="${style} display: flex; align-items: center; justify-content: center;">
-                <i class="${shapeClass}" style="font-size: ${element.width/2}px; color: ${element.backgroundColor || '#8b5cf6'};"></i>
-            </div>`
+            // CORRECTION: Utiliser des formes CSS au lieu d'icônes FontAwesome
+            return generateShapeHTML(element, style)
         case 'icon':
-            // Utiliser une div avec une classe FontAwesome pour les icônes
-            return `<div class="element" style="${style} display: flex; align-items: center; justify-content: center;">
-                <i class="${element.iconClass || 'fas fa-star'}" style="font-size: ${element.fontSize || 24}px; color: ${element.color || '#374151'};"></i>
+            // CORRECTION: Utiliser des symboles simples au lieu d'icônes FontAwesome
+            const symbol = getIconSymbol(element.iconClass || 'fas fa-star')
+            return `<div class="element" style="${style} display: flex; align-items: center; justify-content: center; background-color: ${element.color || '#374151'}; border-radius: 50%;">
+                <span style="font-size: ${(element.fontSize || 24) * 0.6}px; color: white;">${symbol}</span>
             </div>`
         default:
             return ''
@@ -1496,6 +1535,256 @@ const addQuickShape = () => {
     saveToHistory()
 }
 
+// Fonction de test pour ajouter un losange noir comme dans votre exemple
+const addTestDiamond = () => {
+    const newElement = {
+        id: generateId(),
+        type: 'shape',
+        shapeType: 'diamond',
+        name: 'Losange Test',
+        x: canvasWidth.value - 100,  // En bas à droite
+        y: canvasHeight.value - 100,
+        width: 60,
+        height: 60,
+        rotation: 0,
+        opacity: 1,
+        visible: true,
+        locked: false,
+        zIndex: elements.value.length,
+        backgroundColor: '#000000'  // Noir
+    }
+    elements.value.push(newElement)
+    selectedElement.value = newElement
+    saveToHistory()
+    console.log('Losange noir ajouté pour test:', newElement)
+}
+
+// Fonction de test complète pour reproduire votre exemple
+const addTestElements = () => {
+    // Cercle vert
+    const circle = {
+        id: generateId(),
+        type: 'circle',
+        name: 'Cercle Vert',
+        x: 50,
+        y: 50,
+        width: 100,
+        height: 100,
+        rotation: 0,
+        opacity: 1,
+        visible: true,
+        locked: false,
+        zIndex: elements.value.length,
+        backgroundColor: '#10b981'
+    }
+    elements.value.push(circle)
+
+    // Rectangle violet
+    const rectangle = {
+        id: generateId(),
+        type: 'rectangle',
+        name: 'Rectangle Violet',
+        x: 600,
+        y: 80,
+        width: 150,
+        height: 80,
+        rotation: 0,
+        opacity: 1,
+        visible: true,
+        locked: false,
+        zIndex: elements.value.length,
+        backgroundColor: '#8b5cf6'
+    }
+    elements.value.push(rectangle)
+
+    // Losange noir
+    const diamond = {
+        id: generateId(),
+        type: 'shape',
+        shapeType: 'diamond',
+        name: 'Losange Noir',
+        x: canvasWidth.value - 80,
+        y: canvasHeight.value - 80,
+        width: 50,
+        height: 50,
+        rotation: 0,
+        opacity: 1,
+        visible: true,
+        locked: false,
+        zIndex: elements.value.length,
+        backgroundColor: '#000000'
+    }
+    elements.value.push(diamond)
+
+    // Texte
+    const text = {
+        id: generateId(),
+        type: 'text',
+        name: 'Texte Test',
+        x: 300,
+        y: 400,
+        width: 200,
+        height: 50,
+        rotation: 0,
+        opacity: 1,
+        visible: true,
+        locked: false,
+        zIndex: elements.value.length,
+        text: 'qsdasdasdasd',
+        fontSize: 24,
+        color: '#333333',
+        fontFamily: 'Cairo, sans-serif'
+    }
+    elements.value.push(text)
+
+    saveToHistory()
+    console.log('Éléments de test ajoutés:', elements.value.length)
+}
+
+// ===== FONCTIONS DE DIAGNOSTIC DÉTAILLÉ =====
+
+const runFullDiagnostic = () => {
+    console.log('🔍 ===== DIAGNOSTIC COMPLET DÉMARRÉ =====')
+
+    // 1. État général
+    console.log('📊 ÉTAT GÉNÉRAL:')
+    console.log('- Nombre d\'éléments:', elements.value.length)
+    console.log('- Canvas dimensions:', `${canvasWidth.value}x${canvasHeight.value}`)
+    console.log('- Zoom actuel:', zoom.value)
+    console.log('- Onglet actif:', activeTab.value)
+    console.log('- Preset sélectionné:', selectedPresetFormat.value)
+    console.log('- Format d\'export:', selectedExportFormat.value)
+
+    // 2. Détail des éléments
+    console.log('📋 DÉTAIL DES ÉLÉMENTS:')
+    elements.value.forEach((element, index) => {
+        console.log(`  ${index + 1}. ${element.type} (${element.name || 'Sans nom'})`)
+        console.log(`     - ID: ${element.id}`)
+        console.log(`     - Position: x=${element.x}, y=${element.y}`)
+        console.log(`     - Taille: ${element.width}x${element.height}`)
+        console.log(`     - Visible: ${element.visible}`)
+        console.log(`     - Propriétés spéciales:`, element.shapeType || element.iconClass || element.text || 'Aucune')
+        console.log('     - Objet complet:', element)
+    })
+
+    // 3. Vérification des composants
+    console.log('🧩 VÉRIFICATION DES COMPOSANTS:')
+    console.log('- ElementsPanel importé:', !!ElementsPanel)
+    console.log('- Référence designCanvas:', !!designCanvas.value)
+    console.log('- Référence canvasContainer:', !!canvasContainer.value)
+
+    // 4. Vérification des sections dans ElementsPanel
+    console.log('📦 SECTIONS DISPONIBLES:')
+    console.log('- Onglet elements actif:', activeTab.value === 'elements')
+
+    // 5. Test des fonctions d'export
+    console.log('⚙️ FONCTIONS D\'EXPORT:')
+    console.log('- createExportCanvas disponible:', typeof createExportCanvas === 'function')
+    console.log('- createPreviewCanvas disponible:', typeof createPreviewCanvas === 'function')
+    console.log('- generatePreviewHTML disponible:', typeof generatePreviewHTML === 'function')
+
+    console.log('🔍 ===== DIAGNOSTIC TERMINÉ =====')
+
+    // Afficher aussi dans l'interface
+    alert(`Diagnostic terminé!\n\nÉléments: ${elements.value.length}\nCanvas: ${canvasWidth.value}x${canvasHeight.value}\nOnglet: ${activeTab.value}\n\nVoir la console pour les détails complets.`)
+}
+
+const debugExport = async () => {
+    console.log('🐛 ===== DEBUG EXPORT DÉMARRÉ =====')
+
+    try {
+        console.log('📋 AVANT EXPORT:')
+        console.log('- Éléments à exporter:', elements.value.length)
+        console.log('- Watermark visible:', showWatermark.value)
+        console.log('- Preset actuel:', selectedPresetFormat.value)
+
+        // Sauvegarder l'état original
+        const originalWatermarkState = showWatermark.value
+        const originalPreset = selectedPresetFormat.value
+
+        // Forcer les bonnes valeurs
+        showWatermark.value = true
+        selectedPresetFormat.value = 'current'
+
+        console.log('⚙️ PENDANT EXPORT:')
+        console.log('- Watermark forcé à:', showWatermark.value)
+        console.log('- Preset forcé à:', selectedPresetFormat.value)
+
+        await nextTick()
+
+        // Tester les deux méthodes d'export
+        console.log('🎨 TEST MÉTHODE 1 - createExportCanvas:')
+        const canvas1 = await createExportCanvas()
+        console.log('- Canvas créé:', canvas1.width + 'x' + canvas1.height)
+        console.log('- Data URL length:', canvas1.toDataURL().length)
+
+        console.log('🎨 TEST MÉTHODE 2 - createPreviewCanvas:')
+        const canvas2 = await createPreviewCanvas()
+        console.log('- Canvas créé:', canvas2.width + 'x' + canvas2.height)
+        console.log('- Data URL length:', canvas2.toDataURL().length)
+
+        // Comparer les deux canvas
+        console.log('⚖️ COMPARAISON:')
+        console.log('- Même taille:', canvas1.width === canvas2.width && canvas1.height === canvas2.height)
+        console.log('- Même contenu:', canvas1.toDataURL() === canvas2.toDataURL())
+
+        // Télécharger les deux pour comparaison
+        downloadCanvas(canvas1, 'debug-methode1')
+        setTimeout(() => downloadCanvas(canvas2, 'debug-methode2'), 1000)
+
+        // Restaurer l'état
+        showWatermark.value = originalWatermarkState
+        selectedPresetFormat.value = originalPreset
+
+        console.log('✅ DEBUG EXPORT TERMINÉ')
+        alert('Debug export terminé!\n\nDeux fichiers téléchargés:\n- debug-methode1.png\n- debug-methode2.png\n\nVoir la console pour les détails.')
+
+    } catch (error) {
+        console.error('❌ ERREUR PENDANT DEBUG EXPORT:', error)
+        alert('Erreur pendant le debug: ' + error.message)
+    }
+}
+
+const comparePreviewAndExport = async () => {
+    console.log('⚖️ ===== COMPARAISON PRÉVISUALISATION/EXPORT =====')
+
+    try {
+        // 1. Générer la prévisualisation HTML
+        console.log('📄 GÉNÉRATION PRÉVISUALISATION HTML:')
+        const previewData = {
+            elements: elements.value,
+            canvas: {
+                width: canvasWidth.value,
+                height: canvasHeight.value
+            }
+        }
+        const previewHTML = generatePreviewHTML(previewData)
+        console.log('- HTML généré, longueur:', previewHTML.length)
+        console.log('- Éléments dans preview:', previewData.elements.length)
+
+        // 2. Créer le canvas d'export
+        console.log('🎨 GÉNÉRATION CANVAS EXPORT:')
+        const exportCanvas = await createPreviewCanvas()
+        console.log('- Canvas créé:', exportCanvas.width + 'x' + exportCanvas.height)
+
+        // 3. Ouvrir la prévisualisation dans une nouvelle fenêtre
+        console.log('🪟 OUVERTURE PRÉVISUALISATION:')
+        const previewWindow = window.open('', '_blank', 'width=1000,height=800')
+        previewWindow.document.write(previewHTML)
+
+        // 4. Télécharger l'export
+        console.log('💾 TÉLÉCHARGEMENT EXPORT:')
+        downloadCanvas(exportCanvas, 'comparaison-export')
+
+        console.log('✅ COMPARAISON PRÊTE')
+        alert('Comparaison prête!\n\n1. Fenêtre de prévisualisation ouverte\n2. Fichier export téléchargé\n\nComparez visuellement les deux!')
+
+    } catch (error) {
+        console.error('❌ ERREUR PENDANT COMPARAISON:', error)
+        alert('Erreur pendant la comparaison: ' + error.message)
+    }
+}
+
 function setCanvasBackground(bgDataUrl) {
     canvasBackground.value = bgDataUrl;
 }
@@ -1523,7 +1812,19 @@ const removeCanvasBackground = () => {
 
 // New comprehensive export function
 const exportDesignWithFormat = async () => {
-    if (isExporting.value) return
+    console.log('🚀 ===== EXPORT DESIGN AVEC FORMAT DÉMARRÉ =====')
+    console.log('📋 État avant export:')
+    console.log('- isExporting:', isExporting.value)
+    console.log('- Format sélectionné:', selectedExportFormat.value)
+    console.log('- Preset sélectionné:', selectedPresetFormat.value)
+    console.log('- Nombre d\'éléments:', elements.value.length)
+    console.log('- Watermark visible:', showWatermark.value)
+    console.log('- Canvas dimensions:', `${canvasWidth.value}x${canvasHeight.value}`)
+
+    if (isExporting.value) {
+        console.log('⚠️ Export déjà en cours, abandon')
+        return
+    }
 
     isExporting.value = true
 
@@ -1531,21 +1832,28 @@ const exportDesignWithFormat = async () => {
         // Temporarily ensure watermark is visible
         const originalWatermarkState = showWatermark.value
         showWatermark.value = true
+        console.log('✅ Watermark forcé à true (était:', originalWatermarkState, ')')
 
         // Wait for DOM update
         await nextTick()
+        console.log('✅ DOM mis à jour')
 
+        console.log(`🎯 Lancement export format: ${selectedExportFormat.value}`)
         switch (selectedExportFormat.value) {
             case 'png':
+                console.log('📸 Appel exportAsPNG()')
                 await exportAsPNG()
                 break
             case 'jpeg':
+                console.log('📸 Appel exportAsJPEG()')
                 await exportAsJPEG()
                 break
             case 'svg':
+                console.log('🎨 Appel exportAsSVG()')
                 await exportAsSVG()
                 break
             case 'pdf':
+                console.log('📄 Appel exportAsPDF()')
                 await exportAsPDF()
                 break
         }
@@ -1553,12 +1861,17 @@ const exportDesignWithFormat = async () => {
         // Restore original watermark state
         showWatermark.value = originalWatermarkState
         showExportModal.value = false
+        console.log('✅ Watermark restauré et modal fermée')
+        console.log('🎉 ===== EXPORT TERMINÉ AVEC SUCCÈS =====')
 
     } catch (error) {
-        console.error('Export error:', error)
-        alert('خطأ في تصدير التصميم')
+        console.error('❌ ===== ERREUR PENDANT EXPORT =====')
+        console.error('Détails de l\'erreur:', error)
+        console.error('Stack trace:', error.stack)
+        alert('خطأ في تصدير التصميم: ' + error.message)
     } finally {
         isExporting.value = false
+        console.log('🔄 isExporting remis à false')
     }
 }
 
@@ -1733,26 +2046,334 @@ const exportDesignWithWatermark = async () => {
     }
 }
 
-// Version simplifiée utilisant createExportCanvas
+// NOUVELLE VERSION: Export identique à la prévisualisation
 const exportDesignWithWatermarkSimple = async () => {
+    console.log('🎨 ===== EXPORT WATERMARK SIMPLE DÉMARRÉ =====')
     try {
         // Temporarily ensure watermark is visible
         const originalWatermarkState = showWatermark.value
         showWatermark.value = true
+        console.log('✅ Watermark forcé à true dans exportDesignWithWatermarkSimple')
+
+        console.log(`📊 Export avec ${elements.value.length} éléments, dimensions: ${canvasWidth.value}x${canvasHeight.value}`)
+        console.log('📋 Liste des éléments à exporter:')
+        elements.value.forEach((el, i) => {
+            console.log(`  ${i+1}. ${el.type} (${el.name}) - visible: ${el.visible} - pos: ${el.x},${el.y} - taille: ${el.width}x${el.height}`)
+        })
 
         // Wait for DOM update
         await nextTick()
+        console.log('✅ DOM mis à jour dans exportDesignWithWatermarkSimple')
 
-        // Create export canvas using the new function
-        const exportCanvas = await createExportCanvas()
+        // NOUVELLE MÉTHODE: Créer un canvas identique à la prévisualisation
+        console.log('🎨 Appel createPreviewCanvas()')
+        const exportCanvas = await createPreviewCanvas()
+        console.log('✅ Canvas créé:', exportCanvas.width + 'x' + exportCanvas.height)
+
+        console.log('💾 Appel downloadCanvas()')
         downloadCanvas(exportCanvas)
 
-        // Restore original watermark state
+        // Restore original states
         showWatermark.value = originalWatermarkState
+        console.log('✅ Watermark restauré à:', originalWatermarkState)
+        console.log('🎉 ===== EXPORT WATERMARK SIMPLE TERMINÉ =====')
 
     } catch (error) {
-        console.error('Export error:', error)
-        alert('خطأ في تصدير التصميم')
+        console.error('❌ ===== ERREUR DANS EXPORT WATERMARK SIMPLE =====')
+        console.error('Détails de l\'erreur:', error)
+        console.error('Stack trace:', error.stack)
+        alert('خطأ في تصدير التصميم: ' + error.message)
+    }
+}
+
+// NOUVELLE FONCTION: Créer un canvas identique à la prévisualisation HTML
+const createPreviewCanvas = async () => {
+    console.log('🎨 ===== CREATE PREVIEW CANVAS DÉMARRÉ =====')
+
+    // Create a new canvas with exact dimensions
+    const exportCanvas = document.createElement('canvas')
+    const ctx = exportCanvas.getContext('2d')
+
+    exportCanvas.width = canvasWidth.value
+    exportCanvas.height = canvasHeight.value
+    console.log(`📐 Canvas créé avec dimensions: ${exportCanvas.width}x${exportCanvas.height}`)
+
+    // Fill white background
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0, 0, canvasWidth.value, canvasHeight.value)
+    console.log('✅ Fond blanc appliqué')
+
+    // Draw background image if exists
+    if (canvasBackground.value) {
+        console.log('🖼️ Image de fond détectée:', canvasBackground.value.substring(0, 50) + '...')
+        await new Promise((resolve) => {
+            const bgImg = new Image()
+            bgImg.crossOrigin = 'anonymous'
+            bgImg.onload = () => {
+                ctx.drawImage(bgImg, 0, 0, canvasWidth.value, canvasHeight.value)
+                console.log('✅ Image de fond dessinée')
+                resolve()
+            }
+            bgImg.onerror = (err) => {
+                console.log('❌ Erreur chargement image de fond:', err)
+                resolve()
+            }
+            bgImg.src = canvasBackground.value
+        })
+    } else {
+        console.log('ℹ️ Pas d\'image de fond')
+    }
+
+    // Draw all elements exactly like in preview
+    console.log(`🎯 Début dessin de ${elements.value.length} éléments sur le canvas d'export`)
+    for (let i = 0; i < elements.value.length; i++) {
+        const element = elements.value[i]
+        console.log(`\n--- Élément ${i+1}/${elements.value.length} ---`)
+        console.log('Type:', element.type)
+        console.log('Nom:', element.name)
+        console.log('Visible:', element.visible)
+        console.log('Position:', `x=${element.x}, y=${element.y}`)
+        console.log('Taille:', `${element.width}x${element.height}`)
+        console.log('Propriétés spéciales:', element.shapeType || element.iconClass || element.text || 'Aucune')
+
+        if (element.visible === false) {
+            console.log('⏭️ Élément ignoré car non visible')
+            continue
+        }
+
+        console.log('🎨 Dessin de l\'élément...')
+        try {
+            await drawElementOnCanvas(ctx, element)
+            console.log('✅ Élément dessiné avec succès')
+        } catch (error) {
+            console.error('❌ Erreur lors du dessin de l\'élément:', error)
+        }
+    }
+
+    // Draw watermark
+    console.log('🔒 Application du watermark...')
+    try {
+        drawWatermarkOnExportCanvas(ctx, canvasWidth.value, canvasHeight.value)
+        console.log('✅ Watermark appliqué')
+    } catch (error) {
+        console.error('❌ Erreur watermark:', error)
+    }
+
+    console.log(`🎉 Canvas d'export créé avec succès: ${canvasWidth.value}x${canvasHeight.value}`)
+    console.log('🎨 ===== CREATE PREVIEW CANVAS TERMINÉ =====')
+    return exportCanvas
+}
+
+// NOUVELLE FONCTION: Dessiner un élément sur le canvas (identique à la prévisualisation)
+const drawElementOnCanvas = async (ctx, element) => {
+    console.log(`  🎨 drawElementOnCanvas - Type: ${element.type}`)
+    ctx.save()
+
+    // Apply transformations
+    const opacity = element.opacity !== undefined ? element.opacity : 1
+    const centerX = element.x + (element.width || 0) / 2
+    const centerY = element.y + (element.height || 0) / 2
+    const rotation = (element.rotation || 0) * Math.PI / 180
+
+    console.log(`  📐 Transformations - Opacity: ${opacity}, Center: ${centerX},${centerY}, Rotation: ${element.rotation || 0}°`)
+
+    ctx.globalAlpha = opacity
+    ctx.translate(centerX, centerY)
+    ctx.rotate(rotation)
+
+    console.log(`  🎯 Switch sur type: ${element.type}`)
+    switch (element.type) {
+        case 'text':
+            console.log(`    📝 Dessin texte: "${element.text}" - Taille: ${element.fontSize}px - Couleur: ${element.color}`)
+            ctx.font = `${element.fontWeight || 'normal'} ${element.fontSize || 16}px ${element.fontFamily || 'Cairo, sans-serif'}`
+            ctx.fillStyle = element.color || '#000'
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.fillText(element.text || 'نص', 0, 0)
+            console.log(`    ✅ Texte dessiné`)
+            break
+
+        case 'image':
+            console.log(`    🖼️ Dessin image: ${element.src ? element.src.substring(0, 50) + '...' : 'Pas de src'}`)
+            await new Promise((resolve) => {
+                const img = new Image()
+                img.crossOrigin = 'anonymous'
+                img.onload = () => {
+                    ctx.drawImage(img, -(element.width || 0) / 2, -(element.height || 0) / 2, element.width || 100, element.height || 100)
+                    console.log(`    ✅ Image dessinée`)
+                    resolve()
+                }
+                img.onerror = (err) => {
+                    console.log(`    ❌ Erreur chargement image:`, err)
+                    resolve()
+                }
+                img.src = element.src
+            })
+            break
+
+        case 'rectangle':
+            console.log(`    ⬛ Dessin rectangle - Couleur: ${element.backgroundColor} - Taille: ${element.width}x${element.height}`)
+            ctx.fillStyle = element.backgroundColor || '#000'
+            ctx.fillRect(-(element.width || 0) / 2, -(element.height || 0) / 2, element.width || 100, element.height || 100)
+            console.log(`    ✅ Rectangle dessiné`)
+            break
+
+        case 'circle':
+            console.log(`    ⭕ Dessin cercle - Couleur: ${element.backgroundColor} - Rayon: ${Math.min(element.width || 100, element.height || 100) / 2}`)
+            ctx.fillStyle = element.backgroundColor || '#10b981'
+            ctx.beginPath()
+            ctx.arc(0, 0, Math.min(element.width || 100, element.height || 100) / 2, 0, 2 * Math.PI)
+            ctx.fill()
+            console.log(`    ✅ Cercle dessiné`)
+            break
+
+        case 'shape':
+            console.log(`    🔷 Dessin forme - Type: ${element.shapeType} - Couleur: ${element.backgroundColor} - Taille: ${element.width}x${element.height}`)
+            // CORRECTION: Dessiner les formes géométriques réelles au lieu d'icônes
+            ctx.fillStyle = element.backgroundColor || '#8b5cf6'
+            console.log(`    🎨 Couleur appliquée: ${ctx.fillStyle}`)
+
+            switch (element.shapeType) {
+                case 'circle':
+                    console.log(`    ⭕ Dessin cercle de forme`)
+                    ctx.beginPath()
+                    ctx.arc(0, 0, Math.min(element.width || 50, element.height || 50) / 2, 0, 2 * Math.PI)
+                    ctx.fill()
+                    console.log(`    ✅ Cercle de forme dessiné`)
+                    break
+                case 'triangle':
+                    console.log(`    🔺 Dessin triangle`)
+                    ctx.beginPath()
+                    ctx.moveTo(0, -(element.height || 50) / 2)
+                    ctx.lineTo(-(element.width || 50) / 2, (element.height || 50) / 2)
+                    ctx.lineTo((element.width || 50) / 2, (element.height || 50) / 2)
+                    ctx.closePath()
+                    ctx.fill()
+                    console.log(`    ✅ Triangle dessiné`)
+                    break
+                case 'diamond':
+                    console.log(`    ◆ DESSIN LOSANGE - CRITIQUE!`)
+                    ctx.beginPath()
+                    const w = (element.width || 50) / 2
+                    const h = (element.height || 50) / 2
+                    console.log(`    📐 Dimensions losange: w=${w}, h=${h}`)
+                    ctx.moveTo(0, -h)  // Haut
+                    console.log(`    📍 Point haut: 0, ${-h}`)
+                    ctx.lineTo(w, 0)   // Droite
+                    console.log(`    📍 Point droite: ${w}, 0`)
+                    ctx.lineTo(0, h)   // Bas
+                    console.log(`    📍 Point bas: 0, ${h}`)
+                    ctx.lineTo(-w, 0)  // Gauche
+                    console.log(`    📍 Point gauche: ${-w}, 0`)
+                    ctx.closePath()
+                    ctx.fill()
+                    console.log(`    ✅ LOSANGE DESSINÉ AVEC SUCCÈS!`)
+                    break
+                case 'star':
+                    console.log(`    ⭐ Dessin étoile`)
+                    drawStar(ctx, 0, 0, 5, (element.width || 50) / 2, (element.width || 50) / 4)
+                    ctx.fill()
+                    console.log(`    ✅ Étoile dessinée`)
+                    break
+                case 'heart':
+                    console.log(`    ❤️ Dessin cœur`)
+                    drawHeart(ctx, 0, 0, element.width || 50)
+                    ctx.fill()
+                    console.log(`    ✅ Cœur dessiné`)
+                    break
+                default:
+                    console.log(`    ⬛ Dessin rectangle par défaut pour forme inconnue: ${element.shapeType}`)
+                    ctx.fillRect(-(element.width || 50) / 2, -(element.height || 50) / 2, element.width || 50, element.height || 50)
+                    console.log(`    ✅ Rectangle par défaut dessiné`)
+            }
+            console.log(`    ✅ Forme ${element.shapeType} terminée`)
+            break
+
+        case 'icon':
+            // Pour les icônes, dessiner un cercle avec un symbole simple
+            ctx.fillStyle = element.color || '#374151'
+            ctx.beginPath()
+            ctx.arc(0, 0, Math.min(element.width || 50, element.height || 50) / 2, 0, 2 * Math.PI)
+            ctx.fill()
+
+            // Ajouter un symbole simple au centre
+            ctx.fillStyle = '#ffffff'
+            ctx.font = `${(element.fontSize || 24)}px Arial`
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.fillText(getIconSymbol(element.iconClass), 0, 0)
+            break
+    }
+
+    ctx.restore()
+}
+
+// Fonction pour convertir les classes FontAwesome en symboles simples
+const getIconSymbol = (iconClass) => {
+    const symbols = {
+        'fas fa-home': '🏠',
+        'fas fa-user': '👤',
+        'fas fa-envelope': '✉',
+        'fas fa-phone': '📞',
+        'fas fa-calendar': '📅',
+        'fas fa-clock': '🕐',
+        'fas fa-location-dot': '📍',
+        'fas fa-camera': '📷',
+        'fas fa-music': '🎵',
+        'fas fa-video': '🎥',
+        'fas fa-gift': '🎁',
+        'fas fa-shopping-cart': '🛒',
+        'fas fa-car': '🚗',
+        'fas fa-plane': '✈',
+        'fas fa-graduation-cap': '🎓',
+        'fas fa-trophy': '🏆',
+        'fas fa-star': '⭐',
+        'fas fa-heart': '❤',
+        'fas fa-diamond': '◆'
+    }
+    return symbols[iconClass] || '●'
+}
+
+// Fonction pour générer des formes HTML avec CSS (identiques au canvas)
+const generateShapeHTML = (element, style) => {
+    const bgColor = element.backgroundColor || '#8b5cf6'
+    const width = element.width || 50
+    const height = element.height || 50
+
+    switch (element.shapeType) {
+        case 'circle':
+            return `<div class="element" style="${style} background-color: ${bgColor}; border-radius: 50%;"></div>`
+
+        case 'triangle':
+            return `<div class="element" style="${style} width: 0; height: 0;
+                border-left: ${width/2}px solid transparent;
+                border-right: ${width/2}px solid transparent;
+                border-bottom: ${height}px solid ${bgColor};
+                transform: translate(-50%, -50%) rotate(${element.rotation || 0}deg);
+                left: ${element.x + width/2}px;
+                top: ${element.y + height/2}px;"></div>`
+
+        case 'diamond':
+            return `<div class="element" style="${style} background-color: ${bgColor};
+                transform: translate(-50%, -50%) rotate(45deg) rotate(${element.rotation || 0}deg);
+                left: ${element.x + width/2}px;
+                top: ${element.y + height/2}px;"></div>`
+
+        case 'star':
+            // Pour l'étoile, utiliser un symbole Unicode
+            return `<div class="element" style="${style} display: flex; align-items: center; justify-content: center; color: ${bgColor}; font-size: ${width * 0.8}px;">
+                ⭐
+            </div>`
+
+        case 'heart':
+            // Pour le cœur, utiliser un symbole Unicode
+            return `<div class="element" style="${style} display: flex; align-items: center; justify-content: center; color: ${bgColor}; font-size: ${width * 0.8}px;">
+                ❤
+            </div>`
+
+        default:
+            // Rectangle par défaut
+            return `<div class="element" style="${style} background-color: ${bgColor};"></div>`
     }
 }
 
@@ -1796,10 +2417,17 @@ const drawWatermarkOnExportCanvas = (ctx, width, height) => {
     ctx.restore()
 }
 
-const downloadCanvas = (canvas) => {
+const downloadCanvas = (canvas, filename = null) => {
     const link = document.createElement('a')
-    link.download = `design-${Date.now()}.png`
+    link.download = filename ? `${filename}-${Date.now()}.png` : `design-${Date.now()}.png`
     link.href = canvas.toDataURL()
+
+    // DÉBOGAGE: Afficher les informations sur le canvas téléchargé
+    console.log(`💾 TÉLÉCHARGEMENT: ${link.download}`)
+    console.log(`📐 Dimensions: ${canvas.width}x${canvas.height}`)
+    console.log(`📊 Data URL length: ${link.href.length} caractères`)
+    console.log(`🎨 Premier pixel (debug):`, canvas.getContext('2d').getImageData(0, 0, 1, 1).data)
+
     link.click()
 }
 
@@ -1955,32 +2583,28 @@ const createExportCanvas = async () => {
     let exportHeight = canvasHeight.value
     let scaleFactor = 1
 
-    if (preset && preset.width && preset.height) {
-        exportWidth = preset.width
-        exportHeight = preset.height
-        // Calculate scale factor to fit content
-        scaleFactor = Math.min(exportWidth / canvasWidth.value, exportHeight / canvasHeight.value)
+    // CORRECTION: Toujours utiliser les dimensions actuelles du canvas pour éviter les problèmes de scaling
+    // Seul le preset 'current' ou null devrait être utilisé pour l'export client
+    if (preset && preset.width && preset.height && preset.value !== 'current') {
+        // Pour les presets spécifiques, on garde les dimensions originales mais on peut ajuster la qualité
+        console.log(`Export avec preset ${preset.value}: ${preset.width}x${preset.height}, mais on garde les dimensions originales pour éviter les problèmes de scaling`)
     }
 
-    // Create a new canvas for export
+    // Create a new canvas for export - TOUJOURS utiliser les dimensions originales
     const exportCanvas = document.createElement('canvas')
     const ctx = exportCanvas.getContext('2d')
 
     exportCanvas.width = exportWidth
     exportCanvas.height = exportHeight
 
-    // Fill background
+    // Fill background - TOUJOURS blanc pour préserver le fond
     ctx.fillStyle = '#ffffff'
     ctx.fillRect(0, 0, exportWidth, exportHeight)
 
-    // Center the content if needed
-    const offsetX = (exportWidth - canvasWidth.value * scaleFactor) / 2
-    const offsetY = (exportHeight - canvasHeight.value * scaleFactor) / 2
-
-    // Apply scaling and centering
-    ctx.save()
-    ctx.translate(offsetX, offsetY)
-    ctx.scale(scaleFactor, scaleFactor)
+    // PAS de scaling ni de translation - dessiner directement aux bonnes positions
+    // ctx.save() - Retiré pour éviter les transformations
+    // ctx.translate(offsetX, offsetY) - Retiré
+    // ctx.scale(scaleFactor, scaleFactor) - Retiré
 
     // Draw background image if exists
     if (canvasBackground.value) {
@@ -1996,9 +2620,14 @@ const createExportCanvas = async () => {
         })
     }
 
-    // Draw all elements
+    // Draw all elements - CORRECTION: S'assurer que tous les éléments sont inclus
+    console.log(`Dessin de ${elements.value.length} éléments sur le canvas d'export`)
     for (const element of elements.value) {
-        if (element.visible === false) continue
+        if (element.visible === false) {
+            console.log(`Élément ${element.id} ignoré car non visible`)
+            continue
+        }
+        console.log(`Dessin de l'élément ${element.id} de type ${element.type}`, element)
         switch (element.type) {
             case 'text':
                 ctx.save()
@@ -2078,6 +2707,18 @@ const createExportCanvas = async () => {
                         drawHeart(ctx, 0, 0, element.width || 50)
                         ctx.fill()
                         break
+                    case 'diamond':
+                        // Dessiner un losange (diamant)
+                        ctx.beginPath()
+                        const w = (element.width || 50) / 2
+                        const h = (element.height || 50) / 2
+                        ctx.moveTo(0, -h)  // Haut
+                        ctx.lineTo(w, 0)   // Droite
+                        ctx.lineTo(0, h)   // Bas
+                        ctx.lineTo(-w, 0)  // Gauche
+                        ctx.closePath()
+                        ctx.fill()
+                        break
                     default:
                         // Rectangle par défaut
                         ctx.fillRect(-(element.width || 50) / 2, -(element.height || 50) / 2, element.width || 50, element.height || 50)
@@ -2108,12 +2749,10 @@ const createExportCanvas = async () => {
         }
     }
 
-    // Restore transformation context
-    ctx.restore()
-
-    // Draw watermark on the full export canvas (not scaled)
+    // Draw watermark on the full export canvas
     drawWatermarkOnExportCanvas(ctx, exportWidth, exportHeight)
 
+    console.log(`Canvas d'export créé avec succès: ${exportWidth}x${exportHeight}`)
     return exportCanvas
 }
 

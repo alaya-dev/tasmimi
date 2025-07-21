@@ -878,6 +878,7 @@ const previewDesign = () => {
         }
     }
 
+    console.log('Preview data:', previewData) // Debug log
     const previewWindow = window.open('', '_blank')
     previewWindow.document.write(generatePreviewHTML(previewData))
 }
@@ -892,6 +893,7 @@ const generatePreviewHTML = (designData) => {
             <title>معاينة التصميم</title>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+                @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
                 body {
                     margin: 0;
                     padding: 20px;
@@ -977,11 +979,55 @@ const generateElementHTML = (element) => {
 
     switch (element.type) {
         case 'text':
-            return `<div class="element" style="${style} font-size: ${element.fontSize || 16}px; color: ${element.color || '#000'}; font-weight: ${element.fontWeight || 'normal'};">${element.text || 'نص'}</div>`
+            return `<div class="element" style="${style} font-size: ${element.fontSize || 16}px; color: ${element.color || '#000'}; font-weight: ${element.fontWeight || 'normal'}; text-align: ${element.textAlign || 'left'}; font-family: ${element.fontFamily || 'Cairo, sans-serif'}; display: flex; align-items: center; justify-content: center;">${element.text || 'نص'}</div>`
         case 'image':
             return `<img class="element" src="${element.src}" style="${style} object-fit: cover;" alt="${element.name}">`
         case 'rectangle':
             return `<div class="element" style="${style} background-color: ${element.backgroundColor || '#000'}; border-radius: ${element.borderRadius || 0}px;"></div>`
+        case 'circle':
+            return `<div class="element" style="${style} background-color: ${element.backgroundColor || '#000'}; border-radius: 50%;"></div>`
+        case 'triangle':
+            return `<div class="element" style="${style} background-color: transparent; position: relative;">
+                <svg width="${element.width || 100}" height="${element.height || 100}" style="position: absolute; top: 0; left: 0;">
+                    <polygon points="${(element.width || 100) / 2},0 0,${element.height || 100} ${element.width || 100},${element.height || 100}"
+                             fill="${element.backgroundColor || '#000'}" />
+                </svg>
+            </div>`
+        case 'star':
+            const starSize = Math.min(element.width || 100, element.height || 100)
+            const outerRadius = starSize / 2
+            const innerRadius = outerRadius / 2
+            const cx = starSize / 2
+            const cy = starSize / 2
+            let starPath = ''
+            const spikes = 5
+            const step = Math.PI / spikes
+            let rot = Math.PI / 2 * 3
+
+            // Generate star path
+            starPath += `M ${cx} ${cy - outerRadius} `
+            for (let i = 0; i < spikes; i++) {
+                const x1 = cx + Math.cos(rot) * outerRadius
+                const y1 = cy + Math.sin(rot) * outerRadius
+                starPath += `L ${x1} ${y1} `
+                rot += step
+
+                const x2 = cx + Math.cos(rot) * innerRadius
+                const y2 = cy + Math.sin(rot) * innerRadius
+                starPath += `L ${x2} ${y2} `
+                rot += step
+            }
+            starPath += 'Z'
+
+            return `<div class="element" style="${style} background-color: transparent; position: relative;">
+                <svg width="${starSize}" height="${starSize}" style="position: absolute; top: 0; left: 0;">
+                    <path d="${starPath}" fill="${element.backgroundColor || '#000'}" />
+                </svg>
+            </div>`
+        case 'icon':
+            return `<div class="element" style="${style} color: ${element.color || '#000'}; display: flex; align-items: center; justify-content: center; font-size: ${element.fontSize || 24}px; font-family: 'Font Awesome 6 Free', sans-serif;">${element.icon || '★'}</div>`
+        case 'line':
+            return `<div class="element" style="${style} background-color: ${element.backgroundColor || element.color || '#6b7280'}; border-radius: ${element.borderRadius || 0}px;"></div>`
         default:
             return ''
     }
@@ -1182,7 +1228,39 @@ const exportDesignWithWatermark = async () => {
                             ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
                             ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
                             ctx.rotate((element.rotation || 0) * Math.PI / 180)
-                            ctx.drawImage(img, -(element.width || 0) / 2, -(element.height || 0) / 2, element.width || 100, element.height || 100)
+
+                            // Calculate aspect ratio and fit image properly
+                            const elementWidth = element.width || 100
+                            const elementHeight = element.height || 100
+                            const imgAspectRatio = img.naturalWidth / img.naturalHeight
+                            const elementAspectRatio = elementWidth / elementHeight
+
+                            let drawWidth, drawHeight, offsetX = 0, offsetY = 0
+
+                            if (imgAspectRatio > elementAspectRatio) {
+                                // Image is wider than element - fit by height
+                                drawHeight = elementHeight
+                                drawWidth = drawHeight * imgAspectRatio
+                                offsetX = (elementWidth - drawWidth) / 2
+                            } else {
+                                // Image is taller than element - fit by width
+                                drawWidth = elementWidth
+                                drawHeight = drawWidth / imgAspectRatio
+                                offsetY = (elementHeight - drawHeight) / 2
+                            }
+
+                            // Clip to element bounds
+                            ctx.beginPath()
+                            ctx.rect(-elementWidth / 2, -elementHeight / 2, elementWidth, elementHeight)
+                            ctx.clip()
+
+                            ctx.drawImage(img,
+                                -drawWidth / 2 + offsetX,
+                                -drawHeight / 2 + offsetY,
+                                drawWidth,
+                                drawHeight
+                            )
+
                             ctx.restore()
                             resolve()
                         }
@@ -1245,6 +1323,15 @@ const exportDesignWithWatermark = async () => {
                     // Convert FontAwesome class to unicode if possible
                     const iconText = element.icon || '★'
                     ctx.fillText(iconText, 0, 0)
+                    ctx.restore()
+                    break
+                case 'line':
+                    ctx.save()
+                    ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                    ctx.fillStyle = element.backgroundColor || element.color || '#6b7280'
+                    ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                    ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                    ctx.fillRect(-(element.width || 200) / 2, -(element.height || 2) / 2, element.width || 200, element.height || 2)
                     ctx.restore()
                     break
             }
