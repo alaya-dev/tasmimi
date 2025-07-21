@@ -127,8 +127,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('templates', App\Http\Controllers\Admin\TemplateController::class)->except(['show', 'create', 'edit']);
     Route::patch('templates/{template}/toggle-status', [App\Http\Controllers\Admin\TemplateController::class, 'toggleStatus'])->name('templates.toggle-status');
 
-    // Gestion des templates clients (bطاقات الحرفاء)
-    Route::resource('client-templates', AdminClientTemplateController::class)->only(['index', 'show', 'destroy']);
+    // Gestion des templates clients (بطاقات الحرفاء)
+    Route::resource('client-templates', AdminClientTemplateController::class)->only(['index', 'show', 'update', 'destroy']);
+
+
 
     // Éditeur de design pour templates
     Route::get('templates/{template}/design', [App\Http\Controllers\Admin\TemplateController::class, 'designEditor'])->name('templates.design');

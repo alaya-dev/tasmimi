@@ -89,6 +89,44 @@ class AdminClientTemplateController extends Controller
     }
 
     /**
+     * Mettre à jour un template client (pour la sauvegarde depuis l'éditeur)
+     */
+    public function update(Request $request, ClientTemplate $clientTemplate)
+    {
+        // Vérifier que l'utilisateur est admin ou super_admin
+        if (!auth()->user()->isAdmin() && !auth()->user()->isSuperAdmin()) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        $validated = $request->validate([
+            'design_data' => 'required|string',
+            'canvas_size' => 'nullable|string',
+            'last_edited_at' => 'nullable|string',
+        ]);
+
+        try {
+            $clientTemplate->update([
+                'design_data' => $validated['design_data'],
+                'canvas_size' => $validated['canvas_size'] ?? $clientTemplate->canvas_size,
+                'last_edited_at' => now(),
+                'version' => $clientTemplate->version + 1,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حفظ التصميم بنجاح',
+                'template' => $clientTemplate->fresh()
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء حفظ التصميم'
+            ], 500);
+        }
+    }
+
+    /**
      * Supprimer un template client
      */
     public function destroy(ClientTemplate $clientTemplate)

@@ -1,559 +1,1476 @@
 <template>
-    <Head :title="`محرر التصميم - ${clientTemplate.name}`" />
+    <Head title="محرر التصميم المتقدم - إصدار مستقر">
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Changa:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Cairo+Play:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Harmattan:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    </Head>
 
-    <AdminLayoutSidebar>
-        <template #breadcrumb>
-            <Link :href="route('admin.client-templates.index')" class="text-gray-500 hover:text-gray-700">
-                بطاقات الحرفاء
-            </Link>
-            <span class="text-gray-500 mx-2">/</span>
-            <span class="text-gray-500">{{ clientTemplate.name }}</span>
-        </template>
+    <div class="min-h-screen bg-gray-100" dir="rtl">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b border-gray-200">
+            <div class="max-w-full mx-auto px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <!-- Template Info -->
+                    <div class="flex items-center space-x-4 space-x-reverse">
+                        <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-palette text-white"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold text-gray-800">محرر التصميم المتقدم</h1>
+                            <p class="text-sm text-gray-600">{{ clientTemplate.name }}</p>
+                            <p class="text-xs text-gray-500">العميل: {{ clientTemplate.user.email }}</p>
+                        </div>
+                    </div>
 
-        <template #header>
-            <div class="flex items-center justify-between flex-row-reverse">
-                <div class="flex items-center flex-row-reverse">
-                    <Link
-                        :href="route('admin.client-templates.index')"
-                        class="ml-4 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-                    >
-                        <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                        </svg>
-                    </Link>
-                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">محرر التصميم - {{ clientTemplate.name }}</h2>
-                </div>
-                <div class="flex items-center space-x-3 space-x-reverse">
-                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                        قراءة فقط
-                    </span>
+                    <!-- Actions -->
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <!-- History -->
+                        <div class="flex items-center bg-gray-100 rounded-lg p-1">
+                            <button
+                                @click="undo"
+                                :disabled="!canUndo"
+                                class="p-2 text-gray-600 hover:text-gray-800 rounded disabled:opacity-50"
+                                title="تراجع"
+                            >
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button
+                                @click="redo"
+                                :disabled="!canRedo"
+                                class="p-2 text-gray-600 hover:text-gray-800 rounded disabled:opacity-50"
+                                title="إعادة"
+                            >
+                                <i class="fas fa-redo"></i>
+                            </button>
+                        </div>
+
+                        <!-- Device Preview -->
+                        <div class="flex items-center bg-gray-100 rounded-lg p-1">
+                            <button
+                                v-for="device in devices"
+                                :key="device.id"
+                                @click="setDevice(device.id)"
+                                :class="[
+                                    'p-2 rounded transition-colors',
+                                    currentDevice === device.id
+                                        ? 'bg-purple-600 text-white'
+                                        : 'text-gray-600 hover:text-gray-800'
+                                ]"
+                                :title="device.name"
+                            >
+                                <i :class="device.icon"></i>
+                            </button>
+                        </div>
+
+                        <!-- Save -->
+                        <button
+                            @click="saveDesign"
+                            :disabled="saving"
+                            class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center space-x-2 space-x-reverse"
+                        >
+                            <i :class="saving ? 'fas fa-spinner fa-spin' : 'fas fa-save'"></i>
+                            <span>{{ saving ? 'جاري الحفظ...' : 'حفظ' }}</span>
+                        </button>
+
+                        <!-- Export -->
+                        <button
+                            @click="exportDesignWithWatermark"
+                            class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 flex items-center space-x-2 space-x-reverse"
+                            title="تصدير التصميم مع العلامة المائية"
+                        >
+                            <i class="fas fa-download"></i>
+                            <span>تصدير</span>
+                        </button>
+
+                        <!-- Preview -->
+                        <button
+                            @click="previewDesign"
+                            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2 space-x-reverse"
+                        >
+                            <i class="fas fa-eye"></i>
+                            <span>معاينة</span>
+                        </button>
+
+                        <!-- Back -->
+                        <Link
+                            :href="route('admin.client-templates.index')"
+                            class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 flex items-center space-x-2 space-x-reverse"
+                        >
+                            <i class="fas fa-arrow-right"></i>
+                            <span>رجوع</span>
+                        </Link>
+                    </div>
                 </div>
             </div>
-        </template>
+        </div>
 
-        <div class="min-h-screen bg-gray-50" dir="rtl">
-            <!-- معلومات التصميم -->
-            <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
-                <div class="max-w-7xl mx-auto">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-                        <div class="text-right">
-                            <span class="text-gray-500">العميل:</span>
-                            <span class="font-medium mr-2">{{ clientTemplate.user.email }}</span>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-gray-500">القالب الأساسي:</span>
-                            <span class="font-medium mr-2">{{ clientTemplate.template.name }}</span>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-gray-500">الإصدار:</span>
-                            <span class="font-medium mr-2">{{ clientTemplate.version }}</span>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-gray-500">تاريخ الإنشاء:</span>
-                            <span class="font-medium mr-2">{{ formatDate(clientTemplate.created_at) }}</span>
-                        </div>
+        <!-- Main Editor -->
+        <div class="flex h-screen">
+            <!-- Sidebar -->
+            <div class="w-80 bg-white border-l border-gray-200 flex flex-col">
+                <!-- Tabs -->
+                <div class="flex-shrink-0 border-b border-gray-200">
+                    <div class="flex">
+                        <button
+                            v-for="tab in tabs"
+                            :key="tab.id"
+                            @click="activeTab = tab.id"
+                            :class="[
+                                'flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-colors',
+                                activeTab === tab.id
+                                    ? 'border-purple-600 text-purple-600 bg-purple-50'
+                                    : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                            ]"
+                        >
+                            <i :class="tab.icon" class="ml-2"></i>
+                            {{ tab.name }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="flex-1 overflow-hidden">
+                    <!-- Elements Tab -->
+                    <div v-if="activeTab === 'elements'" class="h-full">
+                        <ElementsPanel
+                            @add-element="addElement"
+                            @add-background="setCanvasBackground"
+                            @add-image="addImageElement"
+                        />
+                    </div>
+
+                    <!-- Layers Tab -->
+                    <div v-if="activeTab === 'layers'" class="h-full">
+                        <LayersPanel
+                            :layers="layers"
+                            :selected-layer-id="selectedElement?.id"
+                            @select-layer="selectLayer"
+                            @request-delete-layer="onRequestDeleteLayer"
+                            @reorder-layers="reorderLayers"
+                            @update-layer="updateLayer"
+                            @duplicate-layer="duplicateLayer"
+                            @move-layer-top="moveLayerToTop"
+                            @move-layer-bottom="moveLayerToBottom"
+                        />
+                    </div>
+
+                    <!-- Properties Tab -->
+                    <div v-if="activeTab === 'properties'" class="h-full">
+                        <PropertiesPanel
+                            :selected-element="selectedElement"
+                            @update-properties="updateProperties"
+                            @move-layer="onMoveLayer"
+                            @duplicate-element="onDuplicateElement"
+                            @request-delete="onRequestDeleteElement"
+                        />
                     </div>
                 </div>
             </div>
 
-            <!-- محرر التصميم -->
-            <div class="flex-1 p-6">
-                <div class="max-w-7xl mx-auto">
-                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                        <!-- شريط الأدوات -->
-                        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                            <div class="flex items-center justify-between flex-row-reverse">
-                                <h3 class="text-lg font-medium text-gray-900">معاينة التصميم</h3>
-                                <div class="flex items-center space-x-3 space-x-reverse">
-                                    <div class="text-sm text-gray-500">
-                                        آخر تعديل: {{ clientTemplate.last_edited_at ? formatDate(clientTemplate.last_edited_at) : 'غير محدد' }}
-                                    </div>
-                                </div>
+            <!-- Canvas Area -->
+            <div class="flex-1 bg-gray-50 flex flex-col">
+                <!-- Canvas Toolbar -->
+                <div class="flex-shrink-0 bg-white border-b border-gray-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4 space-x-reverse">
+                            <!-- Zoom Controls -->
+                            <div class="flex items-center space-x-2 space-x-reverse">
+                                <button
+                                    @click="zoomOut"
+                                    class="p-2 text-gray-600 hover:text-gray-800 rounded"
+                                >
+                                    <i class="fas fa-search-minus"></i>
+                                </button>
+                                <span class="text-sm text-gray-600 min-w-16 text-center">{{ Math.round(zoom * 100) }}%</span>
+                                <button
+                                    @click="zoomIn"
+                                    class="p-2 text-gray-600 hover:text-gray-800 rounded"
+                                >
+                                    <i class="fas fa-search-plus"></i>
+                                </button>
                             </div>
+                            <!-- Watermark Toggle -->
+                            <button
+                                @click="showWatermark = !showWatermark"
+                                :class="['p-2 rounded transition-colors', showWatermark ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:text-gray-800']"
+                                title="تبديل العلامة المائية"
+                            >
+                                <i class="fas fa-certificate"></i>
+                            </button>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- منطقة التصميم -->
-                        <div class="p-6">
-                            <div class="flex justify-center">
-                                <div class="relative bg-white border-2 border-gray-200 rounded-lg shadow-sm">
-                                    <!-- Loading indicator -->
-                                    <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
-                                        <div class="text-center">
-                                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                                            <p class="text-gray-600">جاري تحميل التصميم...</p>
-                                        </div>
-                                    </div>
+                <!-- Canvas Container -->
+                <div class="flex-1 overflow-auto p-8 flex items-center justify-center">
+                    <div
+                        ref="canvasContainer"
+                        class="relative bg-white shadow-lg"
+                        :style="{
+                            width: canvasWidth * zoom + 'px',
+                            height: canvasHeight * zoom + 'px',
+                            transform: `scale(${zoom})`,
+                            transformOrigin: 'top left'
+                        }"
+                    >
+                        <!-- Grid Overlay -->
+                        <div
+                            v-if="showGrid"
+                            class="absolute inset-0 pointer-events-none"
+                            :style="gridStyle"
+                        ></div>
 
-                                    <!-- Error message -->
-                                    <div v-else-if="loadError" class="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
-                                        <div class="text-center">
-                                            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                                            </svg>
-                                            <p class="text-gray-600 mb-2">خطأ في تحميل التصميم</p>
-                                            <p class="text-sm text-gray-500">{{ loadError }}</p>
-                                        </div>
-                                    </div>
+                        <!-- Design Canvas -->
+                        <div
+                            ref="designCanvas"
+                            class="w-full h-full relative overflow-hidden"
+                            :style="{
+                                backgroundImage: canvasBackground ? `url(${canvasBackground})` : 'none',
+                                backgroundSize: backgroundSize,
+                                backgroundPosition: 'center',
+                                backgroundRepeat: 'no-repeat',
+                                cursor: pendingElementType ? 'crosshair' : 'default'
+                            }"
+                            @click="handleCanvasClick"
+                            @drop="handleDrop"
+                            @dragover.prevent
+                        >
+                            <!-- Render elements here -->
+                            <DesignElement
+                                v-for="element in elements"
+                                :key="element.id"
+                                :element="element"
+                                :selected="selectedElement?.id === element.id"
+                                :zoom="zoom"
+                                :placementMode="!!pendingElementType"
+                                @select="selectElement"
+                                @update="updateElement"
+                                @delete="deleteElement"
+                            />
 
-                                    <!-- GrapesJS Preview Container -->
-                                    <div 
-                                        v-else
-                                        id="design-preview-container"
-                                        class="relative overflow-hidden rounded-lg"
-                                        :style="{
-                                            width: canvasWidth + 'px',
-                                            height: canvasHeight + 'px',
-                                            maxWidth: '100%',
-                                            maxHeight: '70vh'
-                                        }"
-                                    >
-                                        <!-- Design Preview -->
-                                        <div 
-                                            id="design-preview"
-                                            class="w-full h-full bg-white border border-gray-300"
-                                            v-html="designHtml"
-                                        ></div>
-                                        
-                                        <!-- طبقة الحماية للقراءة فقط -->
-                                        <div class="absolute inset-0 bg-transparent cursor-not-allowed"></div>
-                                    </div>
-
-                                    <!-- مؤشر القراءة فقط -->
-                                    <div class="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded z-20">
-                                        قراءة فقط
-                                    </div>
-                                </div>
+                            <!-- Watermark - Always on top and uneditable -->
+                            <div
+                                v-if="showWatermark"
+                                class="absolute pointer-events-none select-none"
+                                :style="{
+                                    bottom: '15px',
+                                    right: '15px',
+                                    fontSize: '14px',
+                                    color: 'rgba(0, 0, 0, 0.25)',
+                                    fontFamily: 'Cairo, sans-serif',
+                                    fontWeight: 'bold',
+                                    textShadow: '1px 1px 2px rgba(255, 255, 255, 0.8)',
+                                    zIndex: 9999,
+                                    transform: 'rotate(-15deg)',
+                                    transformOrigin: 'center',
+                                    userSelect: 'none',
+                                    WebkitUserSelect: 'none',
+                                    MozUserSelect: 'none',
+                                    msUserSelect: 'none',
+                                    letterSpacing: '1px'
+                                }"
+                            >
+                                سامقة للتصميم
                             </div>
-                        </div>
-
-                        <!-- معلومات إضافية -->
-                        <div v-if="clientTemplate.notes" class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-                            <h4 class="text-sm font-medium text-gray-900 mb-2 text-right">ملاحظات:</h4>
-                            <p class="text-sm text-gray-600 text-right">{{ clientTemplate.notes }}</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </AdminLayoutSidebar>
+
+        <!-- Photo Editor Modal -->
+        <div
+            v-if="showPhotoEditor"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            @click.self="closePhotoEditor"
+        >
+            <div class="bg-white rounded-lg shadow-xl max-w-6xl max-h-[90vh] w-full mx-4">
+                <PhotoEditor
+                    :image-element="photoEditorImage"
+                    @save="handlePhotoSave"
+                />
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
+            <div class="bg-white rounded-lg p-8 flex items-center space-x-4 space-x-reverse">
+                <i class="fas fa-spinner fa-spin text-2xl text-purple-600"></i>
+                <span class="text-lg font-medium">{{ loadingMessage }}</span>
+            </div>
+        </div>
+
+        <!-- Add a modal for delete confirmation -->
+        <template v-if="showDeleteConfirm">
+            <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                <div class="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full text-center">
+                    <h2 class="text-lg font-bold mb-4">تأكيد الحذف</h2>
+                    <p class="mb-6">هل أنت متأكد أنك تريد حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء.</p>
+                    <div class="flex justify-center gap-4">
+                        <button @click="performDeleteLayer" class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700">حذف</button>
+                        <button @click="cancelDeleteLayer" class="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400">إلغاء</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
-import AdminLayoutSidebar from '@/Layouts/AdminLayoutSidebar.vue';
-import 'grapesjs/dist/css/grapes.min.css';
+import { ref, reactive, onMounted, computed, nextTick } from 'vue'
+import { Head, Link, router } from '@inertiajs/vue3'
+import PhotoEditor from '@/Components/DesignEditor/PhotoEditor.vue'
+import ElementsPanel from '@/Components/DesignEditor/ElementsPanel.vue'
+import LayersPanel from '@/Components/DesignEditor/LayersPanel.vue'
+import PropertiesPanel from '@/Components/DesignEditor/PropertiesPanel.vue'
+import DesignElement from '@/Components/DesignEditor/DesignElement.vue'
 
+// Props
 const props = defineProps({
-    clientTemplate: Object,
-});
-
-const isLoading = ref(true);
-const loadError = ref(null);
-const designHtml = ref('');
-const designCss = ref('');
-
-// حساب أبعاد الكانفاس
-const canvasWidth = computed(() => {
-    if (props.clientTemplate.canvas_size) {
-        return props.clientTemplate.canvas_size.width || 800;
+    clientTemplate: {
+        type: Object,
+        required: true
     }
-    return 800;
-});
+})
 
-const canvasHeight = computed(() => {
-    if (props.clientTemplate.canvas_size) {
-        return props.clientTemplate.canvas_size.height || 600;
+// State
+const activeTab = ref('elements')
+const currentDevice = ref('desktop')
+const zoom = ref(1)
+const showGrid = ref(false)
+const snapToGrid = ref(false)
+const canvasWidth = ref(800)
+const canvasHeight = ref(600)
+const saving = ref(false)
+const loading = ref(false)
+const loadingMessage = ref('')
+const showPhotoEditor = ref(false)
+const photoEditorImage = ref(null)
+const canvasBackground = ref('')
+const backgroundSize = ref('contain')
+const showWatermark = ref(true)
+const pendingElementType = ref(null)
+const showDeleteConfirm = ref(false)
+const layerToDelete = ref(null)
+
+// Design state
+const elements = ref([])
+const selectedElement = ref(null)
+const history = ref([])
+const historyIndex = ref(-1)
+
+// Refs
+const canvasContainer = ref(null)
+const designCanvas = ref(null)
+
+// Configuration
+const tabs = [
+    { id: 'elements', name: 'العناصر', icon: 'fas fa-shapes' },
+    { id: 'layers', name: 'الطبقات', icon: 'fas fa-layer-group' },
+    { id: 'properties', name: 'الخصائص', icon: 'fas fa-cog' }
+]
+
+const devices = [
+    { id: 'desktop', name: 'سطح المكتب', icon: 'fas fa-desktop' },
+    { id: 'tablet', name: 'تابلت', icon: 'fas fa-tablet-alt' },
+    { id: 'mobile', name: 'موبايل', icon: 'fas fa-mobile-alt' }
+]
+
+// Computed
+const canUndo = computed(() => historyIndex.value > 0)
+const canRedo = computed(() => historyIndex.value < history.value.length - 1)
+
+const layers = computed(() => {
+    return elements.value.map((element, index) => ({
+        id: element.id,
+        name: element.name || `عنصر ${index + 1}`,
+        type: element.type,
+        visible: element.visible !== false,
+        locked: element.locked || false
+    }))
+})
+
+const gridStyle = computed(() => {
+    const gridSize = 20 * zoom.value
+    return {
+        backgroundImage: `
+            linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+            linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)
+        `,
+        backgroundSize: `${gridSize}px ${gridSize}px`
     }
-    return 600;
-});
+})
 
-// تحميل التصميم باستخدام GrapesJS
-const loadDesignWithGrapesJS = async () => {
-    try {
-        isLoading.value = true;
-        loadError.value = null;
+// Methods
+const setDevice = (device) => {
+    currentDevice.value = device
 
-        console.log('Client Template Data:', props.clientTemplate);
-        console.log('Design Data:', props.clientTemplate.design_data);
+    // Update canvas size based on device
+    switch (device) {
+        case 'desktop':
+            canvasWidth.value = 1200
+            canvasHeight.value = 800
+            break
+        case 'tablet':
+            canvasWidth.value = 768
+            canvasHeight.value = 1024
+            break
+        case 'mobile':
+            canvasWidth.value = 375
+            canvasHeight.value = 667
+            break
+    }
+}
 
-        // تجنب طباعة raw_design_data إذا كانت تحتوي على بيانات كبيرة
-        if (props.clientTemplate.raw_design_data) {
-            const rawDataStr = typeof props.clientTemplate.raw_design_data === 'string'
-                ? props.clientTemplate.raw_design_data
-                : JSON.stringify(props.clientTemplate.raw_design_data);
-            console.log('Raw Design Data length:', rawDataStr.length);
-            if (rawDataStr.length > 1000) {
-                console.log('Raw Design Data (truncated):', rawDataStr.substring(0, 200) + '...');
-            } else {
-                console.log('Raw Design Data:', props.clientTemplate.raw_design_data);
-            }
-        }
+const zoomIn = () => {
+    zoom.value = Math.min(zoom.value + 0.1, 3)
+}
 
-        // Import GrapesJS dynamically
-        const grapesjs = (await import('grapesjs')).default;
+const zoomOut = () => {
+    zoom.value = Math.max(zoom.value - 0.1, 0.1)
+}
 
-        // Create a temporary editor to parse the design data
-        const tempContainer = document.createElement('div');
-        tempContainer.style.display = 'none';
-        document.body.appendChild(tempContainer);
+const resetZoom = () => {
+    zoom.value = 1
+}
 
-        const editor = grapesjs.init({
-            container: tempContainer,
+const toggleGrid = () => {
+    showGrid.value = !showGrid.value
+}
+
+const toggleSnap = () => {
+    snapToGrid.value = !snapToGrid.value
+}
+
+// Update addElement to use placement mode for non-image elements
+const addElement = (elementData) => {
+    if (elementData.type === 'image') {
+        // Add image immediately at center
+    const newElement = {
+        id: generateId(),
+        type: elementData.type,
+        name: elementData.name,
+            x: canvasWidth.value / 2 - 100,
+            y: canvasHeight.value / 2 - 100,
+        width: elementData.width || 200,
+        height: elementData.height || 100,
+        rotation: 0,
+        opacity: 1,
+        visible: true,
+        locked: false,
+        zIndex: elements.value.length,
+        ...elementData.properties
+    }
+    elements.value.push(newElement)
+    selectedElement.value = newElement
+    saveToHistory()
+    } else {
+        // Enter placement mode
+        pendingElementType.value = elementData
+    }
+}
+
+const addImage = (file) => {
+    let newElement
+
+    if (file.is_canvas_background) {
+        // Set as canvas background (CSS background)
+        setCanvasBackground(file.url)
+        return
+    } else if (file.is_background) {
+        // Add as background image element (full canvas size)
+        newElement = {
+            id: generateId(),
+            type: 'image',
+            name: 'صورة خلفية - ' + file.filename,
+            x: 0,
+            y: 0,
             width: canvasWidth.value,
             height: canvasHeight.value,
-            fromElement: false,
-            showOffsets: false,
-            noticeOnUnload: false,
-            storageManager: false,
-            panels: { defaults: [] }, // No panels needed for preview
-        });
+            rotation: 0,
+            opacity: 1,
+            visible: true,
+            locked: false,
+            zIndex: 0, // Background should be at the bottom
+            src: file.url,
+            isBackground: true,
+            originalWidth: file.width || canvasWidth.value,
+            originalHeight: file.height || canvasHeight.value
+        }
 
-        // تحميل بيانات التصميم
-        let designData = null;
+        // Move all existing elements up one z-index
+        elements.value.forEach(el => el.zIndex++)
+    } else {
+        // Add as regular image
+        newElement = {
+            id: generateId(),
+            type: 'image',
+            name: file.filename,
+            x: 50,
+            y: 50,
+            width: Math.min(300, canvasWidth.value - 100),
+            height: Math.min(200, canvasHeight.value - 100),
+            rotation: 0,
+            opacity: 1,
+            visible: true,
+            locked: false,
+            zIndex: elements.value.length,
+            src: file.url,
+            originalWidth: file.metadata?.dimensions?.width || 300,
+            originalHeight: file.metadata?.dimensions?.height || 200
+        }
+    }
 
-        // محاولة تحميل البيانات من مصادر مختلفة
-        if (props.clientTemplate.raw_design_data) {
-            console.log('Using raw_design_data');
-            if (typeof props.clientTemplate.raw_design_data === 'string') {
-                try {
-                    designData = JSON.parse(props.clientTemplate.raw_design_data);
-                } catch (e) {
-                    console.error('Failed to parse raw_design_data:', e);
-                    // إذا فشل التحليل، جرب design_data بدلاً من ذلك
-                    designData = null;
+    elements.value.push(newElement)
+    selectedElement.value = newElement
+    saveToHistory()
+}
+
+const selectElement = (element) => {
+    // Always assign a deep copy to trigger reactivity and watcher
+    selectedElement.value = {
+        ...element,
+        properties: element.properties ? { ...element.properties } : undefined
+    };
+    activeTab.value = 'properties'
+}
+
+const selectLayer = (layerId) => {
+    const element = elements.value.find(el => el.id === layerId)
+    if (element) {
+        // Always assign a deep copy to trigger reactivity and watcher
+        selectedElement.value = {
+            ...element,
+            properties: element.properties ? { ...element.properties } : undefined
+        };
+        activeTab.value = 'properties'
+    }
+}
+
+const updateElement = (elementId, updates) => {
+    const elementIndex = elements.value.findIndex(el => el.id === elementId)
+    if (elementIndex !== -1) {
+        elements.value[elementIndex] = { ...elements.value[elementIndex], ...updates }
+        saveToHistory()
+    }
+}
+
+const deleteElement = (elementId) => {
+    const elementIndex = elements.value.findIndex(el => el.id === elementId)
+    if (elementIndex !== -1) {
+        elements.value.splice(elementIndex, 1)
+        if (selectedElement.value?.id === elementId) {
+            selectedElement.value = null
+        }
+        saveToHistory()
+    }
+}
+
+const deleteLayer = (layerId) => {
+    deleteElement(layerId)
+}
+
+const reorderLayers = (newOrder) => {
+    // Reorder elements based on layer order
+    const reorderedElements = newOrder.map(layerId =>
+        elements.value.find(el => el.id === layerId)
+    ).filter(Boolean)
+
+    elements.value = reorderedElements
+    updateAllZIndices()
+    saveToHistory()
+}
+
+// Update handleCanvasClick to place pending element
+const handleCanvasClick = (event) => {
+    if (pendingElementType.value) {
+        // Get click coordinates relative to canvas
+        const rect = designCanvas.value.getBoundingClientRect()
+        const x = (event.clientX - rect.left) / zoom.value
+        const y = (event.clientY - rect.top) / zoom.value
+        const elementData = pendingElementType.value
+        const newElement = {
+            id: generateId(),
+            type: elementData.type,
+            name: elementData.name,
+            x: x,
+            y: y,
+            width: elementData.width || 200,
+            height: elementData.height || 100,
+            rotation: 0,
+            opacity: 1,
+            visible: true,
+            locked: false,
+            zIndex: elements.value.length,
+            ...elementData.properties
+        }
+        elements.value.push(newElement)
+        selectedElement.value = newElement
+        saveToHistory()
+        pendingElementType.value = null
+    } else if (event.target === designCanvas.value) {
+        selectedElement.value = null
+    }
+}
+
+const handleDrop = (event) => {
+    event.preventDefault()
+    // Handle file drops
+    const files = Array.from(event.dataTransfer.files)
+    files.forEach(file => {
+        if (file.type.startsWith('image/')) {
+            // Handle image drop
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                const newElement = {
+                    id: generateId(),
+                    type: 'image',
+                    name: file.name,
+                    x: event.offsetX,
+                    y: event.offsetY,
+                    width: 300,
+                    height: 200,
+                    rotation: 0,
+                    opacity: 1,
+                    visible: true,
+                    locked: false,
+                    zIndex: elements.value.length,
+                    src: e.target.result
                 }
-            } else {
-                designData = props.clientTemplate.raw_design_data;
+
+                elements.value.push(newElement)
+                selectedElement.value = newElement
+                saveToHistory()
+            }
+            reader.readAsDataURL(file)
+        }
+    })
+}
+
+const saveToHistory = () => {
+    // Remove any future history if we're not at the end
+    history.value = history.value.slice(0, historyIndex.value + 1)
+
+    // Add current state
+    history.value.push(JSON.parse(JSON.stringify(elements.value)))
+    historyIndex.value++
+
+    // Limit history size
+    if (history.value.length > 50) {
+        history.value.shift()
+        historyIndex.value--
+    }
+}
+
+const undo = () => {
+    if (canUndo.value) {
+        historyIndex.value--
+        elements.value = JSON.parse(JSON.stringify(history.value[historyIndex.value]))
+        selectedElement.value = null
+    }
+}
+
+const redo = () => {
+    if (canRedo.value) {
+        historyIndex.value++
+        elements.value = JSON.parse(JSON.stringify(history.value[historyIndex.value]))
+        selectedElement.value = null
+    }
+}
+
+const generateId = () => {
+    return 'element_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+}
+
+// Utility function to compress base64 images
+const compressBase64Image = (base64String, maxWidth = 800, quality = 0.7) => {
+    return new Promise((resolve) => {
+        if (!base64String.startsWith('data:image/')) {
+            resolve(base64String)
+            return
+        }
+
+        const img = new Image()
+        img.onload = () => {
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+
+            // Calculate new dimensions with more aggressive compression for large images
+            let { width, height } = img
+            const originalSize = base64String.length
+
+            // More aggressive compression for very large images
+            if (originalSize > 1000000) { // > 1MB
+                maxWidth = 600
+                quality = 0.5
+            } else if (originalSize > 500000) { // > 500KB
+                maxWidth = 700
+                quality = 0.6
+            }
+
+            if (width > maxWidth || height > maxWidth) {
+                if (width > height) {
+                    height = (height * maxWidth) / width
+                    width = maxWidth
+                } else {
+                    width = (width * maxWidth) / height
+                    height = maxWidth
+                }
+            }
+
+            canvas.width = width
+            canvas.height = height
+
+            // Draw and compress
+            ctx.drawImage(img, 0, 0, width, height)
+            const compressedBase64 = canvas.toDataURL('image/jpeg', quality)
+
+            console.log(`Image compressed: ${Math.round(originalSize/1024)}KB -> ${Math.round(compressedBase64.length/1024)}KB`)
+            resolve(compressedBase64)
+        }
+        img.src = base64String
+    })
+}
+
+const saveDesign = async () => {
+    saving.value = true
+
+    try {
+        // Check if client template ID exists
+        if (!props.clientTemplate?.id) {
+            throw new Error('Client Template ID is missing')
+        }
+
+        // Check CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
+        if (!csrfToken) {
+            throw new Error('CSRF token not found')
+        }
+
+        // Compress images in elements before saving
+        console.log('Compressing images...')
+        const compressedElements = await Promise.all(
+            (elements.value || []).map(async (element) => {
+                if (element.type === 'image' && element.src && element.src.startsWith('data:image/')) {
+                    const compressedSrc = await compressBase64Image(element.src)
+                    return { ...element, src: compressedSrc }
+                }
+                return element
+            })
+        )
+        console.log('Image compression complete')
+
+        const designData = {
+            elements: compressedElements,
+            canvas: {
+                width: canvasWidth.value || 800,
+                height: canvasHeight.value || 600,
+                background: canvasBackground.value || '',
+                backgroundSize: backgroundSize.value || 'contain'
+            },
+            settings: {
+                device: currentDevice.value || 'desktop',
+                zoom: zoom.value || 1
+            },
+            watermark: {
+                text: 'سامقة للتصميم',
+                enabled: true,
+                position: 'bottom-right',
+                style: {
+                    fontSize: '14px',
+                    color: 'rgba(0, 0, 0, 0.25)',
+                    fontFamily: 'Cairo, sans-serif',
+                    fontWeight: 'bold',
+                    rotation: '-15deg'
+                }
             }
         }
 
-        // إذا لم تنجح raw_design_data، جرب design_data
-        if (!designData && props.clientTemplate.design_data) {
-            console.log('Using design_data');
-            if (typeof props.clientTemplate.design_data === 'string') {
-                try {
-                    designData = JSON.parse(props.clientTemplate.design_data);
-                } catch (e) {
-                    console.error('Failed to parse design_data:', e);
-                }
-            } else {
-                designData = props.clientTemplate.design_data;
+        // Validate design data and check size
+        let designDataString
+        try {
+            designDataString = JSON.stringify(designData)
+
+            // Check data size (16MB limit)
+            const dataSize = new Blob([designDataString]).size
+            if (dataSize > 16777215) {
+                throw new Error(`بيانات التصميم كبيرة جداً (${Math.round(dataSize / 1024 / 1024)}MB). يرجى تقليل حجم الصور.`)
             }
+        } catch (e) {
+            throw new Error('Invalid design data: ' + e.message)
         }
 
-        console.log('Processing design data...');
+        console.log('Saving design data:', designData)
+        console.log('Client Template ID:', props.clientTemplate.id)
+        console.log('Data size:', Math.round(new Blob([designDataString]).size / 1024), 'KB')
 
-        // تحميل التصميم
-        if (designData) {
-            console.log('Processing design data...');
+        const requestPayload = {
+            design_data: designDataString,
+            canvas_size: `${canvasWidth.value}x${canvasHeight.value}`,
+            design_notes: `تم التحديث في ${new Date().toLocaleString('ar-SA')}`
+        }
+        console.log('Request payload size:', Math.round(new Blob([JSON.stringify(requestPayload)]).size / 1024), 'KB')
 
-            // التحقق من نوع البيانات
-            if (designData.pages || designData.components || (designData.html && designData.css)) {
-                console.log('Loading GrapesJS format data');
+        const response = await fetch(route('admin.client-templates.update', props.clientTemplate.id), {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify(requestPayload)
+        })
 
-                try {
-                    // محاولة تحميل البيانات كـ project data
-                    if (designData.pages || designData.components) {
-                        editor.loadProjectData(designData);
+        if (response.ok) {
+            const result = await response.json()
+            console.log('Design saved successfully', result)
 
-                        // الحصول على HTML و CSS
-                        designHtml.value = editor.getHtml();
-                        designCss.value = editor.getCss();
-                    } else if (designData.html && designData.css) {
-                        // تحميل HTML/CSS مباشرة
-                        designHtml.value = designData.html;
-                        designCss.value = designData.css;
-                    }
-
-                    console.log('Generated HTML length:', designHtml.value.length);
-                    console.log('Generated CSS length:', designCss.value.length);
-
-                    // إضافة CSS إلى الصفحة
-                    if (designCss.value) {
-                        const styleElement = document.createElement('style');
-                        styleElement.textContent = designCss.value;
-                        document.head.appendChild(styleElement);
-                    }
-                } catch (loadError) {
-                    console.error('Failed to load project data:', loadError);
-
-                    // محاولة تحميل HTML/CSS مباشرة إذا كانت متوفرة
-                    if (designData.html) {
-                        designHtml.value = designData.html;
-                        if (designData.css) {
-                            designCss.value = designData.css;
-                            const styleElement = document.createElement('style');
-                            styleElement.textContent = designCss.value;
-                            document.head.appendChild(styleElement);
-                        }
-                    }
-                }
-            } else if (designData.elements) {
-                // Toujours traiter comme format custom si elements existe (tableau ou objet)
-                console.log('Loading custom elements format data');
-                let elementsArr = [];
-                if (Array.isArray(designData.elements)) {
-                    elementsArr = designData.elements;
-                } else if (typeof designData.elements === 'object') {
-                    elementsArr = [designData.elements];
-                }
-                // تحويل العناصر المخصصة إلى HTML/CSS
-                const { html, css } = convertElementsToHtmlCss(elementsArr);
-                designHtml.value = html;
-                designCss.value = css;
-
-                console.log('Generated HTML from elements length:', designHtml.value.length);
-                console.log('Generated CSS from elements length:', designCss.value.length);
-
-                // إضافة CSS إلى الصفحة
-                if (designCss.value) {
-                    const styleElement = document.createElement('style');
-                    styleElement.textContent = designCss.value;
-                    document.head.appendChild(styleElement);
-                }
-            } else {
-                console.log('Unknown design data format');
-                console.log('Available keys:', Object.keys(designData));
-
-                // محاولة أخيرة: إذا كانت البيانات تحتوي على صورة مباشرة
-                if (designData.src || (designData.type === 'image' && designData.src)) {
-                    console.log('Detected single image data');
-                    const imageHtml = `<img src="${designData.src}" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Design Image" />`;
-                    designHtml.value = imageHtml;
-                }
+            // Show success notification
+            if (result.success) {
+                alert('تم حفظ التصميم بنجاح')
             }
         } else {
-            console.log('No design data found');
-        }
-
-        // تنظيف المحرر المؤقت
-        editor.destroy();
-        document.body.removeChild(tempContainer);
-
-        // إذا لم يكن هناك محتوى، عرض رسالة
-        if (!designHtml.value || !designHtml.value.trim()) {
-            console.log('No content to display, showing fallback');
-
-            // تحديد نوع البيانات المتاحة للمساعدة في التشخيص
-            let debugInfo = 'No data';
-            if (designData) {
-                const keys = Object.keys(designData);
-                debugInfo = `Keys: ${keys.join(', ')}`;
-
-                // إضافة معلومات إضافية حول البيانات
-                if (keys.includes('elements')) {
-                    debugInfo += ` | Elements: ${Array.isArray(designData.elements) ? designData.elements.length : 'object'}`;
-                }
-                if (keys.includes('src')) {
-                    debugInfo += ` | Has image source`;
-                }
+            // Get detailed error information
+            let errorMessage = 'Failed to save design'
+            try {
+                const errorData = await response.json()
+                errorMessage = errorData.message || errorMessage
+                console.error('Server error details:', errorData)
+            } catch (e) {
+                console.error('Could not parse error response:', e)
             }
 
-            designHtml.value = `
-                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #6b7280; font-family: Arial, sans-serif; padding: 20px;">
-                    <div style="text-align: center; max-width: 400px;">
-                        <svg style="width: 64px; height: 64px; margin: 0 auto 16px; opacity: 0.5;" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-                        </svg>
-                        <p style="margin: 0 0 8px 0; font-size: 16px;">لا يوجد محتوى للعرض</p>
-                        <p style="font-size: 12px; margin: 0; color: #9ca3af; word-break: break-all;">${debugInfo}</p>
-                        <p style="font-size: 11px; margin: 8px 0 0 0; color: #d1d5db;">Template ID: ${props.clientTemplate.id}</p>
-                    </div>
-                </div>
-            `;
+            console.error('HTTP Status:', response.status, response.statusText)
+            throw new Error(errorMessage)
+        }
+    } catch (error) {
+        console.error('Error saving design:', error)
+
+        // Show more detailed error information
+        let errorMessage = 'خطأ في حفظ التصميم'
+        if (error.message) {
+            errorMessage += ': ' + error.message
         }
 
-        isLoading.value = false;
+        alert(errorMessage)
+    } finally {
+        saving.value = false
+    }
+}
+
+const previewDesign = () => {
+    // Open preview in new window
+    const previewData = {
+        elements: elements.value,
+        canvas: {
+            width: canvasWidth.value,
+            height: canvasHeight.value
+        }
+    }
+
+    const previewWindow = window.open('', '_blank')
+    previewWindow.document.write(generatePreviewHTML(previewData))
+}
+
+const generatePreviewHTML = (designData) => {
+    // Generate HTML for preview
+    let html = `
+        <!DOCTYPE html>
+        <html dir="rtl">
+        <head>
+            <meta charset="UTF-8">
+            <title>معاينة التصميم</title>
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+                body {
+                    margin: 0;
+                    padding: 20px;
+                    font-family: 'Cairo', sans-serif;
+                    background: #f5f5f5;
+                }
+                .canvas {
+                    width: ${designData.canvas.width}px;
+                    height: ${designData.canvas.height}px;
+                    position: relative;
+                    background: white;
+                    border: 1px solid #ddd;
+                    margin: 0 auto;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                    ${canvasBackground.value ? `
+                        background-image: url(${canvasBackground.value});
+                        background-size: ${backgroundSize.value};
+                        background-position: center;
+                        background-repeat: no-repeat;
+                    ` : ''}
+                }
+                .element { position: absolute; }
+                h2 { text-align: center; color: #333; margin-bottom: 20px; }
+                .footer {
+                    text-align: center;
+                    margin-top: 20px;
+                    color: #666;
+                    font-size: 12px;
+                }
+            </style>
+        </head>
+        <body>
+            <h2>معاينة التصميم - سامقة</h2>
+            <div class="canvas">
+    `
+
+    designData.elements.forEach(element => {
+        if (element.visible !== false) {
+            html += generateElementHTML(element)
+        }
+    })
+
+    html += `
+                <!-- Always show watermark in preview -->
+                <div style="
+                    position: absolute;
+                    bottom: 15px;
+                    right: 15px;
+                    font-size: 14px;
+                    color: rgba(0, 0, 0, 0.25);
+                    font-family: 'Cairo', sans-serif;
+                    font-weight: bold;
+                    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+                    z-index: 9999;
+                    transform: rotate(-15deg);
+                    transform-origin: center;
+                    user-select: none;
+                    letter-spacing: 1px;
+                    pointer-events: none;
+                ">سامقة للتصميم</div>
+            </div>
+            <div class="footer">
+                <p>© ${new Date().getFullYear()} سامقة للتصميم - جميع الحقوق محفوظة</p>
+                <p>تم إنشاء هذا التصميم باستخدام منصة سامقة للتصميم</p>
+            </div>
+        </body>
+        </html>
+    `
+
+    return html
+}
+
+const generateElementHTML = (element) => {
+    const style = `
+        left: ${element.x}px;
+        top: ${element.y}px;
+        width: ${element.width}px;
+        height: ${element.height}px;
+        transform: rotate(${element.rotation}deg);
+        opacity: ${element.opacity};
+        z-index: ${element.zIndex};
+    `
+
+    switch (element.type) {
+        case 'text':
+            return `<div class="element" style="${style} font-size: ${element.fontSize || 16}px; color: ${element.color || '#000'}; font-weight: ${element.fontWeight || 'normal'};">${element.text || 'نص'}</div>`
+        case 'image':
+            return `<img class="element" src="${element.src}" style="${style} object-fit: cover;" alt="${element.name}">`
+        case 'rectangle':
+            return `<div class="element" style="${style} background-color: ${element.backgroundColor || '#000'}; border-radius: ${element.borderRadius || 0}px;"></div>`
+        default:
+            return ''
+    }
+}
+
+const loadDesign = () => {
+    if (props.clientTemplate.design_data) {
+        try {
+            // Check if design_data is already an object or needs parsing
+            let designData
+            if (typeof props.clientTemplate.design_data === 'string') {
+                designData = JSON.parse(props.clientTemplate.design_data)
+            } else if (typeof props.clientTemplate.design_data === 'object') {
+                designData = props.clientTemplate.design_data
+            } else {
+                throw new Error('Invalid design data format')
+            }
+
+            elements.value = designData.elements || []
+
+            if (designData.canvas) {
+                canvasWidth.value = designData.canvas.width || 800
+                canvasHeight.value = designData.canvas.height || 600
+                canvasBackground.value = designData.canvas.background || ''
+                backgroundSize.value = designData.canvas.backgroundSize || 'contain'
+            }
+
+            if (designData.settings) {
+                currentDevice.value = designData.settings.device || 'desktop'
+                zoom.value = designData.settings.zoom || 1
+            }
+
+            // Initialize history
+            saveToHistory()
+        } catch (error) {
+            console.error('Error loading design:', error)
+            // Initialize with empty design on error
+            elements.value = []
+            saveToHistory()
+        }
+    } else {
+        // Initialize with empty design
+        saveToHistory()
+    }
+}
+
+const openPhotoEditor = (imageElement) => {
+    photoEditorImage.value = imageElement
+    showPhotoEditor.value = true
+}
+
+const closePhotoEditor = () => {
+    showPhotoEditor.value = false
+    photoEditorImage.value = null
+}
+
+const handlePhotoSave = (blob) => {
+    // Handle saving edited photo
+    console.log('Photo edited:', blob)
+    closePhotoEditor()
+}
+
+const addQuickText = () => {
+    const newElement = {
+        id: generateId(),
+        type: 'text',
+        name: 'نص سريع',
+        x: canvasWidth.value / 2 - 100,
+        y: canvasHeight.value / 2 - 25,
+        width: 200,
+        height: 50,
+        rotation: 0,
+        opacity: 1,
+        visible: true,
+        locked: false,
+        zIndex: elements.value.length,
+        text: 'اكتب النص هنا',
+        fontSize: 24,
+        fontFamily: 'Cairo',
+        fontWeight: 'bold',
+        color: '#ffffff',
+        textAlign: 'center',
+        lineHeight: 1.5
+    }
+
+    elements.value.push(newElement)
+    selectedElement.value = newElement
+    saveToHistory()
+}
+
+const addQuickShape = () => {
+    const newElement = {
+        id: generateId(),
+        type: 'rectangle',
+        name: 'شكل سريع',
+        x: canvasWidth.value / 2 - 75,
+        y: canvasHeight.value / 2 - 50,
+        width: 150,
+        height: 100,
+        rotation: 0,
+        opacity: 0.8,
+        visible: true,
+        locked: false,
+        zIndex: elements.value.length,
+        backgroundColor: '#8b5cf6',
+        borderRadius: 10,
+        borderWidth: 0
+    }
+
+    elements.value.push(newElement)
+    selectedElement.value = newElement
+    saveToHistory()
+}
+
+function setCanvasBackground(bgDataUrl) {
+    canvasBackground.value = bgDataUrl;
+}
+function addImageElement(imgDataUrl) {
+    // Add a new image element to the canvas
+    const newElement = {
+        id: Date.now(),
+        type: 'image',
+        src: imgDataUrl,
+        x: canvasWidth.value / 2 - 100,
+        y: canvasHeight.value / 2 - 100,
+        width: 200,
+        height: 200,
+        name: 'صورة'
+    };
+    elements.value.push(newElement);
+    selectedElement.value = newElement;
+}
+
+const removeCanvasBackground = () => {
+    canvasBackground.value = ''
+    backgroundSize.value = 'contain'
+    saveToHistory()
+}
+
+const exportDesignWithWatermark = async () => {
+    try {
+        // Temporarily ensure watermark is visible
+        const originalWatermarkState = showWatermark.value
+        showWatermark.value = true
+
+        // Wait for DOM update
+        await nextTick()
+
+        // Get canvas element
+        const canvas = designCanvas.value
+        if (!canvas) return
+
+        // Create a new canvas for export
+        const exportCanvas = document.createElement('canvas')
+        const ctx = exportCanvas.getContext('2d')
+
+        exportCanvas.width = canvasWidth.value
+        exportCanvas.height = canvasHeight.value
+
+        // Fill background
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0, 0, canvasWidth.value, canvasHeight.value)
+
+        // Draw background image if exists
+        if (canvasBackground.value) {
+            await new Promise((resolve) => {
+            const img = new Image()
+            img.crossOrigin = 'anonymous'
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0, canvasWidth.value, canvasHeight.value)
+                    resolve()
+            }
+            img.src = canvasBackground.value
+            })
+        }
+
+        // Draw all elements
+        for (const element of elements.value) {
+            if (element.visible === false) continue
+            switch (element.type) {
+                case 'text':
+                    ctx.save()
+                    ctx.font = `${element.fontWeight || 'normal'} ${element.fontSize || 16}px ${element.fontFamily || 'Cairo, sans-serif'}`
+                    ctx.fillStyle = element.color || '#000'
+                    ctx.textAlign = element.textAlign || 'left'
+                    ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                    ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                    ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                    ctx.fillText(element.text || '', 0, 0)
+                    ctx.restore()
+                    break
+                case 'image':
+                    await new Promise((resolve) => {
+                        const img = new Image()
+                        img.crossOrigin = 'anonymous'
+                        img.onload = () => {
+                            ctx.save()
+                            ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                            ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                            ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                            ctx.drawImage(img, -(element.width || 0) / 2, -(element.height || 0) / 2, element.width || 100, element.height || 100)
+                            ctx.restore()
+                            resolve()
+                        }
+                        img.src = element.src
+                    })
+                    break
+                case 'rectangle':
+                    ctx.save()
+                    ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                    ctx.fillStyle = element.backgroundColor || '#000'
+                    ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                    ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                    ctx.fillRect(-(element.width || 0) / 2, -(element.height || 0) / 2, element.width || 100, element.height || 100)
+                    ctx.restore()
+                    break
+                case 'circle':
+                    ctx.save()
+                    ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                    ctx.fillStyle = element.backgroundColor || '#000'
+                    ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                    ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                    ctx.beginPath()
+                    ctx.arc(0, 0, (element.width || 100) / 2, 0, 2 * Math.PI)
+                    ctx.fill()
+                    ctx.restore()
+                    break
+                case 'triangle':
+                    ctx.save()
+                    ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                    ctx.fillStyle = element.backgroundColor || '#000'
+                    ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                    ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                    ctx.beginPath()
+                    ctx.moveTo(0, -(element.height || 100) / 2)
+                    ctx.lineTo(-(element.width || 100) / 2, (element.height || 100) / 2)
+                    ctx.lineTo((element.width || 100) / 2, (element.height || 100) / 2)
+                    ctx.closePath()
+                    ctx.fill()
+                    ctx.restore()
+                    break
+                case 'star':
+                    ctx.save()
+                    ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                    ctx.fillStyle = element.backgroundColor || '#000'
+                    ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                    ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                    drawStar(ctx, 0, 0, 5, (element.width || 100) / 2, (element.width || 100) / 4)
+                    ctx.restore()
+                    break
+                case 'icon':
+                    // For icons, we'll render them as text using FontAwesome
+                    ctx.save()
+                    ctx.font = `${element.fontSize || 24}px "Font Awesome 6 Free"`
+                    ctx.fillStyle = element.color || '#000'
+                    ctx.textAlign = 'center'
+                    ctx.textBaseline = 'middle'
+                    ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
+                    ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
+                    ctx.rotate((element.rotation || 0) * Math.PI / 180)
+                    // Convert FontAwesome class to unicode if possible
+                    const iconText = element.icon || '★'
+                    ctx.fillText(iconText, 0, 0)
+                    ctx.restore()
+                    break
+            }
+        }
+
+        // Draw watermark
+            drawWatermarkOnCanvas(ctx)
+            downloadCanvas(exportCanvas)
+
+        // Restore original watermark state
+        showWatermark.value = originalWatermarkState
 
     } catch (error) {
-        console.error('Error loading design:', error);
-        loadError.value = error.message || 'خطأ في تحميل التصميم';
-        isLoading.value = false;
+        console.error('Export error:', error)
+        alert('خطأ في تصدير التصميم')
     }
-};
+}
 
-// تحويل العناصر المخصصة إلى HTML/CSS
-const convertElementsToHtmlCss = (elements) => {
-    let html = '';
-    let css = '';
-    
-    // إنشاء container للتصميم
-    html += `<div class="design-container" style="position: relative; width: ${canvasWidth.value}px; height: ${canvasHeight.value}px; background: white;">`;
-    
-    // ترتيب العناصر حسب zIndex
-    const sortedElements = [...elements].sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
-    
-    sortedElements.forEach((element, index) => {
-        if (!element.visible) return; // تجاهل العناصر المخفية
-        
-        const elementId = `element-${index}`;
-        
-        // إنشاء HTML للعنصر
-        switch (element.type) {
-            case 'circle':
-                html += createCircleHtml(element, elementId);
-                css += createCircleCss(element, elementId);
-                break;
-            case 'rectangle':
-                html += createRectangleHtml(element, elementId);
-                css += createRectangleCss(element, elementId);
-                break;
-            case 'image':
-                html += createImageHtml(element, elementId);
-                css += createImageCss(element, elementId);
-                break;
-            case 'text':
-                html += createTextHtml(element, elementId);
-                css += createTextCss(element, elementId);
-                break;
-            default:
-                console.warn('Unknown element type:', element.type);
+// Helper function to draw star shape
+const drawStar = (ctx, cx, cy, spikes, outerRadius, innerRadius) => {
+    let rot = Math.PI / 2 * 3
+    let x = cx
+    let y = cy
+    const step = Math.PI / spikes
+
+    ctx.beginPath()
+    ctx.moveTo(cx, cy - outerRadius)
+
+    for (let i = 0; i < spikes; i++) {
+        x = cx + Math.cos(rot) * outerRadius
+        y = cy + Math.sin(rot) * outerRadius
+        ctx.lineTo(x, y)
+        rot += step
+
+        x = cx + Math.cos(rot) * innerRadius
+        y = cy + Math.sin(rot) * innerRadius
+        ctx.lineTo(x, y)
+        rot += step
+    }
+
+    ctx.lineTo(cx, cy - outerRadius)
+    ctx.closePath()
+    ctx.fill()
+}
+
+const drawWatermarkOnCanvas = (ctx) => {
+    // Draw watermark
+    ctx.save()
+    ctx.font = 'bold 14px Cairo, sans-serif'
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)'
+    ctx.textAlign = 'right'
+
+    // Position at bottom right
+    const x = canvasWidth.value - 15
+    const y = canvasHeight.value - 15
+
+    // Rotate text
+    ctx.translate(x, y)
+    ctx.rotate(-15 * Math.PI / 180)
+    ctx.fillText('سامقة للتصميم', 0, 0)
+    ctx.restore()
+}
+
+const downloadCanvas = (canvas) => {
+    const link = document.createElement('a')
+    link.download = `design-${Date.now()}.png`
+    link.href = canvas.toDataURL()
+    link.click()
+}
+
+// Lifecycle
+onMounted(() => {
+    loadDesign()
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            switch (e.key) {
+                case 'z':
+                    e.preventDefault()
+                    if (e.shiftKey) {
+                        redo()
+                    } else {
+                        undo()
+                    }
+                    break
+                case 'y':
+                    e.preventDefault()
+                    redo()
+                    break
+                case 's':
+                    e.preventDefault()
+                    saveDesign()
+                    break
+            }
         }
+
+        if (e.key === 'Delete' && selectedElement.value) {
+            deleteElement(selectedElement.value.id)
+        }
+    })
+})
+
+function updateAllZIndices() {
+    elements.value.forEach((el, idx) => {
+        el.zIndex = idx;
     });
-    
-    html += '</div>';
-    
-    return { html, css };
-};
+}
 
-// إنشاء HTML للدائرة
-const createCircleHtml = (element, elementId) => {
-    return `<div id="${elementId}" class="design-element circle-element"></div>`;
-};
+function onMoveLayer(direction) {
+    if (!selectedElement.value) return;
+    const idx = elements.value.findIndex(el => el.id === selectedElement.value.id);
+    if (idx === -1) return;
+    if (direction === 'front' && idx < elements.value.length - 1) {
+        const temp = elements.value[idx];
+        elements.value.splice(idx, 1);
+        elements.value.splice(idx + 1, 0, temp);
+        updateAllZIndices();
+        saveToHistory();
+    } else if (direction === 'back' && idx > 0) {
+        const temp = elements.value[idx];
+        elements.value.splice(idx, 1);
+        elements.value.splice(idx - 1, 0, temp);
+        updateAllZIndices();
+        saveToHistory();
+    }
+}
 
-// إنشاء CSS للدائرة
-const createCircleCss = (element, elementId) => {
-    const radius = Math.min(element.width || 100, element.height || 100) / 2;
-    return `
-        #${elementId} {
-            position: absolute;
-            left: ${element.x || 0}px;
-            top: ${element.y || 0}px;
-            width: ${element.width || 100}px;
-            height: ${element.height || 100}px;
-            background-color: ${element.backgroundColor || '#10b981'};
-            border: ${element.borderWidth || 0}px solid ${element.borderColor || '#059669'};
-            border-radius: 50%;
-            opacity: ${element.opacity || 1};
-            transform: rotate(${element.rotation || 0}deg);
-            z-index: ${element.zIndex || 0};
+function onDuplicateElement() {
+    if (!selectedElement.value) return;
+    const element = { ...selectedElement.value, id: generateId() };
+    elements.value.push(element);
+    updateAllZIndices();
+    selectedElement.value = element;
+    saveToHistory();
+}
+
+function onRequestDeleteElement() {
+    if (!selectedElement.value) return;
+    layerToDelete.value = selectedElement.value.id;
+    showDeleteConfirm.value = true;
+}
+
+function onRequestDeleteLayer(layerId) {
+    layerToDelete.value = layerId;
+    showDeleteConfirm.value = true;
+}
+
+function performDeleteLayer() {
+    if (layerToDelete.value) {
+        deleteElement(layerToDelete.value);
+        layerToDelete.value = null;
+        showDeleteConfirm.value = false;
+    }
+}
+
+function cancelDeleteLayer() {
+    layerToDelete.value = null;
+    showDeleteConfirm.value = false;
+}
+
+// Update updateProperties to merge into .properties if needed
+function updateProperties(properties) {
+    if (selectedElement.value) {
+        const elementIndex = elements.value.findIndex(el => el.id === selectedElement.value.id);
+        if (elementIndex !== -1) {
+            const element = elements.value[elementIndex];
+            Object.keys(properties).forEach(key => {
+                // Always update both root and .properties
+                element[key] = properties[key];
+                if (element.properties) {
+                    element.properties[key] = properties[key];
+                }
+            });
+            elements.value[elementIndex] = { ...element };
+            saveToHistory();
         }
-    `;
-};
-
-// إنشاء HTML للمستطيل
-const createRectangleHtml = (element, elementId) => {
-    return `<div id="${elementId}" class="design-element rectangle-element"></div>`;
-};
-
-// إنشاء CSS للمستطيل
-const createRectangleCss = (element, elementId) => {
-    return `
-        #${elementId} {
-            position: absolute;
-            left: ${element.x || 0}px;
-            top: ${element.y || 0}px;
-            width: ${element.width || 200}px;
-            height: ${element.height || 100}px;
-            background-color: ${element.backgroundColor || '#8b5cf6'};
-            border: ${element.borderWidth || 0}px solid ${element.borderColor || '#7c3aed'};
-            border-radius: ${element.borderRadius || 0}px;
-            opacity: ${element.opacity || 1};
-            transform: rotate(${element.rotation || 0}deg);
-            z-index: ${element.zIndex || 0};
-        }
-    `;
-};
-
-// إنشاء HTML للصورة
-const createImageHtml = (element, elementId) => {
-    return `<img id="${elementId}" class="design-element image-element" src="${element.src || ''}" alt="Design Image">`;
-};
-
-// إنشاء CSS للصورة
-const createImageCss = (element, elementId) => {
-    return `
-        #${elementId} {
-            position: absolute;
-            left: ${element.x || 0}px;
-            top: ${element.y || 0}px;
-            width: ${element.width || 100}px;
-            height: ${element.height || 100}px;
-            opacity: ${element.opacity || 1};
-            transform: rotate(${element.rotation || 0}deg);
-            z-index: ${element.zIndex || 0};
-            object-fit: cover;
-            border-radius: ${element.borderRadius || 0}px;
-        }
-    `;
-};
-
-// إنشاء HTML للنص
-const createTextHtml = (element, elementId) => {
-    return `<div id="${elementId}" class="design-element text-element">${element.text || ''}</div>`;
-};
-
-// إنشاء CSS للنص
-const createTextCss = (element, elementId) => {
-    return `
-        #${elementId} {
-            position: absolute;
-            left: ${element.x || 0}px;
-            top: ${element.y || 0}px;
-            width: ${element.width || 'auto'}px;
-            height: ${element.height || 'auto'}px;
-            font-size: ${element.fontSize || 16}px;
-            font-family: ${element.fontFamily || 'Arial, sans-serif'};
-            color: ${element.color || '#000000'};
-            font-weight: ${element.fontWeight || 'normal'};
-            text-align: ${element.textAlign || 'left'};
-            opacity: ${element.opacity || 1};
-            transform: rotate(${element.rotation || 0}deg);
-            z-index: ${element.zIndex || 0};
-            white-space: nowrap;
-            overflow: hidden;
-        }
-    `;
-};
-
-// تنسيق التاريخ
-const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-};
-
-onMounted(async () => {
-    await nextTick();
-    setTimeout(() => {
-        loadDesignWithGrapesJS();
-    }, 100);
-});
+    }
+}
 </script>
 
 <style scoped>
-#design-preview-container {
-    background: #f8f9fa;
-    background-image: 
-        linear-gradient(45deg, #e9ecef 25%, transparent 25%), 
-        linear-gradient(-45deg, #e9ecef 25%, transparent 25%), 
-        linear-gradient(45deg, transparent 75%, #e9ecef 75%), 
-        linear-gradient(-45deg, transparent 75%, #e9ecef 75%);
-    background-size: 20px 20px;
-    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+.design-canvas {
+    direction: ltr; /* Canvas should be LTR for proper positioning */
 }
 
-#design-preview {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-/* Ensure the design content is properly styled */
-:deep(#design-preview *) {
+/* Watermark styles */
+.watermark {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.25);
+    font-family: 'Cairo', sans-serif;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+    z-index: 9999;
+    transform: rotate(-15deg);
+    transform-origin: center;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    letter-spacing: 1px;
     pointer-events: none;
+}
+
+/* Ensure watermark is always visible */
+.watermark::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    z-index: -1;
+}
+
+/* Print styles - ensure watermark appears in prints */
+@media print {
+    .watermark {
+        color: rgba(0, 0, 0, 0.4) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 }
 </style>
