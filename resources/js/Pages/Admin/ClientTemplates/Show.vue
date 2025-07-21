@@ -1197,9 +1197,58 @@ const exportDesignWithWatermark = async () => {
             const img = new Image()
             img.crossOrigin = 'anonymous'
             img.onload = () => {
-                ctx.drawImage(img, 0, 0, canvasWidth.value, canvasHeight.value)
-                    resolve()
+                // Apply the same background sizing as in the canvas display
+                if (backgroundSize.value === 'contain') {
+                    // Calculate aspect ratios
+                    const canvasAspect = canvasWidth.value / canvasHeight.value
+                    const imageAspect = img.width / img.height
+
+                    let drawWidth, drawHeight, drawX, drawY
+
+                    if (imageAspect > canvasAspect) {
+                        // Image is wider - fit to width
+                        drawWidth = canvasWidth.value
+                        drawHeight = canvasWidth.value / imageAspect
+                        drawX = 0
+                        drawY = (canvasHeight.value - drawHeight) / 2
+                    } else {
+                        // Image is taller - fit to height
+                        drawWidth = canvasHeight.value * imageAspect
+                        drawHeight = canvasHeight.value
+                        drawX = (canvasWidth.value - drawWidth) / 2
+                        drawY = 0
+                    }
+
+                    ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
+                } else if (backgroundSize.value === 'cover') {
+                    // Calculate aspect ratios for cover
+                    const canvasAspect = canvasWidth.value / canvasHeight.value
+                    const imageAspect = img.width / img.height
+
+                    let drawWidth, drawHeight, drawX, drawY
+
+                    if (imageAspect > canvasAspect) {
+                        // Image is wider - fit to height and crop sides
+                        drawHeight = canvasHeight.value
+                        drawWidth = canvasHeight.value * imageAspect
+                        drawX = (canvasWidth.value - drawWidth) / 2
+                        drawY = 0
+                    } else {
+                        // Image is taller - fit to width and crop top/bottom
+                        drawWidth = canvasWidth.value
+                        drawHeight = canvasWidth.value / imageAspect
+                        drawX = 0
+                        drawY = (canvasHeight.value - drawHeight) / 2
+                    }
+
+                    ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
+                } else {
+                    // Default: stretch to fill (background-size: 100% 100%)
+                    ctx.drawImage(img, 0, 0, canvasWidth.value, canvasHeight.value)
+                }
+                resolve()
             }
+            img.onerror = () => resolve() // Continue even if background fails
             img.src = canvasBackground.value
             })
         }

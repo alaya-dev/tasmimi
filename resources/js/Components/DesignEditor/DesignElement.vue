@@ -81,7 +81,9 @@
             :style="iconStyle"
             class="w-full h-full flex items-center justify-center"
         >
-            <i :class="element.iconClass || 'fas fa-star'" :style="{ fontSize: Math.min(props.element.width, props.element.height) + 'px', color: props.element.color || '#374151' }"></i>
+            <span :style="{ fontSize: Math.min(props.element.width, props.element.height) + 'px', color: props.element.color || '#374151' }">
+                {{ getIconSymbol(element.icon || element.iconClass) }}
+            </span>
         </div>
 
         <!-- Shape Element -->
@@ -118,12 +120,7 @@
                     :fill="element.color || element.backgroundColor || '#8b5cf6'"
                 />
             </template>
-            <template v-else-if="element.shapeType === 'heart'">
-                <path
-                    :d="getHeartPath(element.width, element.height)"
-                    :fill="element.color || element.backgroundColor || '#8b5cf6'"
-                />
-            </template>
+
             <template v-else-if="element.shapeType === 'arrow'">
                 <polygon
                     :points="getArrowPoints(element.width, element.height)"
@@ -238,13 +235,13 @@ const imageStyle = computed(() => ({
 const rectangleStyle = computed(() => ({
     backgroundColor: props.element.backgroundColor || '#8b5cf6',
     borderRadius: (props.element.borderRadius || 0) + 'px',
-    border: props.element.borderWidth ? 
+    border: props.element.borderWidth ?
         `${props.element.borderWidth}px solid ${props.element.borderColor || '#000'}` : 'none'
 }))
 
 const circleStyle = computed(() => ({
     backgroundColor: props.element.backgroundColor || '#10b981',
-    border: props.element.borderWidth ? 
+    border: props.element.borderWidth ?
         `${props.element.borderWidth}px solid ${props.element.borderColor || '#000'}` : 'none'
 }))
 
@@ -254,7 +251,7 @@ const buttonStyle = computed(() => ({
     fontSize: (props.element.fontSize || 14) + 'px',
     fontWeight: props.element.fontWeight || 'bold',
     borderRadius: (props.element.borderRadius || 6) + 'px',
-    border: props.element.borderWidth ? 
+    border: props.element.borderWidth ?
         `${props.element.borderWidth}px solid ${props.element.borderColor || 'transparent'}` : 'none'
 }))
 
@@ -294,13 +291,13 @@ const selectElement = () => {
 
 const startDrag = (event) => {
     if (props.element.locked) return
-    
+
     isDragging.value = true
     dragStart.value = {
         x: event.clientX - props.element.x,
         y: event.clientY - props.element.y
     }
-    
+
     document.addEventListener('mousemove', handleDrag)
     document.addEventListener('mouseup', stopDrag)
     event.preventDefault()
@@ -308,10 +305,10 @@ const startDrag = (event) => {
 
 const handleDrag = (event) => {
     if (!isDragging.value) return
-    
+
     const newX = event.clientX - dragStart.value.x
     const newY = event.clientY - dragStart.value.y
-    
+
     emit('update', props.element.id, {
         x: Math.max(0, newX),
         y: Math.max(0, newY)
@@ -326,7 +323,7 @@ const stopDrag = () => {
 
 const startResize = (handle, event) => {
     if (props.element.locked) return
-    
+
     isResizing.value = true
     resizeHandle.value = handle
     dragStart.value = {
@@ -337,7 +334,7 @@ const startResize = (handle, event) => {
         elementX: props.element.x,
         elementY: props.element.y
     }
-    
+
     document.addEventListener('mousemove', handleResize)
     document.addEventListener('mouseup', stopResize)
     event.preventDefault()
@@ -345,15 +342,15 @@ const startResize = (handle, event) => {
 
 const handleResize = (event) => {
     if (!isResizing.value) return
-    
+
     const deltaX = event.clientX - dragStart.value.x
     const deltaY = event.clientY - dragStart.value.y
-    
+
     let newWidth = dragStart.value.width
     let newHeight = dragStart.value.height
     let newX = dragStart.value.elementX
     let newY = dragStart.value.elementY
-    
+
     switch (resizeHandle.value) {
         case 'top-left':
             newWidth = Math.max(20, dragStart.value.width - deltaX)
@@ -390,7 +387,7 @@ const handleResize = (event) => {
             newWidth = Math.max(20, dragStart.value.width + deltaX)
             break
     }
-    
+
     emit('update', props.element.id, {
         x: newX,
         y: newY,
@@ -408,7 +405,7 @@ const stopResize = () => {
 
 const startRotate = (event) => {
     if (props.element.locked) return
-    
+
     isRotating.value = true
     document.addEventListener('mousemove', handleRotate)
     document.addEventListener('mouseup', stopRotate)
@@ -417,15 +414,15 @@ const startRotate = (event) => {
 
 const handleRotate = (event) => {
     if (!isRotating.value) return
-    
+
     // Calculate rotation based on mouse position
     const rect = event.target.closest('.design-element').getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2
-    
+
     const angle = Math.atan2(event.clientY - centerY, event.clientX - centerX)
     const rotation = (angle * 180 / Math.PI + 90) % 360
-    
+
     emit('update', props.element.id, {
         rotation: Math.round(rotation)
     })
@@ -451,11 +448,117 @@ const getShapeIcon = (shapeType) => {
         triangle: 'fas fa-play fa-rotate-90',
         diamond: 'fas fa-diamond',
         star: 'fas fa-star',
-        heart: 'fas fa-heart',
         arrow: 'fas fa-arrow-right',
         polygon: 'fas fa-draw-polygon'
     }
     return icons[shapeType] || 'fas fa-square'
+}
+
+const getIconSymbol = (iconInput) => {
+    // If it's already a symbol (Unicode character), return it
+    if (iconInput && (iconInput.length === 1 || iconInput.length === 2)) {
+        return iconInput
+    }
+
+    // If it's a FontAwesome class, convert it
+    if (iconInput && typeof iconInput === 'string') {
+        const iconMap = {
+            'fas fa-home': '🏠',
+            'fas fa-user': '👤',
+            'fas fa-envelope': '✉',
+            'fas fa-phone': '📞',
+            'fas fa-calendar': '📅',
+            'fas fa-clock': '🕐',
+            'fas fa-location-dot': '📍',
+            'fas fa-camera': '📷',
+            'fas fa-music': '🎵',
+            'fas fa-video': '🎥',
+            'fas fa-gift': '🎁',
+            'fas fa-shopping-cart': '🛒',
+            'fas fa-car': '🚗',
+            'fas fa-plane': '✈',
+            'fas fa-graduation-cap': '🎓',
+            'fas fa-trophy': '🏆',
+            'fas fa-star': '★',
+            'fas fa-heart': '❤',
+            'fas fa-circle': '●',
+            'fas fa-square': '■',
+            'fas fa-diamond': '♦',
+            'fas fa-arrow-right': '→',
+            'fas fa-arrow-left': '←',
+            'fas fa-arrow-up': '↑',
+            'fas fa-arrow-down': '↓',
+            'fas fa-chevron-right': '›',
+            'fas fa-chevron-left': '‹',
+            'fas fa-chevron-up': '⌃',
+            'fas fa-chevron-down': '⌄',
+            'fas fa-check': '✓',
+            'fas fa-times': '✕',
+            'fas fa-plus': '+',
+            'fas fa-minus': '−',
+            'fas fa-edit': '✎',
+            'fas fa-trash': '🗑',
+            'fas fa-save': '💾',
+            'fas fa-download': '⬇',
+            'fas fa-upload': '⬆',
+            'fas fa-search': '🔍',
+            'fas fa-cog': '⚙',
+            'fas fa-settings': '⚙',
+            'fas fa-gear': '⚙',
+            'fas fa-info': 'ℹ',
+            'fas fa-warning': '⚠',
+            'fas fa-exclamation': '!',
+            'fas fa-question': '?',
+            'fas fa-lightbulb': '💡',
+            'fas fa-bulb': '💡',
+            'fas fa-mail': '📧',
+            'fas fa-message': '💬',
+            'fas fa-comment': '💬',
+            'fas fa-users': '👥',
+            'fas fa-group': '👥',
+            'fas fa-file': '📄',
+            'fas fa-folder': '📁',
+            'fas fa-image': '🖼',
+            'fas fa-play': '▶',
+            'fas fa-pause': '⏸',
+            'fas fa-stop': '⏹',
+            'fas fa-key': '🔑',
+            'fas fa-lock': '🔒',
+            'fas fa-unlock': '🔓',
+            'fas fa-bell': '🔔',
+            'fas fa-sun': '☀',
+            'fas fa-moon': '🌙',
+            'fas fa-cloud': '☁',
+            'fas fa-umbrella': '☂',
+            'fas fa-coffee': '☕',
+            'fas fa-apple': '🍎',
+            'fas fa-cake': '🎂'
+        }
+
+        const cleanIconClass = iconInput.trim().toLowerCase()
+
+        if (iconMap[cleanIconClass]) {
+            return iconMap[cleanIconClass]
+        } else {
+            if (!cleanIconClass.startsWith('fas ') && !cleanIconClass.startsWith('far ') &&
+                !cleanIconClass.startsWith('fab ') && !cleanIconClass.startsWith('fal ')) {
+                const withFas = `fas ${cleanIconClass}`
+                if (iconMap[withFas]) {
+                    return iconMap[withFas]
+                } else {
+                    const withoutFaPrefix = cleanIconClass.replace(/^fa-/, '')
+                    const fasVersion = `fas fa-${withoutFaPrefix}`
+                    return iconMap[fasVersion] || '●'
+                }
+            } else {
+                const withoutPrefix = cleanIconClass.replace(/^(fas|far|fab|fal)\s+/, '')
+                const fasVersion = `fas ${withoutPrefix}`
+                return iconMap[fasVersion] || '●'
+            }
+        }
+    }
+
+    return '●'
 }
 
 function handleClick(event) {
@@ -480,15 +583,7 @@ function getStarPoints(cx, cy, outerRadius, innerRadius, numPoints) {
     return points.map(p => p.join(",")).join(" ")
 }
 
-function getHeartPath(width, height) {
-    const x = width / 2
-    const y = height / 2
-    const scale = Math.min(width, height) / 32
-    return `M ${x} ${y + 8 * scale}
-        C ${x} ${y + 2 * scale}, ${x - 12 * scale} ${y - 2 * scale}, ${x - 8 * scale} ${y - 10 * scale}
-        C ${x - 4 * scale} ${y - 18 * scale}, ${x + 4 * scale} ${y - 18 * scale}, ${x + 8 * scale} ${y - 10 * scale}
-        C ${x + 12 * scale} ${y - 2 * scale}, ${x} ${y + 2 * scale}, ${x} ${y + 8 * scale} Z`
-}
+
 
 function getArrowPoints(width, height) {
     // Simple right arrow

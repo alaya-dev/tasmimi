@@ -317,7 +317,7 @@
                                     whiteSpace: 'nowrap'
                                 }"
                             >
-                            منصة سامقة للتصميم 
+                            منصة سامقة للتصميم
                             </div>
                         </div>
                     </div>
@@ -1278,7 +1278,6 @@ const getShapeIconClass = (shapeType) => {
         triangle: 'fas fa-play fa-rotate-90',
         diamond: 'fas fa-diamond',
         star: 'fas fa-star',
-        heart: 'fas fa-heart',
         arrow: 'fas fa-arrow-right',
         polygon: 'fas fa-draw-polygon'
     }
@@ -1309,71 +1308,9 @@ const drawStar = (ctx, cx, cy, spikes, outerRadius, innerRadius) => {
     ctx.closePath()
 }
 
-// Fonction pour dessiner un cœur
-const drawHeart = (ctx, cx, cy, size) => {
-    const width = size
-    const height = size
 
-    ctx.beginPath()
-    const topCurveHeight = height * 0.3
-    ctx.moveTo(cx, cy + topCurveHeight)
-    // Left curve
-    ctx.bezierCurveTo(
-        cx, cy,
-        cx - width / 2, cy,
-        cx - width / 2, cy + topCurveHeight
-    )
-    ctx.bezierCurveTo(
-        cx - width / 2, cy + (height + topCurveHeight) / 2,
-        cx, cy + (height + topCurveHeight) / 2,
-        cx, cy + height
-    )
-    ctx.bezierCurveTo(
-        cx, cy + (height + topCurveHeight) / 2,
-        cx + width / 2, cy + (height + topCurveHeight) / 2,
-        cx + width / 2, cy + topCurveHeight
-    )
-    // Right curve
-    ctx.bezierCurveTo(
-        cx + width / 2, cy,
-        cx, cy,
-        cx, cy + topCurveHeight
-    )
-    ctx.closePath()
-}
 
-// Fonction pour obtenir un symbole simple pour les icônes
-const getIconSymbol = (iconClass) => {
-    if (!iconClass) return '★'
 
-    const symbols = {
-        'fa-star': '★',
-        'fa-heart': '♥',
-        'fa-home': '🏠',
-        'fa-user': '👤',
-        'fa-phone': '📞',
-        'fa-envelope': '✉',
-        'fa-camera': '📷',
-        'fa-location': '📍',
-        'fa-clock': '🕐',
-        'fa-gift': '🎁',
-        'fa-car': '🚗',
-        'fa-plane': '✈',
-        'fa-trophy': '🏆',
-        'fa-graduation-cap': '🎓',
-        'fa-music': '♪',
-        'fa-video': '📹'
-    }
-
-    // Chercher une correspondance partielle
-    for (const [key, symbol] of Object.entries(symbols)) {
-        if (iconClass.includes(key.replace('fa-', ''))) {
-            return symbol
-        }
-    }
-
-    return '●' // Symbole par défaut
-}
 
 // Fonction pour générer les points d'une étoile pour SVG
 const generateStarPoints = (cx, cy, spikes, outerRadius, innerRadius) => {
@@ -1975,7 +1912,7 @@ const exportDesignWithWatermark = async () => {
                 case 'shape':
                     ctx.save()
                     ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
-                    ctx.fillStyle = element.backgroundColor || '#8b5cf6'
+                    ctx.fillStyle = element.backgroundColor || element.color || '#8b5cf6'
                     ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
                     ctx.rotate((element.rotation || 0) * Math.PI / 180)
 
@@ -1994,12 +1931,34 @@ const exportDesignWithWatermark = async () => {
                             ctx.closePath()
                             ctx.fill()
                             break
-                        case 'star':
-                            drawStar(ctx, 0, 0, 5, (element.width || 50) / 2, (element.width || 50) / 4)
+                        case 'rectangle':
+                            ctx.fillRect(-(element.width || 50) / 2, -(element.height || 50) / 2, element.width || 50, element.height || 50)
+                            break
+                        case 'diamond':
+                            ctx.beginPath()
+                            ctx.moveTo(0, -(element.height || 50) / 2)
+                            ctx.lineTo((element.width || 50) / 2, 0)
+                            ctx.lineTo(0, (element.height || 50) / 2)
+                            ctx.lineTo(-(element.width || 50) / 2, 0)
+                            ctx.closePath()
                             ctx.fill()
                             break
-                        case 'heart':
-                            drawHeart(ctx, 0, 0, element.width || 50)
+                        case 'star':
+                            drawStar(ctx, 0, 0, 5, (element.width || 50) / 2, (element.width || 50) / 4)
+                            break
+
+                        case 'arrow':
+                            const w = element.width || 50
+                            const h = element.height || 50
+                            ctx.beginPath()
+                            ctx.moveTo(-w/2, -h/4)
+                            ctx.lineTo(w/4, -h/4)
+                            ctx.lineTo(w/4, -h/2)
+                            ctx.lineTo(w/2, 0)
+                            ctx.lineTo(w/4, h/2)
+                            ctx.lineTo(w/4, h/4)
+                            ctx.lineTo(-w/2, h/4)
+                            ctx.closePath()
                             ctx.fill()
                             break
                         default:
@@ -2009,10 +1968,10 @@ const exportDesignWithWatermark = async () => {
                     ctx.restore()
                     break
                 case 'icon':
-                    // Pour les icônes, dessiner un cercle avec la première lettre de l'icône
+                    // Pour les icônes, dessiner un cercle avec un symbole
                     ctx.save()
                     ctx.globalAlpha = element.opacity !== undefined ? element.opacity : 1
-                    ctx.fillStyle = element.color || '#374151'
+                    ctx.fillStyle = element.backgroundColor || element.color || '#374151'
                     ctx.translate(element.x + (element.width || 0) / 2, element.y + (element.height || 0) / 2)
                     ctx.rotate((element.rotation || 0) * Math.PI / 180)
 
@@ -2022,11 +1981,12 @@ const exportDesignWithWatermark = async () => {
                     ctx.fill()
 
                     // Ajouter un symbole simple au centre
-                    ctx.fillStyle = '#ffffff'
+                    ctx.fillStyle = element.textColor || '#ffffff'
                     ctx.font = `${(element.fontSize || 24)}px Arial`
                     ctx.textAlign = 'center'
                     ctx.textBaseline = 'middle'
-                    ctx.fillText(getIconSymbol(element.iconClass), 0, 0)
+                    const iconSymbol = getIconSymbol(element.iconClass || element.icon || 'fas fa-star')
+                    ctx.fillText(iconSymbol, 0, 0)
                     ctx.restore()
                     break
                 // Add more element types as needed
@@ -2275,12 +2235,7 @@ const drawElementOnCanvas = async (ctx, element) => {
                     ctx.fill()
                     console.log(`    ✅ Étoile dessinée`)
                     break
-                case 'heart':
-                    console.log(`    ❤️ Dessin cœur`)
-                    drawHeart(ctx, 0, 0, element.width || 50)
-                    ctx.fill()
-                    console.log(`    ✅ Cœur dessiné`)
-                    break
+
                 default:
                     console.log(`    ⬛ Dessin rectangle par défaut pour forme inconnue: ${element.shapeType}`)
                     ctx.fillRect(-(element.width || 50) / 2, -(element.height || 50) / 2, element.width || 50, element.height || 50)
@@ -2365,11 +2320,7 @@ const generateShapeHTML = (element, style) => {
                 ⭐
             </div>`
 
-        case 'heart':
-            // Pour le cœur, utiliser un symbole Unicode
-            return `<div class="element" style="${style} display: flex; align-items: center; justify-content: center; color: ${bgColor}; font-size: ${width * 0.8}px;">
-                ❤
-            </div>`
+
 
         default:
             // Rectangle par défaut
@@ -2612,7 +2563,55 @@ const createExportCanvas = async () => {
             const bgImg = new Image()
             bgImg.crossOrigin = 'anonymous'
             bgImg.onload = () => {
-                ctx.drawImage(bgImg, 0, 0, canvasWidth.value, canvasHeight.value)
+                // Apply the same background sizing as in the canvas display
+                if (backgroundSize.value === 'contain') {
+                    // Calculate aspect ratios
+                    const canvasAspect = canvasWidth.value / canvasHeight.value
+                    const imageAspect = bgImg.width / bgImg.height
+
+                    let drawWidth, drawHeight, drawX, drawY
+
+                    if (imageAspect > canvasAspect) {
+                        // Image is wider - fit to width
+                        drawWidth = canvasWidth.value
+                        drawHeight = canvasWidth.value / imageAspect
+                        drawX = 0
+                        drawY = (canvasHeight.value - drawHeight) / 2
+                    } else {
+                        // Image is taller - fit to height
+                        drawWidth = canvasHeight.value * imageAspect
+                        drawHeight = canvasHeight.value
+                        drawX = (canvasWidth.value - drawWidth) / 2
+                        drawY = 0
+                    }
+
+                    ctx.drawImage(bgImg, drawX, drawY, drawWidth, drawHeight)
+                } else if (backgroundSize.value === 'cover') {
+                    // Calculate aspect ratios for cover
+                    const canvasAspect = canvasWidth.value / canvasHeight.value
+                    const imageAspect = bgImg.width / bgImg.height
+
+                    let drawWidth, drawHeight, drawX, drawY
+
+                    if (imageAspect > canvasAspect) {
+                        // Image is wider - fit to height and crop sides
+                        drawHeight = canvasHeight.value
+                        drawWidth = canvasHeight.value * imageAspect
+                        drawX = (canvasWidth.value - drawWidth) / 2
+                        drawY = 0
+                    } else {
+                        // Image is taller - fit to width and crop top/bottom
+                        drawWidth = canvasWidth.value
+                        drawHeight = canvasWidth.value / imageAspect
+                        drawX = 0
+                        drawY = (canvasHeight.value - drawHeight) / 2
+                    }
+
+                    ctx.drawImage(bgImg, drawX, drawY, drawWidth, drawHeight)
+                } else {
+                    // Default: stretch to fill (background-size: 100% 100%)
+                    ctx.drawImage(bgImg, 0, 0, canvasWidth.value, canvasHeight.value)
+                }
                 resolve()
             }
             bgImg.onerror = () => resolve() // Continue even if background fails
@@ -2703,10 +2702,7 @@ const createExportCanvas = async () => {
                         drawStar(ctx, 0, 0, 5, (element.width || 50) / 2, (element.width || 50) / 4)
                         ctx.fill()
                         break
-                    case 'heart':
-                        drawHeart(ctx, 0, 0, element.width || 50)
-                        ctx.fill()
-                        break
+
                     case 'diamond':
                         // Dessiner un losange (diamant)
                         ctx.beginPath()

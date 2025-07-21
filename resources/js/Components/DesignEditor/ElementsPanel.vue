@@ -90,7 +90,7 @@
                         class="p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors group"
                         :title="icon.name"
                     >
-                        <i :class="icon.class" class="text-lg text-gray-600 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-lg text-gray-600 group-hover:scale-110 transition-transform block">{{ icon.symbol }}</span>
                     </button>
                 </div>
             </div>
@@ -157,28 +157,81 @@ const shapes = [
     { type: 'triangle', name: 'مثلث', icon: 'fas fa-play fa-rotate-90' },
     { type: 'diamond', name: 'معين', icon: 'fas fa-diamond' },
     { type: 'star', name: 'نجمة', icon: 'fas fa-star' },
-    { type: 'heart', name: 'قلب', icon: 'fas fa-heart' },
     { type: 'arrow', name: 'سهم', icon: 'fas fa-arrow-right' },
     { type: 'polygon', name: 'مضلع', icon: 'fas fa-draw-polygon' }
 ]
 
 const icons = [
-    { class: 'fas fa-home', name: 'منزل' },
-    { class: 'fas fa-user', name: 'مستخدم' },
-    { class: 'fas fa-envelope', name: 'بريد' },
-    { class: 'fas fa-phone', name: 'هاتف' },
-    { class: 'fas fa-calendar', name: 'تقويم' },
-    { class: 'fas fa-clock', name: 'ساعة' },
-    { class: 'fas fa-location-dot', name: 'موقع' },
-    { class: 'fas fa-camera', name: 'كاميرا' },
-    { class: 'fas fa-music', name: 'موسيقى' },
-    { class: 'fas fa-video', name: 'فيديو' },
-    { class: 'fas fa-gift', name: 'هدية' },
-    { class: 'fas fa-shopping-cart', name: 'سلة' },
-    { class: 'fas fa-car', name: 'سيارة' },
-    { class: 'fas fa-plane', name: 'طائرة' },
-    { class: 'fas fa-graduation-cap', name: 'تخرج' },
-    { class: 'fas fa-trophy', name: 'كأس' }
+    // Basic & Communication
+    { symbol: '🏠', class: 'fas fa-home', name: 'منزل' },
+    { symbol: '👤', class: 'fas fa-user', name: 'مستخدم' },
+    { symbol: '✉', class: 'fas fa-envelope', name: 'بريد' },
+    { symbol: '📞', class: 'fas fa-phone', name: 'هاتف' },
+    { symbol: '💬', class: 'fas fa-message', name: 'رسالة' },
+    { symbol: '👥', class: 'fas fa-users', name: 'مستخدمون' },
+
+    // Time & Location
+    { symbol: '📅', class: 'fas fa-calendar', name: 'تقويم' },
+    { symbol: '🕐', class: 'fas fa-clock', name: 'ساعة' },
+    { symbol: '📍', class: 'fas fa-location-dot', name: 'موقع' },
+
+    // Media & Entertainment
+    { symbol: '📷', class: 'fas fa-camera', name: 'كاميرا' },
+    { symbol: '🎵', class: 'fas fa-music', name: 'موسيقى' },
+    { symbol: '🎥', class: 'fas fa-video', name: 'فيديو' },
+    { symbol: '🖼', class: 'fas fa-image', name: 'صورة' },
+    { symbol: '▶', class: 'fas fa-play', name: 'تشغيل' },
+
+    // Shopping & Business
+    { symbol: '🛒', class: 'fas fa-shopping-cart', name: 'سلة' },
+    { symbol: '🎁', class: 'fas fa-gift', name: 'هدية' },
+    { symbol: '💰', class: 'fas fa-money', name: 'مال' },
+    { symbol: '🏪', class: 'fas fa-store', name: 'متجر' },
+
+    // Transport
+    { symbol: '🚗', class: 'fas fa-car', name: 'سيارة' },
+    { symbol: '✈', class: 'fas fa-plane', name: 'طائرة' },
+    { symbol: '🚲', class: 'fas fa-bicycle', name: 'دراجة' },
+    { symbol: '🚂', class: 'fas fa-train', name: 'قطار' },
+
+    // Education & Achievement
+    { symbol: '🎓', class: 'fas fa-graduation-cap', name: 'تخرج' },
+    { symbol: '🏆', class: 'fas fa-trophy', name: 'كأس' },
+    { symbol: '📚', class: 'fas fa-book', name: 'كتاب' },
+    { symbol: '✏', class: 'fas fa-pencil', name: 'قلم' },
+
+    // Emotions & Symbols
+    { symbol: '❤', class: 'fas fa-heart', name: 'قلب' },
+    { symbol: '★', class: 'fas fa-star', name: 'نجمة' },
+    { symbol: '😊', class: 'fas fa-smile', name: 'ابتسامة' },
+    { symbol: '👍', class: 'fas fa-thumbs-up', name: 'إعجاب' },
+
+    // Actions & Tools
+    { symbol: '⚙', class: 'fas fa-cog', name: 'إعدادات' },
+    { symbol: '🔍', class: 'fas fa-search', name: 'بحث' },
+    { symbol: '✓', class: 'fas fa-check', name: 'صح' },
+    { symbol: '✕', class: 'fas fa-times', name: 'خطأ' },
+    { symbol: '💾', class: 'fas fa-save', name: 'حفظ' },
+    { symbol: '🗑', class: 'fas fa-trash', name: 'حذف' },
+
+    // Weather & Nature
+    { symbol: '☀', class: 'fas fa-sun', name: 'شمس' },
+    { symbol: '🌙', class: 'fas fa-moon', name: 'قمر' },
+    { symbol: '☁', class: 'fas fa-cloud', name: 'سحابة' },
+    { symbol: '🌧', class: 'fas fa-rain', name: 'مطر' },
+
+    // Food & Drink
+    { symbol: '☕', class: 'fas fa-coffee', name: 'قهوة' },
+    { symbol: '🍎', class: 'fas fa-apple', name: 'تفاحة' },
+    { symbol: '🎂', class: 'fas fa-cake', name: 'كعكة' },
+    { symbol: '🍕', class: 'fas fa-pizza', name: 'بيتزا' },
+
+    // Security & Info
+    { symbol: '🔒', class: 'fas fa-lock', name: 'قفل' },
+    { symbol: '🔑', class: 'fas fa-key', name: 'مفتاح' },
+    { symbol: 'ℹ', class: 'fas fa-info', name: 'معلومات' },
+    { symbol: '⚠', class: 'fas fa-warning', name: 'تحذير' },
+    { symbol: '💡', class: 'fas fa-lightbulb', name: 'فكرة' }
 ]
 
 // Template Categories
@@ -684,7 +737,8 @@ const addIcon = (icon) => {
         width: 50,
         height: 50,
         properties: {
-            iconClass: icon.class,
+            icon: icon.symbol,
+            iconClass: icon.class, // Keep for backward compatibility
             color: '#374151',
             fontSize: 24
         }
@@ -722,7 +776,7 @@ const getElementData = (type) => {
                     lineHeight: 1.5
                 }
             }
-        
+
         case 'image':
             return {
                 type: 'image',
@@ -735,7 +789,7 @@ const getElementData = (type) => {
                     borderRadius: 0
                 }
             }
-        
+
         case 'rectangle':
             return {
                 type: 'rectangle',
@@ -749,7 +803,7 @@ const getElementData = (type) => {
                     borderRadius: 8
                 }
             }
-        
+
         case 'circle':
             return {
                 type: 'circle',
@@ -762,7 +816,7 @@ const getElementData = (type) => {
                     borderWidth: 0
                 }
             }
-        
+
         case 'line':
             return {
                 type: 'line',
@@ -774,7 +828,7 @@ const getElementData = (type) => {
                     borderRadius: 0
                 }
             }
-        
+
         default:
             return {
                 type: 'rectangle',
