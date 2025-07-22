@@ -81,7 +81,12 @@
             :style="iconStyle"
             class="w-full h-full flex items-center justify-center"
         >
-            <span :style="{ fontSize: Math.min(props.element.width, props.element.height) + 'px', color: props.element.color || '#374151' }">
+            <span :style="{
+                fontSize: (props.element.fontSize !== undefined && props.element.fontSize !== null && props.element.fontSize > 0)
+                    ? props.element.fontSize + 'px'
+                    : Math.min(props.element.width, props.element.height) + 'px',
+                color: props.element.color || '#374151'
+            }">
                 {{ getIconSymbol(element.icon || element.iconClass) }}
             </span>
         </div>
@@ -261,8 +266,8 @@ const lineStyle = computed(() => ({
 }))
 
 const iconStyle = computed(() => ({
-    color: props.element.color || '#374151',
-    fontSize: (props.element.fontSize || 24) + 'px'
+    color: props.element.color || '#374151'
+    // fontSize is handled inline on the span element
 }))
 
 const shapeStyle = computed(() => ({
@@ -388,12 +393,24 @@ const handleResize = (event) => {
             break
     }
 
-    emit('update', props.element.id, {
+    // For icons, also update fontSize to match the new size
+    const updateData = {
         x: newX,
         y: newY,
         width: newWidth,
         height: newHeight
-    })
+    }
+
+    // If this is an icon, automatically adjust fontSize based on the smaller dimension
+    if (props.element.type === 'icon') {
+        const newFontSize = Math.min(newWidth, newHeight)
+        // Constrain fontSize to reasonable bounds (8px - 200px)
+        updateData.fontSize = Math.max(8, Math.min(200, newFontSize))
+
+        console.log(`🔄 Icon Resize: ${newWidth}x${newHeight} → fontSize: ${updateData.fontSize}`)
+    }
+
+    emit('update', props.element.id, updateData)
 }
 
 const stopResize = () => {

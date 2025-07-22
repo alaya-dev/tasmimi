@@ -245,6 +245,18 @@
                     <h4 class="font-semibold text-gray-700 mb-3">خصائص الأيقونة</h4>
                     <div class="space-y-3">
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">حجم الأيقونة</label>
+                            <input
+                                v-model.number="localProperties.fontSize"
+                                @input="updateProperty('fontSize', $event.target.value)"
+                                type="number"
+                                min="8"
+                                max="200"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                                placeholder="24"
+                            >
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">لون الأيقونة</label>
                             <input
                                 v-model="localProperties.color"

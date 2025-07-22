@@ -486,8 +486,19 @@ const props = defineProps({
     template: {
         type: Object,
         required: true
+    },
+    context: {
+        type: String,
+        default: 'admin',
+        validator: (value) => ['admin', 'admin-client', 'client'].includes(value)
+    },
+    user: {
+        type: Object,
+        default: null
     }
 })
+
+const emit = defineEmits(['save', 'update', 'export'])
 
 // State
 const activeTab = ref('elements')
@@ -937,17 +948,6 @@ const saveDesign = async () => {
     saving.value = true
 
     try {
-        // Check if template ID exists
-        if (!props.template?.id) {
-            throw new Error('Template ID is missing')
-        }
-
-        // Check CSRF token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
-        if (!csrfToken) {
-            throw new Error('CSRF token not found')
-        }
-
         // Compress images in elements before saving
         console.log('Compressing images...')
         const compressedElements = await Promise.all(
@@ -1001,50 +1001,21 @@ const saveDesign = async () => {
             throw new Error('Invalid design data: ' + e.message)
         }
 
-        console.log('Saving design data:', designData)
-        console.log('Template ID:', props.template.id)
+        console.log('Emitting save event with design data')
         console.log('Data size:', Math.round(new Blob([designDataString]).size / 1024), 'KB')
 
-        const requestPayload = {
-            design_data: designDataString,
-            canvas_size: `${canvasWidth.value}x${canvasHeight.value}`,
-            design_notes: `تم التحديث في ${new Date().toLocaleString('ar-SA')}`
-        }
-        console.log('Request payload size:', Math.round(new Blob([JSON.stringify(requestPayload)]).size / 1024), 'KB')
-
-        const response = await fetch(route('admin.templates.design.save', props.template.id), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify(requestPayload)
+        // Emit save event instead of direct API call
+        emit('save', {
+            designData: designData,
+            designDataString: designDataString,
+            canvasSize: `${canvasWidth.value}x${canvasHeight.value}`,
+            designNotes: `تم التحديث في ${new Date().toLocaleString('ar-SA')}`
         })
 
-        if (response.ok) {
-            const result = await response.json()
-            console.log('Design saved successfully', result)
+        console.log('✅ Design save event emitted successfully')
 
-            // Show success notification
-            if (result.success) {
-                alert('تم حفظ التصميم بنجاح')
-            }
-        } else {
-            // Get detailed error information
-            let errorMessage = 'Failed to save design'
-            try {
-                const errorData = await response.json()
-                errorMessage = errorData.message || errorMessage
-                console.error('Server error details:', errorData)
-            } catch (e) {
-                console.error('Could not parse error response:', e)
-            }
-
-            console.error('HTTP Status:', response.status, response.statusText)
-            throw new Error(errorMessage)
-        }
     } catch (error) {
-        console.error('Error saving design:', error)
+        console.error('❌ Error preparing design save:', error)
 
         // Show more detailed error information
         let errorMessage = 'خطأ في حفظ التصميم'
@@ -1183,7 +1154,13 @@ const generateElementHTML = (element) => {
 
         case 'icon':
             const iconSymbol = getIconSymbolForElement(element)
-            return `<div class="element" style="${style} display: flex; align-items: center; justify-content: center; font-size: ${element.fontSize || Math.min(element.width || 50, element.height || 50)}px; color: ${element.color || element.backgroundColor || '#374151'};">
+
+            // Use explicit fontSize if available, otherwise calculate from dimensions
+            const iconFontSize = (element.fontSize !== undefined && element.fontSize !== null && element.fontSize > 0)
+                ? element.fontSize
+                : Math.min(element.width || 50, element.height || 50)
+
+            return `<div class="element" style="${style} display: flex; align-items: center; justify-content: center; font-size: ${iconFontSize}px; color: ${element.color || element.backgroundColor || '#374151'};">
                 ${iconSymbol}
             </div>`
 
@@ -1557,7 +1534,23 @@ const exportDesignWithWatermark = async () => {
 
                     // Draw the icon symbol
                     ctx.fillStyle = element.color || element.backgroundColor || '#374151'
-                    ctx.font = `${(element.fontSize || Math.min(element.width || 50, element.height || 50))}px Arial`
+
+                    // Use explicit fontSize if available, otherwise calculate from dimensions
+                    const iconFontSize = (element.fontSize !== undefined && element.fontSize !== null && element.fontSize > 0)
+                        ? element.fontSize
+                        : Math.min(element.width || 50, element.height || 50)
+
+                    // Debug logging
+                    console.log(`🔍 Icon Export Debug:`, {
+                        elementId: element.id,
+                        elementFontSize: element.fontSize,
+                        calculatedFontSize: iconFontSize,
+                        width: element.width,
+                        height: element.height,
+                        symbol: iconSymbol
+                    })
+
+                    ctx.font = `${iconFontSize}px Arial`
                     ctx.textAlign = 'center'
                     ctx.textBaseline = 'middle'
                     ctx.fillText(iconSymbol, 0, 0)
@@ -1908,8 +1901,14 @@ const generateElementSVG = (element) => {
 
         case 'icon':
             const iconSymbol = getIconSymbolForElement(element)
+
+            // Use explicit fontSize if available, otherwise calculate from dimensions
+            const iconFontSize = (element.fontSize !== undefined && element.fontSize !== null && element.fontSize > 0)
+                ? element.fontSize
+                : Math.min(element.width || 50, element.height || 50)
+
             return `<text x="0" y="0" text-anchor="middle" dominant-baseline="central"
-                font-size="${element.fontSize || Math.min(element.width || 50, element.height || 50)}"
+                font-size="${iconFontSize}"
                 fill="${element.color || element.backgroundColor || '#374151'}"
                 transform="${transform}"
                 opacity="${element.opacity !== undefined ? element.opacity : 1}">
@@ -2196,7 +2195,13 @@ const createAdvancedPreviewCanvas = async () => {
 
                 // Draw the icon symbol
                 ctx.fillStyle = element.color || element.backgroundColor || '#374151'
-                ctx.font = `${(element.fontSize || Math.min(element.width || 50, element.height || 50))}px Arial`
+
+                // Use explicit fontSize if available, otherwise calculate from dimensions
+                const iconFontSize = (element.fontSize !== undefined && element.fontSize !== null && element.fontSize > 0)
+                    ? element.fontSize
+                    : Math.min(element.width || 50, element.height || 50)
+
+                ctx.font = `${iconFontSize}px Arial`
                 ctx.textAlign = 'center'
                 ctx.textBaseline = 'middle'
                 ctx.fillText(iconSymbol, 0, 0)

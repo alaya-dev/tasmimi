@@ -63,30 +63,12 @@ class AdminClientTemplateController extends Controller
 
         $clientTemplate->load(['user', 'template.category']);
 
-        return Inertia::render('Admin/ClientTemplates/Show', [
-            'clientTemplate' => [
-                'id' => $clientTemplate->id,
-                'name' => $clientTemplate->name,
-                'design_data' => $clientTemplate->design_data, // Utiliser les données brutes
-                'raw_design_data' => $clientTemplate->getAttributes()['design_data'], // Données brutes de la DB
-                'editable_elements' => $clientTemplate->editable_elements,
-                'canvas_size' => $clientTemplate->canvas_dimensions, // Utiliser l'accessor
-                'version' => $clientTemplate->version,
-                'notes' => $clientTemplate->notes,
-                'created_at' => $clientTemplate->created_at->format('Y-m-d H:i:s'),
-                'last_edited_at' => $clientTemplate->last_edited_at?->format('Y-m-d H:i:s'),
-                'user' => [
-                    'id' => $clientTemplate->user->id,
-                    'email' => $clientTemplate->user->email,
-                ],
-                'template' => [
-                    'id' => $clientTemplate->template->id,
-                    'name' => $clientTemplate->template->name,
-                    'category' => $clientTemplate->template->category->name ?? null,
-                ],
-            ],
+        return Inertia::render('Admin/ClientTemplates/Design', [
+            'clientTemplate' => $clientTemplate->load('user', 'template'),
         ]);
     }
+
+
 
     /**
      * Mettre à jour un template client (pour la sauvegarde depuis l'éditeur)

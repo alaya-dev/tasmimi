@@ -200,7 +200,7 @@ class TemplateController extends Controller
         $template->update(['is_active' => !$template->is_active]);
 
         $status = $template->is_active ? 'تم تفعيل' : 'تم إلغاء تفعيل';
-        
+
         return back()->with('success', $status . ' القالب بنجاح');
     }
 
@@ -209,7 +209,7 @@ class TemplateController extends Controller
      */
     public function designEditor(Template $template): Response
     {
-        return Inertia::render('Admin/Templates/StableDesignEditor', [
+        return Inertia::render('Admin/Templates/UnifiedDesign', [
             'template' => $template->load('category'),
             'categories' => Category::all(),
             'locale' => app()->getLocale(),

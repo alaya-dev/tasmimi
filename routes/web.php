@@ -113,10 +113,10 @@ Route::prefix('client')->name('client.')->group(function () {
 // Routes d'administration
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    
+
     // Gestion des utilisateurs
     Route::resource('users', UserManagementController::class);
-    
+
     // Gestion des contacts/réclamations
     Route::resource('contacts', App\Http\Controllers\Admin\ContactController::class)->except(['create', 'store', 'edit']);
 

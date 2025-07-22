@@ -54,7 +54,7 @@ class ClientTemplateController extends Controller
             abort(404, 'Template non disponible');
         }
 
-        return Inertia::render('Client/DesignEditor', [
+        return Inertia::render('Client/UnifiedDesignEditor', [
             'template' => [
                 'id' => $template->id,
                 'name' => $template->name,
@@ -78,8 +78,8 @@ class ClientTemplateController extends Controller
             abort(403, 'Accès non autorisé');
         }
 
-        return Inertia::render('Client/DesignEditor', [
-            'clientTemplate' => [
+        return Inertia::render('Client/UnifiedDesignEditor', [
+            'template' => [
                 'id' => $clientTemplate->id,
                 'name' => $clientTemplate->name,
                 'design_data' => $clientTemplate->design_data_with_watermark,
@@ -88,7 +88,7 @@ class ClientTemplateController extends Controller
                 'version' => $clientTemplate->version,
                 'notes' => $clientTemplate->notes,
             ],
-            'template' => [
+            'originalTemplate' => [
                 'id' => $clientTemplate->template->id,
                 'name' => $clientTemplate->template->name,
                 'editable_elements' => $clientTemplate->template->editable_elements,
