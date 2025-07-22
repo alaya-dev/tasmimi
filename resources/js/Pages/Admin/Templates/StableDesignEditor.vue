@@ -102,13 +102,13 @@
                         </button>
 
                         <!-- Back -->
-                        <Link
-                            :href="route('admin.templates.index')"
+                        <button
+                            @click="goBack"
                             class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 flex items-center space-x-2 space-x-reverse"
                         >
                             <i class="fas fa-arrow-right"></i>
                             <span>رجوع</span>
-                        </Link>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -258,8 +258,9 @@
                                     <i class="fas fa-search-plus"></i>
                                 </button>
                             </div>
-                            <!-- Watermark Toggle -->
+                            <!-- Watermark Toggle (Admin only) -->
                             <button
+                                v-if="context === 'admin'"
                                 @click="showWatermark = !showWatermark"
                                 :class="['p-2 rounded transition-colors', showWatermark ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:text-gray-800']"
                                 title="تبديل العلامة المائية"
@@ -319,7 +320,48 @@
 
                             <!-- Watermark - Always on top and uneditable -->
                             <div
-                                v-if="showWatermark"
+                                v-if="context === 'client'"
+                                class="absolute inset-0 pointer-events-none select-none"
+                                :style="{
+                                    zIndex: 9999,
+                                    background: `repeating-linear-gradient(
+                                        -45deg,
+                                        transparent,
+                                        transparent 80px,
+                                        rgba(0, 0, 0, 0.03) 80px,
+                                        rgba(0, 0, 0, 0.03) 160px
+                                    )`,
+                                    userSelect: 'none',
+                                    WebkitUserSelect: 'none',
+                                    MozUserSelect: 'none',
+                                    msUserSelect: 'none'
+                                }"
+                            >
+                                <!-- Diagonal watermark pattern -->
+                                <div
+                                    v-for="i in Math.ceil((canvasWidth + canvasHeight) / 120)"
+                                    :key="i"
+                                    class="absolute"
+                                    :style="{
+                                        left: (i * 120 - canvasHeight / 2) + 'px',
+                                        top: '50%',
+                                        fontSize: '16px',
+                                        color: 'rgba(0, 0, 0, 0.15)',
+                                        fontFamily: 'Cairo, sans-serif',
+                                        fontWeight: 'bold',
+                                        transform: 'rotate(-45deg) translateY(-50%)',
+                                        transformOrigin: 'left center',
+                                        whiteSpace: 'nowrap',
+                                        letterSpacing: '2px'
+                                    }"
+                                >
+                                    سامقة للتصميم
+                                </div>
+                            </div>
+
+                            <!-- Single watermark for admin contexts -->
+                            <div
+                                v-else-if="showWatermark"
                                 class="absolute pointer-events-none select-none"
                                 :style="{
                                     bottom: '15px',
@@ -474,7 +516,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed, nextTick } from 'vue'
-import { Head, Link, router } from '@inertiajs/vue3'
+import { Head, router } from '@inertiajs/vue3'
 import PhotoEditor from '@/Components/DesignEditor/PhotoEditor.vue'
 import ElementsPanel from '@/Components/DesignEditor/ElementsPanel.vue'
 import LayersPanel from '@/Components/DesignEditor/LayersPanel.vue'
@@ -515,7 +557,8 @@ const showPhotoEditor = ref(false)
 const photoEditorImage = ref(null)
 const canvasBackground = ref('')
 const backgroundSize = ref('contain')
-const showWatermark = ref(true)
+// Watermark is always on for client context, toggleable for admin
+const showWatermark = ref(props.context === 'client' ? true : true)
 const pendingElementType = ref(null)
 const showDeleteConfirm = ref(false)
 const layerToDelete = ref(null)
@@ -1029,6 +1072,11 @@ const saveDesign = async () => {
     }
 }
 
+// Go back to previous page
+const goBack = () => {
+    window.history.back()
+}
+
 const previewDesign = () => {
     // Open preview in new window
     const previewData = {
@@ -1095,24 +1143,45 @@ const generatePreviewHTML = (designData) => {
         }
     })
 
+    // Always add diagonal watermark pattern in preview (default for all contexts)
+    const spacing = 120
+    const canvasW = designData.canvas?.width || canvasWidth.value || 800
+    const canvasH = designData.canvas?.height || canvasHeight.value || 600
+    const diagonal = Math.sqrt(canvasW * canvasW + canvasH * canvasH)
+    const count = Math.ceil(diagonal / spacing)
+
+    console.log('🔍 Preview Watermark Debug:', {
+        canvasW,
+        canvasH,
+        diagonal,
+        count,
+        spacing
+    })
+
+    html += `<div style="position: absolute; inset: 0; pointer-events: none; z-index: 9999;">`
+    for (let i = 0; i < count; i++) {
+        const x = (i * spacing) - canvasH / 2
+        const y = canvasH / 2
+        html += `
+            <div style="
+                position: absolute;
+                left: ${x}px;
+                top: ${y}px;
+                font-size: 16px;
+                color: rgba(0, 0, 0, 0.2);
+                font-family: 'Cairo', sans-serif;
+                font-weight: bold;
+                transform: rotate(-45deg) translateY(-50%);
+                transform-origin: left center;
+                white-space: nowrap;
+                letter-spacing: 2px;
+                user-select: none;
+                pointer-events: none;
+            ">سامقة للتصميم</div>`
+    }
+    html += `</div>`
+
     html += `
-                <!-- Always show watermark in preview -->
-                <div style="
-                    position: absolute;
-                    bottom: 15px;
-                    right: 15px;
-                    font-size: 14px;
-                    color: rgba(0, 0, 0, 0.25);
-                    font-family: 'Cairo', sans-serif;
-                    font-weight: bold;
-                    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
-                    z-index: 9999;
-                    transform: rotate(-15deg);
-                    transform-origin: center;
-                    user-select: none;
-                    letter-spacing: 1px;
-                    pointer-events: none;
-                ">سامقة للتصميم</div>
             </div>
             <div class="footer">
                 <p>© ${new Date().getFullYear()} سامقة للتصميم - جميع الحقوق محفوظة</p>
@@ -1560,8 +1629,7 @@ const exportDesignWithWatermark = async () => {
             }
         }
 
-        // Draw watermark
-            drawWatermarkOnCanvas(ctx)
+        // Watermark removed from export as requested
             downloadCanvas(exportCanvas)
 
         // Restore original watermark state
@@ -1574,21 +1642,47 @@ const exportDesignWithWatermark = async () => {
 }
 
 const drawWatermarkOnCanvas = (ctx) => {
-    // Draw watermark
-    ctx.save()
-    ctx.font = 'bold 14px Cairo, sans-serif'
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)'
-    ctx.textAlign = 'right'
+    if (props.context === 'client') {
+        // Draw diagonal watermark pattern for client
+        ctx.save()
+        ctx.font = 'bold 16px Cairo, sans-serif'
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'
+        ctx.textAlign = 'center'
 
-    // Position at bottom right
-    const x = canvasWidth.value - 15
-    const y = canvasHeight.value - 15
+        // Calculate diagonal spacing
+        const spacing = 120
+        const diagonal = Math.sqrt(canvasWidth.value * canvasWidth.value + canvasHeight.value * canvasHeight.value)
+        const count = Math.ceil(diagonal / spacing)
 
-    // Rotate text
-    ctx.translate(x, y)
-    ctx.rotate(-15 * Math.PI / 180)
-    ctx.fillText('سامقة للتصميم', 0, 0)
-    ctx.restore()
+        for (let i = 0; i < count; i++) {
+            ctx.save()
+            // Position along diagonal
+            const x = (i * spacing) - canvasHeight.value / 2
+            const y = canvasHeight.value / 2
+
+            ctx.translate(x, y)
+            ctx.rotate(-45 * Math.PI / 180)
+            ctx.fillText('سامقة للتصميم', 0, 0)
+            ctx.restore()
+        }
+        ctx.restore()
+    } else {
+        // Draw single watermark for admin
+        ctx.save()
+        ctx.font = 'bold 14px Cairo, sans-serif'
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.25)'
+        ctx.textAlign = 'right'
+
+        // Position at bottom right
+        const x = canvasWidth.value - 15
+        const y = canvasHeight.value - 15
+
+        // Rotate text
+        ctx.translate(x, y)
+        ctx.rotate(-15 * Math.PI / 180)
+        ctx.fillText('سامقة للتصميم', 0, 0)
+        ctx.restore()
+    }
 }
 
 const downloadCanvas = (canvas, filename = null) => {
@@ -1851,6 +1945,44 @@ const generateAdvancedPreviewHTML = (designData) => {
             html += generateElementHTML(element)
         }
     })
+
+    // Always add diagonal watermark pattern in preview (default for all contexts)
+    const spacing = 120
+    const canvasW = designData.canvas?.width || 800
+    const canvasH = designData.canvas?.height || 600
+    const diagonal = Math.sqrt(canvasW * canvasW + canvasH * canvasH)
+    const count = Math.ceil(diagonal / spacing)
+
+    console.log('🔍 Advanced Preview Watermark Debug:', {
+        canvasW,
+        canvasH,
+        diagonal,
+        count,
+        spacing
+    })
+
+    html += `<div style="position: absolute; inset: 0; pointer-events: none; z-index: 9999;">`
+    for (let i = 0; i < count; i++) {
+        const x = (i * spacing) - canvasH / 2
+        const y = canvasH / 2
+        html += `
+            <div style="
+                position: absolute;
+                left: ${x}px;
+                top: ${y}px;
+                font-size: 16px;
+                color: rgba(0, 0, 0, 0.2);
+                font-family: 'Cairo', sans-serif;
+                font-weight: bold;
+                transform: rotate(-45deg) translateY(-50%);
+                transform-origin: left center;
+                white-space: nowrap;
+                letter-spacing: 2px;
+                user-select: none;
+                pointer-events: none;
+            ">سامقة للتصميم</div>`
+    }
+    html += `</div>`
 
     html += `
             </div>
@@ -2210,8 +2342,7 @@ const createAdvancedPreviewCanvas = async () => {
         }
     }
 
-    // Draw watermark
-    drawWatermarkOnCanvas(ctx)
+    // Watermark removed from export as requested
 
     console.log('✅ Canvas d\'export créé avec succès')
     return exportCanvas
@@ -2296,12 +2427,7 @@ const exportAsSVG = async () => {
         }
     })
 
-    // Add watermark
-    svgContent += `<text x="${canvasWidth.value - 10}" y="${canvasHeight.value - 10}"
-        text-anchor="end" font-family="Cairo, Arial" font-size="12"
-        fill="rgba(0,0,0,0.3)" transform="rotate(-15 ${canvasWidth.value - 50} ${canvasHeight.value - 20})">
-        سامقة للتصميم
-    </text>`
+    // Watermark removed from SVG export as requested
 
     svgContent += '</svg>'
 

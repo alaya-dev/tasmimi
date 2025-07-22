@@ -15,14 +15,14 @@
         <template #header>
             <div class="flex justify-between items-center flex-row-reverse">
                 <div class="flex items-center flex-row-reverse">
-                    <Link
-                        :href="route('admin.templates.index')"
+                    <button
+                        @click="goBack"
                         class="ml-4 text-gray-600 hover:text-gray-900 transition-colors duration-200"
                     >
                         <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                         </svg>
-                    </Link>
+                    </button>
                     <div class="text-right">
                         <h2 class="font-semibold text-xl text-gray-800 leading-tight">محرر التصميم</h2>
                         <p class="mt-1 text-sm text-gray-600">{{ template.name }}</p>
@@ -103,6 +103,11 @@ const handleUpdate = (updateData) => {
 const handleExport = (exportData) => {
     console.log('🔧 Admin: Handling export:', exportData)
     // Handle export operations if needed
+}
+
+// Go back to previous page
+const goBack = () => {
+    window.history.back()
 }
 </script>
 

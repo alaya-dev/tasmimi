@@ -1,6 +1,6 @@
 <template>
     <Head title="تعديل تصميم العميل" />
-    
+
     <AdminLayoutSidebar>
         <template #breadcrumb>
             <Link :href="route('admin.client-templates.index')" class="text-gray-500 hover:text-gray-700">
@@ -15,14 +15,14 @@
         <template #header>
             <div class="flex justify-between items-center flex-row-reverse">
                 <div class="flex items-center flex-row-reverse">
-                    <Link 
-                        :href="route('admin.client-templates.index')" 
+                    <button
+                        @click="goBack"
                         class="ml-4 text-gray-600 hover:text-gray-900 transition-colors duration-200"
                     >
                         <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                         </svg>
-                    </Link>
+                    </button>
                     <div class="text-right">
                         <h2 class="font-semibold text-xl text-gray-800 leading-tight">تعديل تصميم العميل</h2>
                         <p class="mt-1 text-sm text-gray-600">{{ clientTemplate.name || 'تصميم العميل' }}</p>
@@ -59,7 +59,7 @@ const props = defineProps({
 const handleSave = async (saveData) => {
     try {
         console.log('🔧 Admin-Client: Handling save for client template:', props.clientTemplate.id)
-        
+
         const response = await fetch(route('admin.client-templates.update', props.clientTemplate.id), {
             method: 'PUT',
             headers: {
@@ -76,7 +76,7 @@ const handleSave = async (saveData) => {
         if (response.ok) {
             const result = await response.json()
             console.log('✅ Admin-Client: Design saved successfully', result)
-            
+
             if (result.success) {
                 alert('تم حفظ تصميم العميل بنجاح')
             }
@@ -100,6 +100,11 @@ const handleUpdate = (updateData) => {
 const handleExport = (exportData) => {
     console.log('🔧 Admin-Client: Handling export:', exportData)
     // Handle export operations if needed
+}
+
+// Go back to previous page
+const goBack = () => {
+    window.history.back()
 }
 </script>
 
