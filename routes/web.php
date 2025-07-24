@@ -182,5 +182,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 require __DIR__.'/auth.php';
 
+// CSRF token refresh endpoint
+Route::get('/csrf-token', function () {
+    return response()->json([
+        'csrf_token' => csrf_token()
+    ]);
+})->middleware('web');
+
 // Route de test pour les abonnements
 Route::get('/test-subscriptions', [App\Http\Controllers\TestController::class, 'testSubscriptions'])->name('test.subscriptions');

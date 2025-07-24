@@ -128,6 +128,13 @@ class ClientTemplateController extends Controller
                 ], 422);
             }
 
+            \Log::info('Client template store attempt', [
+                'user_id' => auth()->id(),
+                'template_id' => $request->template_id,
+                'name' => $request->name,
+                'data_size' => strlen($request->design_data ?? ''),
+            ]);
+
             // Vérifier que le template existe et est actif
             $template = Template::where('id', $request->template_id)
                 ->where('is_active', true)
@@ -140,21 +147,76 @@ class ClientTemplateController extends Controller
                 ], 404);
             }
 
-            // Créer le design client
-            $clientTemplate = ClientTemplate::create([
-                'user_id' => auth()->id(),
-                'template_id' => $request->template_id,
-                'name' => $request->name,
-                'design_data' => $request->design_data,
-                'editable_elements' => $request->editable_elements,
-                'canvas_size' => $request->canvas_size ?? $template->canvas_size,
-                'notes' => $request->notes,
-                'last_edited_at' => now(),
-            ]);
+            // Check if we're updating a specific client template (from edit mode)
+            // or if we need to find/create one for this user and template
+            $existingClientTemplate = null;
+
+            // If we have a client_template_id in the request, we're updating a specific template
+            if ($request->has('client_template_id')) {
+                $existingClientTemplate = ClientTemplate::where('id', $request->client_template_id)
+                    ->where('user_id', auth()->id())
+                    ->first();
+            } else {
+                // Otherwise, check if client template already exists for this user and template
+                $existingClientTemplate = ClientTemplate::where('user_id', auth()->id())
+                    ->where('template_id', $request->template_id)
+                    ->first();
+            }
+
+            if ($existingClientTemplate) {
+                // Update existing client template
+                // Check if we're trying to update with a name that would cause a unique constraint violation
+                $nameToUse = $request->name;
+
+                // If the name is different and would cause a conflict, generate a unique name
+                if ($existingClientTemplate->name !== $request->name) {
+                    $conflictCheck = ClientTemplate::where('user_id', auth()->id())
+                        ->where('template_id', $request->template_id)
+                        ->where('name', $request->name)
+                        ->where('id', '!=', $existingClientTemplate->id)
+                        ->exists();
+
+                    if ($conflictCheck) {
+                        // Generate a unique name by appending timestamp
+                        $nameToUse = $request->name . ' - ' . now()->format('H:i:s');
+                    }
+                }
+
+                $existingClientTemplate->update([
+                    'name' => $nameToUse,
+                    'design_data' => $request->design_data,
+                    'editable_elements' => $request->editable_elements,
+                    'canvas_size' => $request->canvas_size ?? $template->canvas_size,
+                    'notes' => $request->notes,
+                    'last_edited_at' => now(),
+                    'version' => ($existingClientTemplate->version ?? 0) + 1,
+                ]);
+
+                $clientTemplate = $existingClientTemplate;
+                $action = 'updated';
+            } else {
+                // Create new client template
+                $clientTemplate = ClientTemplate::create([
+                    'user_id' => auth()->id(),
+                    'template_id' => $request->template_id,
+                    'name' => $request->name,
+                    'design_data' => $request->design_data,
+                    'editable_elements' => $request->editable_elements,
+                    'canvas_size' => $request->canvas_size ?? $template->canvas_size,
+                    'notes' => $request->notes,
+                    'last_edited_at' => now(),
+                    'version' => 1,
+                ]);
+
+                $action = 'created';
+            }
+
+            $message = $action === 'created' ? 'تم إنشاء التصميم بنجاح' : 'تم تحديث التصميم بنجاح';
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم حفظ التصميم بنجاح',
+                'message' => $message,
+                'action' => $action,
                 'client_template' => [
                     'id' => $clientTemplate->id,
                     'name' => $clientTemplate->name,
@@ -167,12 +229,17 @@ class ClientTemplateController extends Controller
             \Log::error('Client template save error: ' . $e->getMessage(), [
                 'user_id' => auth()->id(),
                 'template_id' => $request->template_id ?? null,
+                'request_data' => $request->all(),
+                'error_message' => $e->getMessage(),
+                'error_file' => $e->getFile(),
+                'error_line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حفظ التصميم'
+                'message' => 'حدث خطأ أثناء حفظ التصميم',
+                'debug' => app()->environment('local') ? $e->getMessage() : null
             ], 500);
         }
     }

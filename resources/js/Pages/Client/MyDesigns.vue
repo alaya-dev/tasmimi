@@ -94,7 +94,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                     </svg>
                                 </button>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -137,10 +137,10 @@
                     <!-- Actions -->
                     <div class="px-4 pb-4 flex space-x-2 space-x-reverse">
                         <button
-                            @click="editDesign(design)"
+                            @click="cloneDesign(design)"
                             class="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 px-4 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-200"
                         >
-                            تحرير
+                            استنساخ
                         </button>
                         <button
                             @click="showDeleteModal(design)"
@@ -219,6 +219,70 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modern Success Popup -->
+        <Transition
+            enter-active-class="transition ease-out duration-300"
+            enter-from-class="opacity-0 transform translate-y-2"
+            enter-to-class="opacity-100 transform translate-y-0"
+            leave-active-class="transition ease-in duration-200"
+            leave-from-class="opacity-100 transform translate-y-0"
+            leave-to-class="opacity-0 transform translate-y-2"
+        >
+            <div v-if="showSuccessPopup" class="fixed top-4 right-4 z-50">
+                <div class="bg-white rounded-lg shadow-xl border-l-4 border-green-500 p-4 max-w-sm">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="mr-3">
+                            <p class="text-sm font-medium text-gray-900">{{ popupMessage }}</p>
+                        </div>
+                        <div class="mr-auto pl-3">
+                            <button @click="showSuccessPopup = false" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+
+        <!-- Modern Error Popup -->
+        <Transition
+            enter-active-class="transition ease-out duration-300"
+            enter-from-class="opacity-0 transform translate-y-2"
+            enter-to-class="opacity-100 transform translate-y-0"
+            leave-active-class="transition ease-in duration-200"
+            leave-from-class="opacity-100 transform translate-y-0"
+            leave-to-class="opacity-0 transform translate-y-2"
+        >
+            <div v-if="showErrorPopup" class="fixed top-4 right-4 z-50">
+                <div class="bg-white rounded-lg shadow-xl border-l-4 border-red-500 p-4 max-w-sm">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="mr-3">
+                            <p class="text-sm font-medium text-gray-900">{{ popupMessage }}</p>
+                        </div>
+                        <div class="mr-auto pl-3">
+                            <button @click="showErrorPopup = false" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Transition>
     </ClientLayout>
 </template>
 
@@ -247,9 +311,57 @@ const editingName = ref(null);
 const editingNameValue = ref('');
 const nameInput = ref(null);
 
+// Modern popup message state
+const showSuccessPopup = ref(false);
+const showErrorPopup = ref(false);
+const popupMessage = ref('');
+
 // Methods
 const editDesign = (design) => {
     router.visit(route('client.designs.edit', design.id));
+};
+
+const cloneDesign = async (design) => {
+    try {
+        console.log('🔄 Cloning design:', design.name);
+
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (!csrfToken) {
+            throw new Error('CSRF token not found');
+        }
+
+        const response = await fetch(route('client.designs.duplicate', design.id), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('✅ Design cloned successfully:', result);
+
+            if (result.success) {
+                showSuccessMessage('تم استنساخ التصميم بنجاح!');
+                // Refresh the page to show the new cloned design
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500); // Wait 1.5 seconds to show the success message
+            } else {
+                showErrorMessage(result.message || 'خطأ في استنساخ التصميم');
+            }
+        } else {
+            const errorText = await response.text();
+            console.error('❌ Clone request failed:', response.status, errorText);
+            showErrorMessage('خطأ في استنساخ التصميم');
+        }
+    } catch (error) {
+        console.error('Error cloning design:', error);
+        showErrorMessage('خطأ في استنساخ التصميم');
+    }
 };
 
 const duplicateDesign = async (design) => {
@@ -258,6 +370,23 @@ const duplicateDesign = async (design) => {
     } catch (error) {
         console.error('Error duplicating design:', error);
     }
+};
+
+// Modern popup message functions
+const showSuccessMessage = (message) => {
+    popupMessage.value = message;
+    showSuccessPopup.value = true;
+    setTimeout(() => {
+        showSuccessPopup.value = false;
+    }, 3000);
+};
+
+const showErrorMessage = (message) => {
+    popupMessage.value = message;
+    showErrorPopup.value = true;
+    setTimeout(() => {
+        showErrorPopup.value = false;
+    }, 3000);
 };
 
 const showExportModal = (design) => {
