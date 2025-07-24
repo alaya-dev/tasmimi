@@ -42,13 +42,19 @@
                                             الاسم
                                         </th>
                                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            النوع
+                                            النوع / المدة
                                         </th>
                                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             السعر
                                         </th>
                                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            الميزات
+                                        </th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             الحالة
+                                        </th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            الترتيب
                                         </th>
                                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             الإجراءات
@@ -61,18 +67,44 @@
                                             {{ subscription.name }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                                                  :class="getTypeClass(subscription.type)">
-                                                {{ types[subscription.type] }}
-                                            </span>
+                                            <div class="flex flex-col">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                                      :class="getTypeClass(subscription.type)">
+                                                    {{ getDurationText(subscription) }}
+                                                </span>
+                                                <span v-if="subscription.duration_days" class="text-xs text-gray-400 mt-1">
+                                                    {{ subscription.duration_days }} يوم
+                                                </span>
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                                            {{ subscription.price }} ريال
+                                            <div class="flex flex-col">
+                                                <span class="font-medium">{{ subscription.price }} ريال</span>
+                                                <span v-if="subscription.is_popular" class="text-xs text-orange-600 font-medium">
+                                                    🔥 الأكثر شعبية
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-500 text-right">
+                                            <div v-if="subscription.features && subscription.features.length > 0" class="space-y-1">
+                                                <div v-for="feature in subscription.features.slice(0, 2)" :key="feature" class="text-xs">
+                                                    • {{ feature }}
+                                                </div>
+                                                <div v-if="subscription.features.length > 2" class="text-xs text-gray-400">
+                                                    +{{ subscription.features.length - 2 }} المزيد
+                                                </div>
+                                            </div>
+                                            <span v-else class="text-xs text-gray-400">لا توجد ميزات محددة</span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                                                   :class="subscription.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
                                                 {{ subscription.is_active ? 'نشط' : 'غير نشط' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                {{ subscription.sort_order || 0 }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
@@ -97,7 +129,7 @@
                                         </td>
                                     </tr>
                                     <tr v-if="subscriptions.length === 0">
-                                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                                             لا توجد اشتراكات مضافة بعد
                                         </td>
                                     </tr>
@@ -151,10 +183,33 @@
                             <option v-for="(label, value) in types" :key="value" :value="value">
                                 {{ label }}
                             </option>
+                            <option value="custom">مخصص</option>
                         </select>
                         <div v-if="form.errors.type" class="mt-2 text-sm text-red-600 text-right">
                             {{ form.errors.type }}
                         </div>
+                    </div>
+
+                    <!-- Custom Duration (only show if type is custom) -->
+                    <div v-if="form.type === 'custom'">
+                        <label for="duration_days" class="block text-sm font-medium text-gray-700 text-right mb-2">
+                            مدة الاشتراك (بالأيام)
+                        </label>
+                        <input
+                            id="duration_days"
+                            v-model="form.duration_days"
+                            type="number"
+                            min="1"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            style="text-align: right; direction: rtl;"
+                            placeholder="مثال: 14 للأسبوعين، 60 للشهرين"
+                        />
+                        <div v-if="form.errors.duration_days" class="mt-2 text-sm text-red-600 text-right">
+                            {{ form.errors.duration_days }}
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500 text-right">
+                            أمثلة: 7 أيام = أسبوع، 30 يوم = شهر، 365 يوم = سنة
+                        </p>
                     </div>
 
                     <!-- Price -->
@@ -194,17 +249,100 @@
                         </div>
                     </div>
 
-                    <!-- Is Active -->
-                    <div class="flex items-center justify-end">
-                        <label for="is_active" class="flex items-center">
-                            <input
-                                id="is_active"
-                                v-model="form.is_active"
-                                type="checkbox"
-                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            />
-                            <span class="mr-2 text-sm text-gray-700">نشط</span>
+                    <!-- Features -->
+                    <div>
+                        <label for="features" class="block text-sm font-medium text-gray-700 text-right mb-2">
+                            الميزات المتضمنة (اختياري)
                         </label>
+                        <div class="space-y-2">
+                            <div v-for="(feature, index) in form.features" :key="index" class="flex items-center gap-2">
+                                <input
+                                    v-model="form.features[index]"
+                                    type="text"
+                                    class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    style="text-align: right; direction: rtl;"
+                                    placeholder="مثال: تصاميم غير محدودة"
+                                />
+                                <button
+                                    type="button"
+                                    @click="removeFeature(index)"
+                                    class="text-red-600 hover:text-red-800"
+                                >
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <button
+                                type="button"
+                                @click="addFeature"
+                                class="text-indigo-600 hover:text-indigo-800 text-sm flex items-center gap-1"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                إضافة ميزة
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sort Order -->
+                    <div>
+                        <label for="sort_order" class="block text-sm font-medium text-gray-700 text-right mb-2">
+                            ترتيب العرض
+                        </label>
+                        <input
+                            id="sort_order"
+                            v-model="form.sort_order"
+                            type="number"
+                            min="0"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            style="text-align: right; direction: rtl;"
+                            placeholder="0"
+                        />
+                        <p class="mt-1 text-sm text-gray-500 text-right">
+                            الرقم الأصغر يظهر أولاً
+                        </p>
+                    </div>
+
+                    <!-- Color -->
+                    <div>
+                        <label for="color" class="block text-sm font-medium text-gray-700 text-right mb-2">
+                            لون البطاقة (اختياري)
+                        </label>
+                        <input
+                            id="color"
+                            v-model="form.color"
+                            type="color"
+                            class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        />
+                    </div>
+
+                    <!-- Checkboxes -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-end">
+                            <label for="is_active" class="flex items-center">
+                                <input
+                                    id="is_active"
+                                    v-model="form.is_active"
+                                    type="checkbox"
+                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                />
+                                <span class="mr-2 text-sm text-gray-700">نشط</span>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-end">
+                            <label for="is_popular" class="flex items-center">
+                                <input
+                                    id="is_popular"
+                                    v-model="form.is_popular"
+                                    type="checkbox"
+                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                />
+                                <span class="mr-2 text-sm text-gray-700">الأكثر شعبية</span>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Buttons -->
@@ -289,8 +427,13 @@ const subscriptionToDelete = ref(null);
 const form = useForm({
     name: '',
     type: '',
+    duration_days: '',
     price: '',
     description: '',
+    features: [],
+    sort_order: 0,
+    is_popular: false,
+    color: '',
     is_active: true,
 });
 
@@ -301,8 +444,35 @@ const getTypeClass = (type) => {
         'annual': 'bg-purple-100 text-purple-800',
         'monthly': 'bg-blue-100 text-blue-800',
         'weekly': 'bg-green-100 text-green-800',
+        'custom': 'bg-orange-100 text-orange-800',
     };
     return classes[type] || 'bg-gray-100 text-gray-800';
+};
+
+const getDurationText = (subscription) => {
+    if (subscription.duration_days) {
+        if (subscription.duration_days == 7) {
+            return 'أسبوعي';
+        } else if (subscription.duration_days == 30) {
+            return 'شهري';
+        } else if (subscription.duration_days == 90) {
+            return 'ربع سنوي';
+        } else if (subscription.duration_days == 365) {
+            return 'سنوي';
+        } else {
+            return subscription.duration_days + ' يوم';
+        }
+    }
+
+    return props.types[subscription.type] || subscription.type;
+};
+
+const addFeature = () => {
+    form.features.push('');
+};
+
+const removeFeature = (index) => {
+    form.features.splice(index, 1);
 };
 
 const openAddModal = () => {
@@ -316,13 +486,18 @@ const openEditModal = (subscription) => {
     isEditing.value = true;
     form.reset();
     form.clearErrors();
-    
+
     form.name = subscription.name;
     form.type = subscription.type;
+    form.duration_days = subscription.duration_days || '';
     form.price = subscription.price;
     form.description = subscription.description || '';
+    form.features = subscription.features ? [...subscription.features] : [];
+    form.sort_order = subscription.sort_order || 0;
+    form.is_popular = subscription.is_popular || false;
+    form.color = subscription.color || '';
     form.is_active = subscription.is_active;
-    
+
     form.subscription_id = subscription.id;
     showModal.value = true;
 };

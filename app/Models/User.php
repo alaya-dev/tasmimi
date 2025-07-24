@@ -134,4 +134,39 @@ class User extends Authenticatable
     {
         return $this->hasMany(ClientTemplate::class);
     }
+
+    /**
+     * Get the user's subscriptions.
+     */
+    public function userSubscriptions()
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+
+    /**
+     * Get the user's payments.
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Get the user's active subscription.
+     */
+    public function activeSubscription()
+    {
+        return $this->userSubscriptions()
+                    ->where('status', UserSubscription::STATUS_ACTIVE)
+                    ->where('ends_at', '>', now())
+                    ->first();
+    }
+
+    /**
+     * Check if user has an active subscription.
+     */
+    public function hasActiveSubscription(): bool
+    {
+        return $this->activeSubscription() !== null;
+    }
 }

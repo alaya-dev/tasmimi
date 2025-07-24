@@ -10,8 +10,10 @@ class SubscriptionController extends Controller
 {
     public function index()
     {
-        $subscriptions = Subscription::orderBy('type')->orderBy('created_at', 'desc')->get();
-        
+        $subscriptions = Subscription::ordered()
+                                   ->orderBy('created_at', 'desc')
+                                   ->get();
+
         return Inertia::render('Subscriptions/Index', [
             'subscriptions' => $subscriptions,
             'types' => Subscription::getTypes(),
@@ -22,13 +24,28 @@ class SubscriptionController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|in:annual,monthly,weekly',
+            'type' => 'required|in:annual,monthly,weekly,custom',
+            'duration_days' => 'nullable|integer|min:1|required_if:type,custom',
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
+            'features' => 'nullable|array',
+            'features.*' => 'string|max:255',
+            'sort_order' => 'nullable|integer|min:0',
+            'is_popular' => 'boolean',
+            'color' => 'nullable|string|max:7',
             'is_active' => 'boolean',
         ]);
 
-        Subscription::create($request->all());
+        $data = $request->all();
+
+        // Filter out empty features
+        if (isset($data['features'])) {
+            $data['features'] = array_filter($data['features'], function($feature) {
+                return !empty(trim($feature));
+            });
+        }
+
+        Subscription::create($data);
 
         return redirect()->back()->with('success', 'تم إنشاء الاشتراك بنجاح');
     }
@@ -37,13 +54,28 @@ class SubscriptionController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|in:annual,monthly,weekly',
+            'type' => 'required|in:annual,monthly,weekly,custom',
+            'duration_days' => 'nullable|integer|min:1|required_if:type,custom',
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
+            'features' => 'nullable|array',
+            'features.*' => 'string|max:255',
+            'sort_order' => 'nullable|integer|min:0',
+            'is_popular' => 'boolean',
+            'color' => 'nullable|string|max:7',
             'is_active' => 'boolean',
         ]);
 
-        $subscription->update($request->all());
+        $data = $request->all();
+
+        // Filter out empty features
+        if (isset($data['features'])) {
+            $data['features'] = array_filter($data['features'], function($feature) {
+                return !empty(trim($feature));
+            });
+        }
+
+        $subscription->update($data);
 
         return redirect()->back()->with('success', 'تم تحديث الاشتراك بنجاح');
     }

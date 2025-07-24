@@ -107,6 +107,20 @@ Route::prefix('client')->name('client.')->group(function () {
                 'invoices' => []
             ]);
         })->name('invoices');
+
+        // Routes de paiement et abonnements
+        Route::get('/subscriptions', [App\Http\Controllers\SubscriptionPaymentController::class, 'index'])->name('subscriptions.index');
+        Route::get('/subscriptions/{subscription}', [App\Http\Controllers\SubscriptionPaymentController::class, 'show'])->name('subscriptions.show');
+        Route::post('/subscriptions/{subscription}/payment', [App\Http\Controllers\SubscriptionPaymentController::class, 'processPayment'])->name('subscriptions.payment');
+        Route::get('/subscription/manage', [App\Http\Controllers\SubscriptionPaymentController::class, 'manage'])->name('subscription.manage');
+        Route::post('/subscription/cancel', [App\Http\Controllers\SubscriptionPaymentController::class, 'cancel'])->name('subscription.cancel');
+        Route::post('/subscription/change/{subscription}', [App\Http\Controllers\SubscriptionPaymentController::class, 'changePlan'])->name('subscription.change');
+
+        // Routes de paiement Moyasar
+        Route::get('/payment/{subscription}', [App\Http\Controllers\MoyasarPaymentController::class, 'show'])->name('payment.show');
+        Route::post('/payment/{subscription}/process', [App\Http\Controllers\MoyasarPaymentController::class, 'processPayment'])->name('payment.process');
+        Route::get('/payment/callback', [App\Http\Controllers\MoyasarPaymentController::class, 'callback'])->name('payment.callback');
+        Route::post('/payment/status', [App\Http\Controllers\MoyasarPaymentController::class, 'checkStatus'])->name('payment.status');
     });
 });
 
@@ -191,3 +205,6 @@ Route::get('/csrf-token', function () {
 
 // Route de test pour les abonnements
 Route::get('/test-subscriptions', [App\Http\Controllers\TestController::class, 'testSubscriptions'])->name('test.subscriptions');
+
+// Moyasar Webhook (must be accessible without authentication)
+Route::post('/moyasar/webhook', [App\Http\Controllers\MoyasarWebhookController::class, 'handleWebhook'])->name('moyasar.webhook');
