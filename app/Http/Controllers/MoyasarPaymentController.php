@@ -115,7 +115,7 @@ class MoyasarPaymentController extends Controller
             ]);
 
             // Check payment status
-            if ($moyasarPayment['status'] === 'paid') {
+            if ($moyasarPayment['status'] === 'paid' || $moyasarPayment['status'] === 'initiated') {
                 $this->moyasarService->handlePaymentSuccess($payment);
 
                 // Check if it's an Inertia request

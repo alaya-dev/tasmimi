@@ -102,6 +102,7 @@
                                                 maxlength="19"
                                                 @input="formatCardNumber"
                                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                style="direction: ltr; text-align: left;"
                                                 placeholder="1234 5678 9012 3456"
                                             />
                                         </div>
@@ -119,6 +120,7 @@
                                                     maxlength="5"
                                                     @input="formatExpiry"
                                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                    style="direction: ltr; text-align: left;"
                                                     placeholder="MM/YY"
                                                 />
                                             </div>
@@ -133,6 +135,7 @@
                                                     required
                                                     maxlength="3"
                                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                    style="direction: ltr; text-align: left;"
                                                     placeholder="123"
                                                 />
                                             </div>
