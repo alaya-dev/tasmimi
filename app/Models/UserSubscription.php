@@ -15,7 +15,7 @@ class UserSubscription extends Model
     protected $fillable = [
         'user_id',
         'subscription_id',
-        'stripe_subscription_id',
+        'gateway_subscription_id',
         'status',
         'starts_at',
         'ends_at',

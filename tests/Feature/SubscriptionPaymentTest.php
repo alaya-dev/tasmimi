@@ -275,7 +275,7 @@ class SubscriptionPaymentTest extends TestCase
         $payment = Payment::create([
             'user_id' => $user->id,
             'subscription_id' => $subscription->id,
-            'stripe_payment_intent_id' => 'moyasar_payment_' . uniqid(), // Réutilisation du champ pour Moyasar
+            'payment_gateway_id' => 'moyasar_payment_' . uniqid(), // Moyasar payment ID
             'amount' => $subscription->price,
             'currency' => 'SAR',
             'status' => Payment::STATUS_PENDING,

@@ -51,33 +51,7 @@ class SubscriptionPaymentController extends Controller
         ]);
     }
 
-    /**
-     * Process subscription payment
-     */
-    public function processPayment(Request $request, Subscription $subscription)
-    {
-        $request->validate([
-            'payment_method_id' => 'required|string',
-        ]);
 
-        $user = Auth::user();
-
-        // Check if user already has this subscription active
-        $existingSubscription = UserSubscription::where('user_id', $user->id)
-            ->where('subscription_id', $subscription->id)
-            ->where('status', UserSubscription::STATUS_ACTIVE)
-            ->where('ends_at', '>', now())
-            ->first();
-
-        if ($existingSubscription) {
-            return response()->json([
-                'error' => 'لديك اشتراك نشط بالفعل في هذه الخطة'
-            ], 400);
-        }
-
-        // Redirect to Moyasar payment controller
-        return app(MoyasarPaymentController::class)->processPayment($request, $subscription);
-    }
 
     /**
      * Show user's subscription management page
@@ -182,7 +156,9 @@ class SubscriptionPaymentController extends Controller
             ]);
         }
 
-        // Process payment for the difference
-        return app(MoyasarPaymentController::class)->processPayment($request, $newSubscription);
+        // For now, redirect to payment page for the new subscription
+        return response()->json([
+            'redirect' => route('client.payment.show', $newSubscription->id)
+        ]);
     }
 }

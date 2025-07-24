@@ -242,62 +242,76 @@ const formatExpiry = (event) => {
 };
 
 const processPayment = async () => {
+    if (processing.value) return;
+
     processing.value = true;
-    
+
     try {
-        // Prepare payment data
+        // Prepare payment data based on payment method
         const paymentData = {
-            payment_method: selectedPaymentMethod.value,
-            ...form.value
+            payment_method: selectedPaymentMethod.value
         };
 
-        // Convert expiry to month/year
-        if (selectedPaymentMethod.value === 'creditcard' && form.value.card_expiry) {
-            const [month, year] = form.value.card_expiry.split('/');
-            paymentData.card_month = parseInt(month);
-            paymentData.card_year = parseInt('20' + year);
+        if (selectedPaymentMethod.value === 'creditcard') {
+            // Add credit card specific fields
+            paymentData.card_name = form.value.card_name;
+            paymentData.card_number = form.value.card_number.replace(/\s/g, ''); // Remove spaces
+            paymentData.card_cvc = form.value.card_cvc;
+
+            // Convert expiry to month/year
+            if (form.value.card_expiry) {
+                const [month, year] = form.value.card_expiry.split('/');
+                paymentData.card_month = parseInt(month);
+                paymentData.card_year = parseInt('20' + year);
+            }
+        } else if (selectedPaymentMethod.value === 'stcpay' || selectedPaymentMethod.value === 'applepay') {
+            // Add token for digital wallet payments
+            paymentData.token = form.value.token;
         }
 
-        const response = await fetch(route('client.subscriptions.payment', props.subscription.id), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        // Use Inertia for better CSRF handling
+        router.post(route('client.subscriptions.payment', props.subscription.id), paymentData, {
+            onSuccess: (page) => {
+                // Check if there's a success response
+                if (page.props.flash?.success) {
+                    router.visit(route('client.subscription.manage'));
+                } else {
+                    // Handle JSON response from controller
+                    const response = page.props.response;
+                    if (response?.success) {
+                        router.visit(response.redirect || route('client.subscription.manage'));
+                    } else if (response?.pending) {
+                        alert('الدفع قيد المعالجة، يرجى الانتظار...');
+                    } else {
+                        alert(response?.error || 'حدث خطأ أثناء معالجة الدفع');
+                    }
+                }
             },
-            body: JSON.stringify(paymentData)
+            onError: (errors) => {
+                console.error('Payment errors:', errors);
+                const errorMessage = Object.values(errors)[0] || 'حدث خطأ أثناء معالجة الدفع';
+                alert(errorMessage);
+            },
+            onFinish: () => {
+                processing.value = false;
+            }
         });
 
-        // Check if response is ok
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Payment error response:', errorText);
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
+        return; // Exit early since Inertia handles the rest
 
-        // Check if response is JSON
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            const errorText = await response.text();
-            console.error('Non-JSON response:', errorText);
-            throw new Error('Le serveur a retourné une réponse invalide');
-        }
 
-        const result = await response.json();
-
-        if (result.success) {
-            router.visit(result.redirect || route('client.subscription.manage'));
-        } else if (result.pending) {
-            // Handle pending payment (e.g., 3D Secure)
-            alert('الدفع قيد المعالجة، يرجى الانتظار...');
-        } else {
-            alert(result.error || 'حدث خطأ أثناء معالجة الدفع');
-        }
     } catch (error) {
         console.error('Payment error:', error);
 
         let errorMessage = 'حدث خطأ أثناء معالجة الدفع';
 
-        if (error.message.includes('HTTP')) {
+        if (error.message.includes('انتهت صلاحية الجلسة')) {
+            errorMessage = error.message;
+            // Optionally reload the page after showing the error
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        } else if (error.message.includes('HTTP')) {
             errorMessage += ': خطأ في الاتصال بالخادم';
         } else if (error.message.includes('JSON')) {
             errorMessage += ': استجابة غير صحيحة من الخادم';

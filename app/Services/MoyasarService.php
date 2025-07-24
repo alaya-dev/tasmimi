@@ -61,7 +61,7 @@ class MoyasarService
                         'month' => $paymentData['month'],
                         'year' => $paymentData['year'],
                     ],
-                    'callback_url' => route('payment.callback'),
+                    'callback_url' => url('/client/payment/callback'),
                     'metadata' => [
                         'user_id' => $user->id,
                         'subscription_id' => $subscription->id,
@@ -78,6 +78,37 @@ class MoyasarService
             ]);
 
             return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            // Erreur 4xx - problème avec les données envoyées
+            $response = $e->getResponse();
+            $errorBody = json_decode($response->getBody()->getContents(), true);
+
+            \Log::error('Moyasar validation error', [
+                'status' => $response->getStatusCode(),
+                'error' => $errorBody,
+                'user_id' => $user->id,
+                'subscription_id' => $subscription->id
+            ]);
+
+            // Extraire le message d'erreur de Moyasar
+            if (isset($errorBody['errors'])) {
+                $errors = [];
+                foreach ($errorBody['errors'] as $field => $messages) {
+                    if ($field === 'source.number') {
+                        $errors[] = 'رقم البطاقة غير صحيح';
+                    } elseif ($field === 'source.cvc') {
+                        $errors[] = 'رمز الأمان غير صحيح';
+                    } elseif ($field === 'source.month' || $field === 'source.year') {
+                        $errors[] = 'تاريخ انتهاء البطاقة غير صحيح';
+                    } else {
+                        $errors[] = is_array($messages) ? $messages[0] : $messages;
+                    }
+                }
+                throw new Exception(implode('. ', $errors));
+            }
+
+            throw new Exception($errorBody['message'] ?? 'خطأ في بيانات الدفع');
+
         } catch (Exception $e) {
             \Log::error('Moyasar payment creation failed', [
                 'error' => $e->getMessage(),
@@ -104,7 +135,7 @@ class MoyasarService
                         'type' => 'token',
                         'token' => $token,
                     ],
-                    'callback_url' => route('payment.callback'),
+                    'callback_url' => url('/client/payment/callback'),
                     'metadata' => [
                         'user_id' => $user->id,
                         'subscription_id' => $subscription->id,
@@ -190,7 +221,7 @@ class MoyasarService
             'auto_renew' => true,
             'metadata' => [
                 'payment_id' => $payment->id,
-                'moyasar_payment_id' => $payment->stripe_payment_intent_id, // Reusing this field for Moyasar ID
+                'moyasar_payment_id' => $payment->payment_gateway_id, // Moyasar payment ID
             ],
         ]);
     }

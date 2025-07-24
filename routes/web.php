@@ -111,7 +111,7 @@ Route::prefix('client')->name('client.')->group(function () {
         // Routes de paiement et abonnements
         Route::get('/subscriptions', [App\Http\Controllers\SubscriptionPaymentController::class, 'index'])->name('subscriptions.index');
         Route::get('/subscriptions/{subscription}', [App\Http\Controllers\SubscriptionPaymentController::class, 'show'])->name('subscriptions.show');
-        Route::post('/subscriptions/{subscription}/payment', [App\Http\Controllers\SubscriptionPaymentController::class, 'processPayment'])->name('subscriptions.payment');
+        Route::post('/subscriptions/{subscription}/payment', [App\Http\Controllers\MoyasarPaymentController::class, 'processPayment'])->name('subscriptions.payment');
         Route::get('/subscription/manage', [App\Http\Controllers\SubscriptionPaymentController::class, 'manage'])->name('subscription.manage');
         Route::post('/subscription/cancel', [App\Http\Controllers\SubscriptionPaymentController::class, 'cancel'])->name('subscription.cancel');
         Route::post('/subscription/change/{subscription}', [App\Http\Controllers\SubscriptionPaymentController::class, 'changePlan'])->name('subscription.change');
