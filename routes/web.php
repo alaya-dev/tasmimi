@@ -144,6 +144,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Gestion des templates clients (بطاقات الحرفاء)
     Route::resource('client-templates', AdminClientTemplateController::class)->only(['index', 'show', 'update', 'destroy']);
 
+    // Gestion des abonnements clients
+    Route::get('client-subscriptions', [App\Http\Controllers\Admin\ClientSubscriptionController::class, 'index'])->name('client-subscriptions.index');
+
 
 
     // Éditeur de design pour templates

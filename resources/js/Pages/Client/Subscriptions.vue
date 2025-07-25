@@ -140,11 +140,11 @@ const getDurationText = (subscription) => {
 
 const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ar-SA', {
+    return date.toLocaleDateString('en-GB', {
         year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+        month: '2-digit',
+        day: '2-digit'
+    }).split('/').reverse().join('/'); // Format: YYYY/MM/DD
 };
 
 const isCurrentPlan = (subscription) => {

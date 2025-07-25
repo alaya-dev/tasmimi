@@ -177,6 +177,7 @@
                         </svg>
                     </Link>
 
+
                     <!-- Smart Cards Section -->
                     <div class="pt-4">
                         <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
@@ -248,6 +249,22 @@
                                 <span class="text-right flex-1">إدارة الاشتراكات</span>
                                 <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                </svg>
+                            </Link>
+
+                            <!-- Client Subscriptions -->
+                            <Link
+                                :href="route('admin.client-subscriptions.index')"
+                                :class="[
+                                    'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-right',
+                                    route().current('admin.client-subscriptions.*')
+                                        ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
+                                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                ]"
+                            >
+                                <span class="text-right flex-1">اشتراكات العملاء</span>
+                                <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                 </svg>
                             </Link>
                         </div>

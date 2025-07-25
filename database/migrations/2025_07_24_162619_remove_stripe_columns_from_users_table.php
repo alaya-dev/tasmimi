@@ -12,12 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn([
-                'stripe_id',
-                'pm_type',
-                'pm_last_four',
-                'trial_ends_at'
-            ]);
+            // Check if columns exist before dropping them
+            if (Schema::hasColumn('users', 'stripe_id')) {
+                $table->dropColumn('stripe_id');
+            }
+            if (Schema::hasColumn('users', 'pm_type')) {
+                $table->dropColumn('pm_type');
+            }
+            if (Schema::hasColumn('users', 'pm_last_four')) {
+                $table->dropColumn('pm_last_four');
+            }
+            if (Schema::hasColumn('users', 'trial_ends_at')) {
+                $table->dropColumn('trial_ends_at');
+            }
         });
     }
 
@@ -34,3 +41,4 @@ return new class extends Migration
         });
     }
 };
+

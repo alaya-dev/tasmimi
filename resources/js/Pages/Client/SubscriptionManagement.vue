@@ -21,7 +21,7 @@
                             <!-- Plan Info -->
                             <div class="text-center">
                                 <div class="text-2xl font-bold text-gray-900 mb-1">
-                                    {{ activeSubscription.subscription.name }}
+                                    {{ activeSubscription.subscription?.name || 'غير محدد' }}
                                 </div>
                                 <div class="text-gray-600">الخطة الحالية</div>
                             </div>
@@ -252,11 +252,11 @@ const cancelling = ref(false);
 
 const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ar-SA', {
+    return date.toLocaleDateString('en-GB', {
         year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+        month: '2-digit',
+        day: '2-digit'
+    }).split('/').reverse().join('/'); // Format: YYYY/MM/DD
 };
 
 const getStatusClass = (status) => {

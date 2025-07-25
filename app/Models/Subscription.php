@@ -122,21 +122,22 @@ class Subscription extends Model
     public function calculateEndDate($startDate = null)
     {
         $startDate = $startDate ?: now();
+        $endDate = $startDate->copy(); // Create a copy to avoid modifying the original
 
         if ($this->duration_days) {
-            return $startDate->addDays($this->duration_days);
+            return $endDate->addDays($this->duration_days);
         }
 
         // Fallback to type-based calculation
         switch ($this->type) {
             case self::TYPE_WEEKLY:
-                return $startDate->addWeek();
+                return $endDate->addWeek();
             case self::TYPE_MONTHLY:
-                return $startDate->addMonth();
+                return $endDate->addMonth();
             case self::TYPE_ANNUAL:
-                return $startDate->addYear();
+                return $endDate->addYear();
             default:
-                return $startDate->addMonth(); // Default to monthly
+                return $endDate->addMonth(); // Default to monthly
         }
     }
 }

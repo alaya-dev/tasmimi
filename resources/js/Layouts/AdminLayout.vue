@@ -22,6 +22,9 @@
                             <NavLink :href="route('admin.contacts.index')" :active="route().current('admin.contacts.*')">
                                 {{ __('common.contacts') }}
                             </NavLink>
+                            <NavLink :href="route('admin.client-subscriptions.index')" :active="route().current('admin.client-subscriptions.*')">
+                                اشتراكات العملاء
+                            </NavLink>
                         </div>
                     </div>
 
@@ -110,6 +113,9 @@
                     </ResponsiveNavLink>
                     <ResponsiveNavLink :href="route('admin.contacts.index')" :active="route().current('admin.contacts.*')">
                         {{ __('common.contacts') }}
+                    </ResponsiveNavLink>
+                    <ResponsiveNavLink :href="route('admin.client-subscriptions.index')" :active="route().current('admin.client-subscriptions.*')">
+                        اشتراكات العملاء
                     </ResponsiveNavLink>
                 </div>
 
