@@ -54,6 +54,13 @@ class ClientTemplateController extends Controller
             abort(404, 'Template non disponible');
         }
 
+        $user = auth()->user();
+        $hasActiveSubscription = $user->hasActiveSubscription();
+        $hasPurchasedTemplate = $user->hasPurchasedTemplate($template->id);
+
+        // Allow access to editor for ALL users regardless of template price
+        // Restrictions will be applied in the editor interface for save/download functionality
+
         return Inertia::render('Client/UnifiedDesignEditor', [
             'template' => [
                 'id' => $template->id,
@@ -63,8 +70,13 @@ class ClientTemplateController extends Controller
                 'canvas_size' => $template->canvas_size,
                 'background_image_url' => $template->background_image_url,
                 'category' => $template->category->name ?? null,
+                'price' => $template->price,
             ],
-            'mode' => 'create'
+            'mode' => 'create',
+            'hasActiveSubscription' => $hasActiveSubscription,
+            'hasPurchasedTemplate' => $hasPurchasedTemplate,
+            'templatePrice' => $template->price,
+            'canSaveAndDownload' => $template->isFree() || $hasActiveSubscription || $hasPurchasedTemplate,
         ]);
     }
 
@@ -78,6 +90,9 @@ class ClientTemplateController extends Controller
             abort(403, 'Accès non autorisé');
         }
 
+        $user = auth()->user();
+        $hasActiveSubscription = $user->hasActiveSubscription();
+
         return Inertia::render('Client/UnifiedDesignEditor', [
             'template' => [
                 'id' => $clientTemplate->id,
@@ -87,14 +102,18 @@ class ClientTemplateController extends Controller
                 'canvas_size' => $clientTemplate->canvas_size,
                 'version' => $clientTemplate->version,
                 'notes' => $clientTemplate->notes,
+                'price' => $clientTemplate->template->price,
             ],
             'originalTemplate' => [
                 'id' => $clientTemplate->template->id,
                 'name' => $clientTemplate->template->name,
                 'editable_elements' => $clientTemplate->template->editable_elements,
                 'background_image_url' => $clientTemplate->template->background_image_url,
+                'price' => $clientTemplate->template->price,
             ],
-            'mode' => 'edit'
+            'mode' => 'edit',
+            'hasActiveSubscription' => $hasActiveSubscription,
+            'templatePrice' => $clientTemplate->template->price,
         ]);
     }
 
@@ -146,6 +165,21 @@ class ClientTemplateController extends Controller
                     'message' => 'القالب المحدد غير متاح'
                 ], 404);
             }
+
+        // Check if user can save this template (for paid templates)
+        $user = auth()->user();
+        $hasActiveSubscription = $user->hasActiveSubscription();
+        $hasPurchasedTemplate = $user->hasPurchasedTemplate($template->id);
+
+        if ($template->isPaid() && !$hasActiveSubscription && !$hasPurchasedTemplate) {
+            return response()->json([
+                'success' => false,
+                'message' => 'يجب شراء هذا القالب أو الاشتراك لحفظ التصميم',
+                'requires_payment' => true,
+                'template_price' => $template->price,
+                'purchase_url' => route('client.templates.purchase', $template)
+            ], 403);
+        }
 
             // Check if we're updating a specific client template (from edit mode)
             // or if we need to find/create one for this user and template

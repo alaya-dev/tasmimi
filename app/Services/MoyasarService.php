@@ -121,6 +121,96 @@ class MoyasarService
     }
 
     /**
+     * Create payment for template purchase
+     */
+    public function createTemplatePurchasePayment($user, $template, $paymentData)
+    {
+        try {
+            \Log::info('Creating Moyasar template payment', [
+                'user_id' => $user->id,
+                'template_id' => $template->id,
+                'amount' => $template->price * 100
+            ]);
+
+            $response = $this->client->post('payments', [
+                'json' => [
+                    'amount' => $template->price * 100, // Convert to halalas
+                    'currency' => 'SAR',
+                    'description' => 'شراء قالب: ' . $template->name,
+                    'source' => [
+                        'type' => 'creditcard',
+                        'name' => $paymentData['name'],
+                        'number' => $paymentData['number'],
+                        'cvc' => $paymentData['cvc'],
+                        'month' => $paymentData['month'],
+                        'year' => $paymentData['year'],
+                    ],
+                    'callback_url' => url('/client/template-purchase/callback'),
+                    'metadata' => [
+                        'user_id' => $user->id,
+                        'template_id' => $template->id,
+                        'user_email' => $user->email,
+                        'purchase_type' => 'template',
+                    ],
+                ]
+            ]);
+
+            $result = json_decode($response->getBody()->getContents(), true);
+
+            \Log::info('Moyasar template payment response received', [
+                'status_code' => $response->getStatusCode(),
+                'payment_id' => $result['id'] ?? 'unknown'
+            ]);
+
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            // Erreur 4xx - problème avec les données envoyées
+            $response = $e->getResponse();
+            $errorBody = json_decode($response->getBody()->getContents(), true);
+
+            \Log::error('Moyasar template payment validation error', [
+                'status' => $response->getStatusCode(),
+                'error' => $errorBody,
+                'user_id' => $user->id,
+                'template_id' => $template->id
+            ]);
+
+            // Extraire le message d'erreur de Moyasar avec plus de détails
+            if (isset($errorBody['errors'])) {
+                $errors = [];
+                foreach ($errorBody['errors'] as $field => $messages) {
+                    $messageArray = is_array($messages) ? $messages : [$messages];
+                    foreach ($messageArray as $message) {
+                        if ($field === 'source.number') {
+                            $errors[] = 'رقم البطاقة غير صحيح أو غير مكتمل. يرجى التحقق من الرقم والمحاولة مرة أخرى.';
+                        } elseif ($field === 'source.cvc') {
+                            $errors[] = 'رمز الأمان (CVC) غير صحيح. يرجى إدخال الرقم المكون من 3 أرقام خلف البطاقة.';
+                        } elseif ($field === 'source.month' || $field === 'source.year') {
+                            $errors[] = 'تاريخ انتهاء البطاقة غير صحيح. يرجى التحقق من الشهر والسنة.';
+                        } elseif ($field === 'source.name') {
+                            $errors[] = 'اسم حامل البطاقة مطلوب.';
+                        } else {
+                            $errors[] = $message;
+                        }
+                    }
+                }
+                throw new Exception(implode(' ', $errors));
+            }
+
+            throw new Exception($errorBody['message'] ?? 'خطأ في بيانات الدفع. يرجى التحقق من المعلومات والمحاولة مرة أخرى.');
+
+        } catch (Exception $e) {
+            \Log::error('Moyasar template payment creation failed', [
+                'error' => $e->getMessage(),
+                'user_id' => $user->id,
+                'template_id' => $template->id
+            ]);
+
+            throw new Exception('فشل في إنشاء الدفع: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Create payment with token (for saved cards)
      */
     public function createPaymentWithToken($user, Subscription $subscription, $token)
@@ -218,7 +308,7 @@ class MoyasarService
             'status' => UserSubscription::STATUS_ACTIVE,
             'starts_at' => $startDate,
             'ends_at' => $endDate,
-            'auto_renew' => true,
+            'auto_renew' => false,
             'metadata' => [
                 'payment_id' => $payment->id,
                 'moyasar_payment_id' => $payment->payment_gateway_id, // Moyasar payment ID

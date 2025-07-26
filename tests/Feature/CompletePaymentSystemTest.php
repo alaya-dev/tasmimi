@@ -173,7 +173,7 @@ class CompletePaymentSystemTest extends TestCase
             'status' => UserSubscription::STATUS_ACTIVE,
             'starts_at' => now(),
             'ends_at' => now()->addDays(30),
-            'auto_renew' => true
+            'auto_renew' => false
         ]);
 
         $paymentData = [

@@ -40,6 +40,9 @@ class HomeController extends Controller
                 // Convert to array and add thumbnail_url with correct storage path
                 $templateArray = $template->toArray();
                 $templateArray['thumbnail_url'] = $template->thumbnail ? asset('storage/' . $template->thumbnail) : null;
+                $templateArray['is_free'] = $template->isFree();
+                $templateArray['is_paid'] = $template->isPaid();
+                $templateArray['formatted_price'] = $template->price > 0 ? number_format($template->price, 0) : null;
                 $allTemplates[$category->id][] = $templateArray;
             }
         }

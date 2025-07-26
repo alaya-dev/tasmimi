@@ -549,8 +549,30 @@
                                         </div>
                                     </div>
 
-
-
+                                    <!-- Price Field -->
+                                    <div>
+                                        <label for="template_price" class="block text-sm font-medium text-gray-700 mb-2 text-right">
+                                            سعر القالب (ريال سعودي) *
+                                        </label>
+                                        <input
+                                            id="template_price"
+                                            v-model="templateForm.price"
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            max="9999.99"
+                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                                            :class="{ 'border-red-500': templateForm.errors.price }"
+                                            placeholder="0.00"
+                                            required
+                                        />
+                                        <p class="mt-1 text-sm text-gray-500 text-right">
+                                            أدخل سعر القالب بالريال السعودي (0 للمجاني)
+                                        </p>
+                                        <div v-if="templateForm.errors.price" class="mt-1 text-sm text-red-600 text-right">
+                                            {{ templateForm.errors.price }}
+                                        </div>
+                                    </div>
 
                                 </form>
                             </div>
@@ -631,6 +653,7 @@ const templateForm = useForm({
     name: '',
     category_id: '',
     thumbnail: null,
+    price: 0,
     _method: null,
 });
 
@@ -681,6 +704,7 @@ const editTemplate = (template) => {
     // Set values directly
     templateForm.name = template.name || '';
     templateForm.category_id = template.category_id ? template.category_id.toString() : '';
+    templateForm.price = template.price || 0;
     templateForm.thumbnail = null;
     thumbnailPreview.value = null;
     showEditTemplateModal.value = true;

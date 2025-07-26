@@ -82,8 +82,18 @@
                             <span>{{ saving ? 'جاري الحفظ...' : 'حفظ' }}</span>
                         </button>
 
-                        <!-- Export -->
+                        <!-- Export or Buy Template Button -->
                         <button
+                            v-if="props.context === 'client' && !props.canSaveAndDownload"
+                            @click="buyTemplate"
+                            class="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 flex items-center space-x-2 space-x-reverse"
+                            title="شراء القالب للحصول على إمكانية التحميل"
+                        >
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>شراء القالب ({{ props.templatePrice }} ريال)</span>
+                        </button>
+                        <button
+                            v-else-if="props.context !== 'client' || props.canSaveAndDownload"
                             @click="showExportModal = true"
                             class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 flex items-center space-x-2 space-x-reverse"
                             title="تصدير التصميم مع العلامة المائية"
@@ -537,6 +547,18 @@ const props = defineProps({
     user: {
         type: Object,
         default: null
+    },
+    hasActiveSubscription: {
+        type: Boolean,
+        default: true
+    },
+    templatePrice: {
+        type: Number,
+        default: 0
+    },
+    canSaveAndDownload: {
+        type: Boolean,
+        default: true
     }
 })
 
@@ -2479,7 +2501,13 @@ const exportAsPDF = async () => {
     }
 }
 
-
+// Function to handle template purchase
+const buyTemplate = () => {
+    if (props.context === 'client' && props.template.id) {
+        // Redirect to template purchase page
+        window.location.href = `/client/templates/${props.template.id}/purchase`
+    }
+}
 
 // Lifecycle
 onMounted(() => {

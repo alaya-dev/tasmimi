@@ -169,4 +169,23 @@ class User extends Authenticatable
     {
         return $this->activeSubscription() !== null;
     }
+
+    /**
+     * Get the user's template purchases.
+     */
+    public function templatePurchases()
+    {
+        return $this->hasMany(TemplatePurchase::class);
+    }
+
+    /**
+     * Check if user has purchased a specific template.
+     */
+    public function hasPurchasedTemplate($templateId): bool
+    {
+        return $this->templatePurchases()
+                    ->where('template_id', $templateId)
+                    ->where('status', TemplatePurchase::STATUS_PAID)
+                    ->exists();
+    }
 }

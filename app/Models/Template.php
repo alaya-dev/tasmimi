@@ -30,6 +30,7 @@ class Template extends Model
         'is_active',
         'created_by',
         'last_edited_at',
+        'price',
     ];
 
     /**
@@ -43,6 +44,7 @@ class Template extends Model
         'design_data' => 'array',
         'editable_elements' => 'array',
         'last_edited_at' => 'datetime',
+        'price' => 'decimal:2',
     ];
 
     /**
@@ -147,5 +149,29 @@ class Template extends Model
         return Attribute::make(
             get: fn ($value) => $this->thumbnail ? asset('storage/' . $this->thumbnail) : null,
         );
+    }
+
+    /**
+     * Get the template purchases.
+     */
+    public function purchases()
+    {
+        return $this->hasMany(TemplatePurchase::class);
+    }
+
+    /**
+     * Check if template is free.
+     */
+    public function isFree(): bool
+    {
+        return $this->price == 0;
+    }
+
+    /**
+     * Check if template is paid.
+     */
+    public function isPaid(): bool
+    {
+        return $this->price > 0;
     }
 }

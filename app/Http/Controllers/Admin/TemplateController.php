@@ -69,6 +69,7 @@ class TemplateController extends Controller
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'price' => 'required|numeric|min:0|max:9999.99',
         ], [
             'name.required' => 'اسم القالب مطلوب',
             'name.max' => 'اسم القالب طويل جداً',
@@ -78,6 +79,10 @@ class TemplateController extends Controller
             'thumbnail.image' => 'يجب أن تكون الصورة من نوع صحيح',
             'thumbnail.mimes' => 'يجب أن تكون الصورة من نوع: jpeg, png, jpg, gif',
             'thumbnail.max' => 'حجم الصورة كبير جداً (الحد الأقصى 2MB)',
+            'price.required' => 'سعر القالب مطلوب',
+            'price.numeric' => 'يجب أن يكون السعر رقماً',
+            'price.min' => 'السعر لا يمكن أن يكون أقل من صفر',
+            'price.max' => 'السعر كبير جداً',
         ]);
 
         // Handle thumbnail upload
@@ -121,6 +126,7 @@ class TemplateController extends Controller
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'price' => 'required|numeric|min:0|max:9999.99',
         ], [
             'name.required' => 'اسم القالب مطلوب',
             'name.max' => 'اسم القالب طويل جداً',
@@ -129,6 +135,10 @@ class TemplateController extends Controller
             'thumbnail.image' => 'يجب أن تكون الصورة من نوع صحيح',
             'thumbnail.mimes' => 'يجب أن تكون الصورة من نوع: jpeg, png, jpg, gif',
             'thumbnail.max' => 'حجم الصورة كبير جداً (الحد الأقصى 2MB)',
+            'price.required' => 'سعر القالب مطلوب',
+            'price.numeric' => 'يجب أن يكون السعر رقماً',
+            'price.min' => 'السعر لا يمكن أن يكون أقل من صفر',
+            'price.max' => 'السعر كبير جداً',
         ]);
 
         // Handle thumbnail upload

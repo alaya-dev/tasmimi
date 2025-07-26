@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamp('starts_at');
             $table->timestamp('ends_at');
             $table->timestamp('canceled_at')->nullable();
-            $table->boolean('auto_renew')->default(true);
+            $table->boolean('auto_renew')->default(false);
             $table->json('metadata')->nullable(); // Pour stocker des données supplémentaires
             $table->timestamps();
 

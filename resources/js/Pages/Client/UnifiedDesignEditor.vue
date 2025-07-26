@@ -15,12 +15,26 @@
                     </button>
                     <div class="text-right">
                         <h2 class="font-semibold text-xl text-gray-800 leading-tight">محرر التصميم</h2>
-                        <p class="mt-1 text-sm text-gray-600">{{ template.name || 'تصميمي' }}</p>
+                        <div class="flex items-center space-x-2 space-x-reverse mt-1">
+                            <p class="text-sm text-gray-600">{{ template.name || 'تصميمي' }}</p>
+                            <!-- Template Status Badge -->
+                            <span v-if="templatePrice === 0" class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-semibold">
+                                مجاني
+                            </span>
+                            <span v-else-if="canSaveAndDownload" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-semibold">
+                                وصول كامل
+                            </span>
+                            <span v-else class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full font-semibold">
+                                معاينة - {{ templatePrice }} ر.س
+                            </span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="flex items-center space-x-4 space-x-reverse">
+                    <!-- Save Button - Conditional based on permissions -->
                     <button
+                        v-if="canSaveAndDownload"
                         @click="saveDesign"
                         :disabled="saving"
                         class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
@@ -28,6 +42,44 @@
                         <span v-if="saving">جاري الحفظ...</span>
                         <span v-else>حفظ التصميم</span>
                     </button>
+
+                    <!-- Purchase/Subscribe Options for restricted users -->
+                    <div v-else class="flex flex-col space-y-3">
+                        <div class="flex items-center space-x-3 space-x-reverse">
+                            <button
+                                @click="redirectToPurchase"
+                                class="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition-colors flex items-center space-x-2 space-x-reverse"
+                            >
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>شراء القالب ({{ templatePrice }} ريال)</span>
+                            </button>
+                            <span class="text-gray-400">أو</span>
+                            <Link
+                                :href="route('client.subscriptions.index')"
+                                class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 space-x-reverse"
+                            >
+                                <i class="fas fa-crown"></i>
+                                <span>الاشتراك الشهري</span>
+                            </Link>
+                        </div>
+                        <div class="text-sm text-gray-600 bg-blue-50 px-4 py-3 rounded-lg border border-blue-200">
+                            <div class="flex items-start space-x-2 space-x-reverse">
+                                <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
+                                <div>
+                                    <p class="font-semibold text-blue-800 mb-1">يمكنك الآن:</p>
+                                    <ul class="text-blue-700 space-y-1">
+                                        <li>• تعديل التصميم والمعاينة</li>
+                                        <li>• تجربة جميع الأدوات</li>
+                                    </ul>
+                                    <p class="font-semibold text-blue-800 mt-2 mb-1">للحفظ والتحميل تحتاج:</p>
+                                    <ul class="text-blue-700 space-y-1">
+                                        <li>• شراء هذا القالب، أو</li>
+                                        <li>• الاشتراك الشهري للوصول لجميع القوالب</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </template>
@@ -37,6 +89,9 @@
             :template="template"
             context="client"
             :user="$page.props.auth.user"
+            :hasActiveSubscription="hasActiveSubscription"
+            :templatePrice="templatePrice"
+            :canSaveAndDownload="canSaveAndDownload"
             @save="handleSave"
             @update="handleUpdate"
             @export="handleExport"
@@ -126,6 +181,18 @@ const props = defineProps({
     mode: {
         type: String,
         required: false
+    },
+    hasActiveSubscription: {
+        type: Boolean,
+        default: true
+    },
+    templatePrice: {
+        type: Number,
+        default: 0
+    },
+    canSaveAndDownload: {
+        type: Boolean,
+        default: true
     }
 })
 
@@ -137,9 +204,20 @@ const showSuccessPopup = ref(false)
 const showErrorPopup = ref(false)
 const popupMessage = ref('')
 
+// Redirect to purchase page
+const redirectToPurchase = () => {
+    window.location.href = route('client.templates.purchase', props.template.id)
+}
+
 // Handle save for client context
 const handleSave = async (saveData) => {
     try {
+        // Check if user can save
+        if (!props.canSaveAndDownload) {
+            showErrorMessage('للحفظ والتحميل، يجب شراء هذا القالب أو الاشتراك الشهري')
+            return
+        }
+
         saving.value = true
         console.log('🔧 Client: Handling save for template:', props.template.id)
         console.log('🔧 Client: Template object:', props.template)

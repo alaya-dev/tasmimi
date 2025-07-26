@@ -45,59 +45,29 @@
                     </div>
                     <div class="font-bold text-lg text-gray-800 text-center mb-1 truncate w-full">{{ template.name }}</div>
                     <div v-if="selectedCategory === 'all'" class="text-xs text-purple-500 bg-purple-100 px-2 py-1 rounded-full mb-2">({{ template.category.name }})</div>
-                            <Link
+
+                    <!-- Price Badge - Optional display -->
+                    <div class="mb-2">
+                        <span v-if="template.is_free" class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-semibold">
+                            مجاني
+                        </span>
+                        <span v-else class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-semibold">
+                            {{ template.formatted_price }} ريال
+                        </span>
+                    </div>
+
+                    <!-- Unified Action Button -->
+                    <Link
                         :href="route('client.templates.create', template.id)"
                         @click.stop
                         class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full font-semibold mt-2 shadow-lg hover:from-purple-600 hover:to-pink-600 inline-block text-center"
                     >
                         عرض القالب
-                            </Link>
+                    </Link>
                         </div>
                     </div>
 
-            <!-- Pagination Controls - Ordre RTL: [السابق ➡️] [1] [2] [⬅️ التالي] -->
-            <div v-if="totalPages > 1" class="flex justify-center mt-8 items-center gap-2">
-                <!-- Bouton السابق (Previous) à gauche -->
-                <button
-                    @click="prevPage"
-                    :disabled="currentPage === 1"
-                    :class="['px-4 py-2 rounded-lg border transition-all duration-200 flex items-center gap-2',
-                        currentPage === 1
-                            ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                            : 'bg-white text-purple-600 border-purple-200 hover:bg-purple-50 hover:border-purple-300']"
-                >
-                    <span>➡️</span>
-                    <span>السابق</span>
-                </button>
 
-                <!-- Numéros de pages en ordre croissant -->
-                <div class="flex items-center gap-1">
-                    <button
-                        v-for="page in getPageNumbers()"
-                        :key="page"
-                        @click="goToPage(page)"
-                        :class="['w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 font-medium',
-                            currentPage === page
-                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'
-                                : 'bg-white text-gray-700 border border-gray-200 hover:bg-purple-50 hover:text-purple-600']"
-                    >
-                        {{ page }}
-                    </button>
-                </div>
-
-                <!-- Bouton التالي (Next) à droite -->
-                <button
-                    @click="nextPage"
-                    :disabled="currentPage === totalPages"
-                    :class="['px-4 py-2 rounded-lg border transition-all duration-200 flex items-center gap-2',
-                        currentPage === totalPages
-                            ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                            : 'bg-white text-purple-600 border-purple-200 hover:bg-purple-50 hover:border-purple-300']"
-                >
-                    <span>التالي</span>
-                    <span>⬅️</span>
-                </button>
-            </div>
         </div>
     </ClientLayout>
 </template>
@@ -118,10 +88,6 @@ const props = defineProps({
 // State for selected category
 const selectedCategory = ref('all');
 
-// State for pagination
-const currentPage = ref(1);
-const templatesPerPage = 4;
-
 // Compute templates to show
 const displayedTemplates = computed(() => {
     let allTemplates = [];
@@ -139,67 +105,13 @@ const displayedTemplates = computed(() => {
         allTemplates = props.allTemplates[selectedCategory.value] || [];
     }
 
-    // Apply pagination
-    const startIndex = (currentPage.value - 1) * templatesPerPage;
-    const endIndex = startIndex + templatesPerPage;
-    return allTemplates.slice(startIndex, endIndex);
+    // Return all templates without pagination
+    return allTemplates;
 });
 
-// Compute total templates count
-const totalTemplates = computed(() => {
-    if (selectedCategory.value === 'all') {
-        let count = 0;
-        props.categories.forEach(cat => {
-            count += (props.allTemplates[cat.id] || []).length;
-        });
-        return count;
-    } else {
-        return (props.allTemplates[selectedCategory.value] || []).length;
-    }
-});
-
-// Compute total pages
-const totalPages = computed(() => {
-    return Math.ceil(totalTemplates.value / templatesPerPage);
-});
-
-// Reset pagination when category changes
+// Reset category selection
 const selectCategory = (categoryId) => {
     selectedCategory.value = categoryId;
-    currentPage.value = 1;
-};
-
-// Pagination methods
-const goToPage = (page) => {
-    if (page >= 1 && page <= totalPages.value) {
-        currentPage.value = page;
-    }
-};
-
-const nextPage = () => {
-    if (currentPage.value < totalPages.value) {
-        currentPage.value++;
-    }
-};
-
-const prevPage = () => {
-    if (currentPage.value > 1) {
-        currentPage.value--;
-    }
-};
-
-// Get page numbers in ascending order
-const getPageNumbers = () => {
-    const pages = [];
-    const maxPagesToShow = Math.min(5, totalPages.value);
-
-    // Créer un tableau des numéros de page en ordre croissant (1, 2, 3...)
-    for (let i = 1; i <= totalPages.value; i++) {
-        pages.push(i);
-        if (pages.length >= maxPagesToShow) break;
-    }
-
-    return pages;
 };
 
 // Get selected category name

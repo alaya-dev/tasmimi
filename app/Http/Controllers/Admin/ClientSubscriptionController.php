@@ -30,12 +30,41 @@ class ClientSubscriptionController extends Controller
                     'starts_at' => $userSubscription->starts_at,
                     'ends_at' => $userSubscription->ends_at,
                     'created_at' => $userSubscription->created_at,
-                    'auto_renew' => $userSubscription->auto_renew,
                 ];
             });
 
+        // Calculate statistics
+        $stats = [
+            'total' => $clientSubscriptions->count(),
+            'active' => $clientSubscriptions->where('status', 'active')->count(),
+            'pending' => $clientSubscriptions->where('status', 'pending')->count(),
+            'canceled' => $clientSubscriptions->where('status', 'canceled')->count(),
+            'expired' => $clientSubscriptions->where('status', 'expired')->count(),
+        ];
+
         return Inertia::render('Admin/ClientSubscriptions', [
-            'clientSubscriptions' => $clientSubscriptions
+            'clientSubscriptions' => $clientSubscriptions,
+            'stats' => $stats
         ]);
+    }
+
+    /**
+     * Delete a client subscription
+     */
+    public function destroy(UserSubscription $subscription)
+    {
+        // Check if subscription can be deleted (expired, canceled, or pending)
+        if (!in_array($subscription->status, ['expired', 'canceled', 'pending'])) {
+            return redirect()->back()->with('error', 'لا يمكن حذف الاشتراكات النشطة');
+        }
+
+        // Ensure it's a client subscription
+        if ($subscription->user->role !== 'client') {
+            return redirect()->back()->with('error', 'غير مسموح بحذف هذا الاشتراك');
+        }
+
+        $subscription->delete();
+
+        return redirect()->back()->with('success', 'تم حذف الاشتراك بنجاح');
     }
 }

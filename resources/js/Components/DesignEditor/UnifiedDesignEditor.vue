@@ -5,6 +5,9 @@
             :template="template"
             :context="context"
             :user="user"
+            :hasActiveSubscription="hasActiveSubscription"
+            :templatePrice="templatePrice"
+            :canSaveAndDownload="canSaveAndDownload"
             @save="handleSave"
             @update="handleUpdate"
             @export="handleExport"
@@ -29,6 +32,18 @@ const props = defineProps({
     user: {
         type: Object,
         default: null
+    },
+    hasActiveSubscription: {
+        type: Boolean,
+        default: true
+    },
+    templatePrice: {
+        type: Number,
+        default: 0
+    },
+    canSaveAndDownload: {
+        type: Boolean,
+        default: true
     }
 })
 

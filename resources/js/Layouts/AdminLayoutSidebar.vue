@@ -227,6 +227,21 @@
                                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
                                 </svg>
                             </Link>
+                            <Link
+                                v-if="$page.props.auth.user.role === 'super_admin' || $page.props.auth.user.role === 'admin'"
+                                :href="route('admin.template-sales.index')"
+                                :class="[
+                                    'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-right',
+                                    route().current('admin.template-sales.*')
+                                        ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
+                                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                ]"
+                            >
+                                <span class="text-right flex-1">القوالب المباعة</span>
+                                <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V19C3 20.1 3.9 21 5 21H11V19H5V3H13V9H21ZM14 15.5C14 14.1 15.1 13 16.5 13S19 14.1 19 15.5V16H20V22H13V16H14V15.5ZM16.5 14.5C15.7 14.5 15 15.2 15 16H18C18 15.2 17.3 14.5 16.5 14.5Z"/>
+                                </svg>
+                            </Link>
 
                         </div>
                     </div>

@@ -107,7 +107,7 @@ class SubscriptionPaymentTest extends TestCase
             'status' => UserSubscription::STATUS_ACTIVE,
             'starts_at' => now(),
             'ends_at' => now()->addDays(30),
-            'auto_renew' => true
+            'auto_renew' => false
         ]);
         
         $response = $this->actingAs($user)
@@ -133,7 +133,7 @@ class SubscriptionPaymentTest extends TestCase
             'status' => UserSubscription::STATUS_ACTIVE,
             'starts_at' => now(),
             'ends_at' => now()->addDays(30),
-            'auto_renew' => true
+            'auto_renew' => false
         ]);
         
         $response = $this->actingAs($user)
@@ -202,7 +202,7 @@ class SubscriptionPaymentTest extends TestCase
             'status' => UserSubscription::STATUS_ACTIVE,
             'starts_at' => now(),
             'ends_at' => now()->addDays(15),
-            'auto_renew' => true
+            'auto_renew' => false
         ]);
         
         $daysRemaining = $userSubscription->daysRemaining();
@@ -242,9 +242,9 @@ class SubscriptionPaymentTest extends TestCase
             'status' => UserSubscription::STATUS_ACTIVE,
             'starts_at' => now(),
             'ends_at' => now()->addDays(30),
-            'auto_renew' => true
+            'auto_renew' => false
         ]);
-        
+
         // Create second subscription (should cancel the first)
         UserSubscription::create([
             'user_id' => $user->id,
@@ -252,7 +252,7 @@ class SubscriptionPaymentTest extends TestCase
             'status' => UserSubscription::STATUS_ACTIVE,
             'starts_at' => now(),
             'ends_at' => now()->addDays(30),
-            'auto_renew' => true
+            'auto_renew' => false
         ]);
         
         $activeSubscriptions = UserSubscription::where('user_id', $user->id)

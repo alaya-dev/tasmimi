@@ -121,6 +121,12 @@ Route::prefix('client')->name('client.')->group(function () {
         Route::post('/payment/{subscription}/process', [App\Http\Controllers\MoyasarPaymentController::class, 'processPayment'])->name('payment.process');
         Route::get('/payment/callback', [App\Http\Controllers\MoyasarPaymentController::class, 'callback'])->name('payment.callback');
         Route::post('/payment/status', [App\Http\Controllers\MoyasarPaymentController::class, 'checkStatus'])->name('payment.status');
+
+        // Routes d'achat de templates
+        Route::get('/templates/{template}/purchase', [App\Http\Controllers\Client\TemplatePurchaseController::class, 'show'])->name('templates.purchase');
+        Route::post('/templates/{template}/purchase', [App\Http\Controllers\Client\TemplatePurchaseController::class, 'processPayment'])->name('templates.purchase.process');
+        Route::get('/template-purchase/callback', [App\Http\Controllers\Client\TemplatePurchaseController::class, 'callback'])->name('template-purchase.callback');
+        Route::get('/template-purchases', [App\Http\Controllers\Client\TemplatePurchaseController::class, 'index'])->name('template-purchases.index');
     });
 });
 
@@ -146,6 +152,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Gestion des abonnements clients
     Route::get('client-subscriptions', [App\Http\Controllers\Admin\ClientSubscriptionController::class, 'index'])->name('client-subscriptions.index');
+    Route::delete('client-subscriptions/{subscription}', [App\Http\Controllers\Admin\ClientSubscriptionController::class, 'destroy'])->name('client-subscriptions.destroy');
+
+    // Gestion des ventes de templates
+    Route::get('template-sales', [App\Http\Controllers\Admin\TemplateSalesController::class, 'index'])->name('template-sales.index');
+    Route::get('template-sales/{template}', [App\Http\Controllers\Admin\TemplateSalesController::class, 'show'])->name('template-sales.show');
+    Route::get('template-sales-export', [App\Http\Controllers\Admin\TemplateSalesController::class, 'export'])->name('template-sales.export');
 
 
 

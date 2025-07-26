@@ -147,7 +147,7 @@ class SubscriptionPaymentController extends Controller
                 'status' => UserSubscription::STATUS_ACTIVE,
                 'starts_at' => $startDate,
                 'ends_at' => $endDate,
-                'auto_renew' => true,
+                'auto_renew' => false,
             ]);
 
             return response()->json([

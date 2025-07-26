@@ -20,7 +20,10 @@
                                 <div class="bg-gray-50 rounded-lg p-4 mb-6">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="font-medium">{{ subscription.name }}</span>
-                                        <span class="font-bold">{{ subscription.price }} ريال</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="font-bold">{{ subscription.price }}</span>
+                                            <img src="/images/Saudi_Riyal.png" alt="ريال سعودي" class="w-5 h-5">
+                                        </div>
                                     </div>
                                     <div class="flex justify-between items-center text-sm text-gray-600 mb-2">
                                         <span>المدة</span>
@@ -41,7 +44,11 @@
                                     <hr class="my-4">
                                     <div class="flex justify-between items-center font-bold text-lg">
                                         <span>المجموع</span>
-                                        <span>{{ subscription.price }} ريال</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span>{{ subscription.price }}</span>
+                                            <img src="/images/Saudi_Riyal.png" alt="ريال سعودي" class="w-6 h-6">
+                                            <span class="text-sm font-normal text-gray-600">ريال سعودي</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -158,8 +165,12 @@
                                             </svg>
                                             جاري المعالجة...
                                         </div>
-                                        <span v-else>
-                                            دفع {{ subscription.price }} ريال
+                                        <span v-else class="flex items-center">
+                                            دفع
+                                            <div class="flex items-center mr-2">
+                                                <span>{{ subscription.price }}</span>
+                                                <img src="/images/Saudi_Riyal.png" alt="ريال سعودي" class="w-5 h-5 mr-1">
+                                            </div>
                                         </span>
                                     </button>
                                 </form>

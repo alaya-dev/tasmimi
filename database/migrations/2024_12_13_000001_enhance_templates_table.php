@@ -20,11 +20,15 @@ return new class extends Migration
             $table->text('design_notes')->nullable()->after('has_watermark');
             $table->integer('version')->default(1)->after('design_notes');
             $table->timestamp('last_edited_at')->nullable()->after('version');
-            
+
+            // Ajouter le champ prix pour la vente individuelle des templates
+            $table->decimal('price', 8, 2)->default(0)->after('last_edited_at')->comment('سعر القالب بالريال السعودي');
+
             // Index pour améliorer les performances
             $table->index(['category_id', 'is_active']);
             $table->index(['created_by', 'is_active']);
             $table->index('last_edited_at');
+            $table->index('price');
         });
     }
 
@@ -37,7 +41,8 @@ return new class extends Migration
             $table->dropIndex(['category_id', 'is_active']);
             $table->dropIndex(['created_by', 'is_active']);
             $table->dropIndex(['last_edited_at']);
-            
+            $table->dropIndex(['price']);
+
             $table->dropColumn([
                 'background_image',
                 'editable_elements',
@@ -45,7 +50,8 @@ return new class extends Migration
                 'has_watermark',
                 'design_notes',
                 'version',
-                'last_edited_at'
+                'last_edited_at',
+                'price'
             ]);
         });
     }
