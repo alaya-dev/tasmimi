@@ -85,8 +85,6 @@ class TemplateSalesController extends Controller
         // Total sales
         $totalSales = $query->where('status', TemplatePurchase::STATUS_PAID)->sum('amount');
         $totalPurchases = $query->where('status', TemplatePurchase::STATUS_PAID)->count();
-        $pendingPurchases = $query->where('status', TemplatePurchase::STATUS_PENDING)->count();
-        $failedPurchases = $query->where('status', TemplatePurchase::STATUS_FAILED)->count();
 
         // This month statistics
         $thisMonth = TemplatePurchase::where('status', TemplatePurchase::STATUS_PAID)
@@ -111,8 +109,6 @@ class TemplateSalesController extends Controller
         return [
             'total_sales' => $totalSales,
             'total_purchases' => $totalPurchases,
-            'pending_purchases' => $pendingPurchases,
-            'failed_purchases' => $failedPurchases,
             'this_month_sales' => $thisMonthSales,
             'this_month_purchases' => $thisMonthPurchases,
             'sales_growth' => round($salesGrowth, 1),

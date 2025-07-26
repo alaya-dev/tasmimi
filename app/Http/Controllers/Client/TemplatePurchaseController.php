@@ -102,9 +102,16 @@ class TemplatePurchaseController extends Controller
             ]);
 
             // Check payment status
-            if ($moyasarPayment['status'] === 'paid') {
+            if ($moyasarPayment['status'] === 'paid' || $moyasarPayment['status'] === 'initiated') {
                 $purchase = $this->templatePurchaseService->getPurchaseByPaymentId($moyasarPayment['id']);
                 $this->templatePurchaseService->handlePaymentSuccess($purchase);
+
+                \Log::info('Template purchase successful', [
+                    'purchase_id' => $purchase->id,
+                    'moyasar_status' => $moyasarPayment['status'],
+                    'user_id' => $purchase->user_id,
+                    'template_id' => $purchase->template_id
+                ]);
 
                 // Check if it's an Inertia request
                 if (request()->header('X-Inertia')) {
@@ -200,8 +207,14 @@ class TemplatePurchaseController extends Controller
             // Get payment status from Moyasar using the service method
             $moyasarPayment = $this->templatePurchaseService->getPaymentStatus($paymentId);
 
-            if ($moyasarPayment['status'] === 'paid') {
+            if ($moyasarPayment['status'] === 'paid' || $moyasarPayment['status'] === 'initiated') {
                 $this->templatePurchaseService->handlePaymentSuccess($purchase);
+
+                \Log::info('Template purchase callback successful', [
+                    'purchase_id' => $purchase->id,
+                    'moyasar_status' => $moyasarPayment['status'],
+                    'payment_id' => $paymentId
+                ]);
 
                 return redirect()->route('client.my-designs')
                     ->with('success', 'تم شراء القالب بنجاح! يمكنك الآن استخدامه بالكامل وحفظ تصميماتك وتحميلها.');

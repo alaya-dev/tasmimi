@@ -33,11 +33,11 @@
                             <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(stats.total_sales) }}</p>
                             <p class="text-sm text-green-600" v-if="stats.sales_growth > 0">
                                 <i class="fas fa-arrow-up"></i>
-                                +{{ stats.sales_growth }}% هذا الشهر
+                                +{{ formatNumber(stats.sales_growth) }}% هذا الشهر
                             </p>
                             <p class="text-sm text-red-600" v-else-if="stats.sales_growth < 0">
                                 <i class="fas fa-arrow-down"></i>
-                                {{ stats.sales_growth }}% هذا الشهر
+                                {{ formatNumber(stats.sales_growth) }}% هذا الشهر
                             </p>
                         </div>
                     </div>
@@ -51,44 +51,20 @@
                         </div>
                         <div class="mr-4 text-right">
                             <p class="text-sm font-medium text-gray-600">عدد المشتريات</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ stats.total_purchases }}</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ formatNumber(stats.total_purchases) }}</p>
                             <p class="text-sm text-blue-600" v-if="stats.purchases_growth > 0">
                                 <i class="fas fa-arrow-up"></i>
-                                +{{ stats.purchases_growth }}% هذا الشهر
+                                +{{ formatNumber(stats.purchases_growth) }}% هذا الشهر
                             </p>
                             <p class="text-sm text-red-600" v-else-if="stats.purchases_growth < 0">
                                 <i class="fas fa-arrow-down"></i>
-                                {{ stats.purchases_growth }}% هذا الشهر
+                                {{ formatNumber(stats.purchases_growth) }}% هذا الشهر
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Pending Purchases -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                            <i class="fas fa-clock text-xl"></i>
-                        </div>
-                        <div class="mr-4 text-right">
-                            <p class="text-sm font-medium text-gray-600">في الانتظار</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ stats.pending_purchases }}</p>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Failed Purchases -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-red-100 text-red-600">
-                            <i class="fas fa-times text-xl"></i>
-                        </div>
-                        <div class="mr-4 text-right">
-                            <p class="text-sm font-medium text-gray-600">فشلت</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ stats.failed_purchases }}</p>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Top Selling Templates -->
@@ -109,7 +85,7 @@
                                 </div>
                                 <div class="mr-4">
                                     <h3 class="font-medium text-gray-900">{{ item.template.name }}</h3>
-                                    <p class="text-sm text-gray-600">{{ item.sales_count }} مبيعة</p>
+                                    <p class="text-sm text-gray-600">{{ formatNumber(item.sales_count) }} مبيعة</p>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -308,12 +284,6 @@ const form = reactive({
 })
 
 // Methods
-const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('ar-SA', {
-        style: 'currency',
-        currency: 'SAR'
-    }).format(amount || 0)
-}
 
 const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-GB', {
@@ -323,6 +293,19 @@ const formatDate = (date) => {
         hour: '2-digit',
         minute: '2-digit'
     }).replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1') // Convert DD/MM/YYYY to YYYY-MM-DD
+}
+
+// Format numbers in Western format (not Arabic)
+const formatNumber = (number) => {
+    return new Intl.NumberFormat('en-US').format(number)
+}
+
+// Format currency in Western format
+const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(amount) + ' ر.س.'
 }
 
 const getStatusClass = (status) => {
