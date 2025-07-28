@@ -5,35 +5,16 @@ namespace App\Services;
 use App\Models\Payment;
 use App\Models\Subscription;
 use App\Models\UserSubscription;
-use GuzzleHttp\Client;
+use App\Services\Moyasar\PaymentService;
 use Exception;
 
 class MoyasarService
 {
-    protected $client;
-    protected $apiKey;
-    protected $baseUrl;
+    protected $paymentService;
 
-    public function __construct()
+    public function __construct(PaymentService $paymentService)
     {
-        $this->apiKey = config('services.moyasar.secret_key');
-        $this->baseUrl = config('services.moyasar.base_url', 'https://api.moyasar.com/v1/');
-
-        $clientConfig = [
-            'base_uri' => $this->baseUrl,
-            'auth' => [$this->apiKey, ''],
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ],
-        ];
-
-        // Disable SSL verification in development
-        if (config('app.env') === 'local') {
-            $clientConfig['verify'] = false;
-        }
-
-        $this->client = new Client($clientConfig);
+        $this->paymentService = $paymentService;
     }
 
     /**
@@ -48,67 +29,33 @@ class MoyasarService
                 'amount' => $subscription->price * 100
             ]);
 
-            $response = $this->client->post('payments', [
-                'json' => [
-                    'amount' => $subscription->price * 100, // Convert to halalas (smallest currency unit)
-                    'currency' => 'SAR',
-                    'description' => 'اشتراك ' . $subscription->name,
-                    'source' => [
-                        'type' => 'creditcard',
-                        'name' => $paymentData['name'],
-                        'number' => $paymentData['number'],
-                        'cvc' => $paymentData['cvc'],
-                        'month' => $paymentData['month'],
-                        'year' => $paymentData['year'],
-                    ],
-                    'callback_url' => url('/client/payment/callback'),
-                    'metadata' => [
-                        'user_id' => $user->id,
-                        'subscription_id' => $subscription->id,
-                        'user_email' => $user->email,
-                    ],
-                ]
-            ]);
+            $data = [
+                'amount' => $subscription->price * 100, // Convert to halalas (smallest currency unit)
+                'currency' => 'SAR',
+                'description' => 'اشتراك ' . $subscription->name,
+                'source' => [
+                    'type' => 'creditcard',
+                    'name' => $paymentData['name'],
+                    'number' => $paymentData['number'],
+                    'cvc' => $paymentData['cvc'],
+                    'month' => $paymentData['month'],
+                    'year' => $paymentData['year'],
+                ],
+                'callback_url' => config('moyasar.finish_payment_url'),
+                'metadata' => [
+                    'user_id' => $user->id,
+                    'subscription_id' => $subscription->id,
+                    'user_email' => $user->email,
+                ],
+            ];
 
-            $result = json_decode($response->getBody()->getContents(), true);
+            $result = $this->paymentService->create($data);
 
             \Log::info('Moyasar payment response received', [
-                'status_code' => $response->getStatusCode(),
                 'payment_id' => $result['id'] ?? 'unknown'
             ]);
 
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
-            // Erreur 4xx - problème avec les données envoyées
-            $response = $e->getResponse();
-            $errorBody = json_decode($response->getBody()->getContents(), true);
-
-            \Log::error('Moyasar validation error', [
-                'status' => $response->getStatusCode(),
-                'error' => $errorBody,
-                'user_id' => $user->id,
-                'subscription_id' => $subscription->id
-            ]);
-
-            // Extraire le message d'erreur de Moyasar
-            if (isset($errorBody['errors'])) {
-                $errors = [];
-                foreach ($errorBody['errors'] as $field => $messages) {
-                    if ($field === 'source.number') {
-                        $errors[] = 'رقم البطاقة غير صحيح';
-                    } elseif ($field === 'source.cvc') {
-                        $errors[] = 'رمز الأمان غير صحيح';
-                    } elseif ($field === 'source.month' || $field === 'source.year') {
-                        $errors[] = 'تاريخ انتهاء البطاقة غير صحيح';
-                    } else {
-                        $errors[] = is_array($messages) ? $messages[0] : $messages;
-                    }
-                }
-                throw new Exception(implode('. ', $errors));
-            }
-
-            throw new Exception($errorBody['message'] ?? 'خطأ في بيانات الدفع');
-
         } catch (Exception $e) {
             \Log::error('Moyasar payment creation failed', [
                 'error' => $e->getMessage(),
@@ -116,7 +63,17 @@ class MoyasarService
                 'subscription_id' => $subscription->id
             ]);
 
-            throw new Exception('فشل في إنشاء الدفع: ' . $e->getMessage());
+            // Parse error message for better user experience
+            $errorMessage = $e->getMessage();
+            if (strpos($errorMessage, 'source.number') !== false) {
+                throw new Exception('رقم البطاقة غير صحيح');
+            } elseif (strpos($errorMessage, 'source.cvc') !== false) {
+                throw new Exception('رمز الأمان غير صحيح');
+            } elseif (strpos($errorMessage, 'source.month') !== false || strpos($errorMessage, 'source.year') !== false) {
+                throw new Exception('تاريخ انتهاء البطاقة غير صحيح');
+            }
+
+            throw new Exception('فشل في إنشاء الدفع: ' . $errorMessage);
         }
     }
 
@@ -132,73 +89,34 @@ class MoyasarService
                 'amount' => $template->price * 100
             ]);
 
-            $response = $this->client->post('payments', [
-                'json' => [
-                    'amount' => $template->price * 100, // Convert to halalas
-                    'currency' => 'SAR',
-                    'description' => 'شراء قالب: ' . $template->name,
-                    'source' => [
-                        'type' => 'creditcard',
-                        'name' => $paymentData['name'],
-                        'number' => $paymentData['number'],
-                        'cvc' => $paymentData['cvc'],
-                        'month' => $paymentData['month'],
-                        'year' => $paymentData['year'],
-                    ],
-                    'callback_url' => url('/client/template-purchase/callback'),
-                    'metadata' => [
-                        'user_id' => $user->id,
-                        'template_id' => $template->id,
-                        'user_email' => $user->email,
-                        'purchase_type' => 'template',
-                    ],
-                ]
-            ]);
+            $data = [
+                'amount' => $template->price * 100, // Convert to halalas
+                'currency' => 'SAR',
+                'description' => 'شراء قالب: ' . $template->name,
+                'source' => [
+                    'type' => 'creditcard',
+                    'name' => $paymentData['name'],
+                    'number' => $paymentData['number'],
+                    'cvc' => $paymentData['cvc'],
+                    'month' => $paymentData['month'],
+                    'year' => $paymentData['year'],
+                ],
+                'callback_url' => url('/client/template-purchase/callback'),
+                'metadata' => [
+                    'user_id' => $user->id,
+                    'template_id' => $template->id,
+                    'user_email' => $user->email,
+                    'purchase_type' => 'template',
+                ],
+            ];
 
-            $result = json_decode($response->getBody()->getContents(), true);
+            $result = $this->paymentService->create($data);
 
             \Log::info('Moyasar template payment response received', [
-                'status_code' => $response->getStatusCode(),
                 'payment_id' => $result['id'] ?? 'unknown'
             ]);
 
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
-            // Erreur 4xx - problème avec les données envoyées
-            $response = $e->getResponse();
-            $errorBody = json_decode($response->getBody()->getContents(), true);
-
-            \Log::error('Moyasar template payment validation error', [
-                'status' => $response->getStatusCode(),
-                'error' => $errorBody,
-                'user_id' => $user->id,
-                'template_id' => $template->id
-            ]);
-
-            // Extraire le message d'erreur de Moyasar avec plus de détails
-            if (isset($errorBody['errors'])) {
-                $errors = [];
-                foreach ($errorBody['errors'] as $field => $messages) {
-                    $messageArray = is_array($messages) ? $messages : [$messages];
-                    foreach ($messageArray as $message) {
-                        if ($field === 'source.number') {
-                            $errors[] = 'رقم البطاقة غير صحيح أو غير مكتمل. يرجى التحقق من الرقم والمحاولة مرة أخرى.';
-                        } elseif ($field === 'source.cvc') {
-                            $errors[] = 'رمز الأمان (CVC) غير صحيح. يرجى إدخال الرقم المكون من 3 أرقام خلف البطاقة.';
-                        } elseif ($field === 'source.month' || $field === 'source.year') {
-                            $errors[] = 'تاريخ انتهاء البطاقة غير صحيح. يرجى التحقق من الشهر والسنة.';
-                        } elseif ($field === 'source.name') {
-                            $errors[] = 'اسم حامل البطاقة مطلوب.';
-                        } else {
-                            $errors[] = $message;
-                        }
-                    }
-                }
-                throw new Exception(implode(' ', $errors));
-            }
-
-            throw new Exception($errorBody['message'] ?? 'خطأ في بيانات الدفع. يرجى التحقق من المعلومات والمحاولة مرة أخرى.');
-
         } catch (Exception $e) {
             \Log::error('Moyasar template payment creation failed', [
                 'error' => $e->getMessage(),
@@ -206,7 +124,19 @@ class MoyasarService
                 'template_id' => $template->id
             ]);
 
-            throw new Exception('فشل في إنشاء الدفع: ' . $e->getMessage());
+            // Parse error message for better user experience
+            $errorMessage = $e->getMessage();
+            if (strpos($errorMessage, 'source.number') !== false) {
+                throw new Exception('رقم البطاقة غير صحيح أو غير مكتمل. يرجى التحقق من الرقم والمحاولة مرة أخرى.');
+            } elseif (strpos($errorMessage, 'source.cvc') !== false) {
+                throw new Exception('رمز الأمان (CVC) غير صحيح. يرجى إدخال الرقم المكون من 3 أرقام خلف البطاقة.');
+            } elseif (strpos($errorMessage, 'source.month') !== false || strpos($errorMessage, 'source.year') !== false) {
+                throw new Exception('تاريخ انتهاء البطاقة غير صحيح. يرجى التحقق من الشهر والسنة.');
+            } elseif (strpos($errorMessage, 'source.name') !== false) {
+                throw new Exception('اسم حامل البطاقة مطلوب.');
+            }
+
+            throw new Exception('فشل في إنشاء الدفع: ' . $errorMessage);
         }
     }
 
@@ -216,25 +146,23 @@ class MoyasarService
     public function createPaymentWithToken($user, Subscription $subscription, $token)
     {
         try {
-            $response = $this->client->post('payments', [
-                'json' => [
-                    'amount' => $subscription->price * 100,
-                    'currency' => 'SAR',
-                    'description' => 'اشتراك ' . $subscription->name,
-                    'source' => [
-                        'type' => 'token',
-                        'token' => $token,
-                    ],
-                    'callback_url' => url('/client/payment/callback'),
-                    'metadata' => [
-                        'user_id' => $user->id,
-                        'subscription_id' => $subscription->id,
-                        'user_email' => $user->email,
-                    ],
-                ]
-            ]);
+            $data = [
+                'amount' => $subscription->price * 100,
+                'currency' => 'SAR',
+                'description' => 'اشتراك ' . $subscription->name,
+                'source' => [
+                    'type' => 'token',
+                    'token' => $token,
+                ],
+                'callback_url' => config('moyasar.finish_payment_url'),
+                'metadata' => [
+                    'user_id' => $user->id,
+                    'subscription_id' => $subscription->id,
+                    'user_email' => $user->email,
+                ],
+            ];
 
-            return json_decode($response->getBody()->getContents(), true);
+            return $this->paymentService->create($data);
         } catch (Exception $e) {
             throw new Exception('فشل في إنشاء الدفع: ' . $e->getMessage());
         }
@@ -246,8 +174,7 @@ class MoyasarService
     public function getPayment($paymentId)
     {
         try {
-            $response = $this->client->get("payments/{$paymentId}");
-            return json_decode($response->getBody()->getContents(), true);
+            return $this->paymentService->fetch($paymentId);
         } catch (Exception $e) {
             throw new Exception('فشل في استرداد معلومات الدفع: ' . $e->getMessage());
         }
@@ -258,12 +185,23 @@ class MoyasarService
      */
     public function handlePaymentSuccess(Payment $payment)
     {
+        // Vérifier si le paiement a déjà été traité
+        if ($payment->status === Payment::STATUS_SUCCEEDED) {
+            \Log::info('⚠️ Payment already processed, skipping', ['payment_id' => $payment->id]);
+            return $payment;
+        }
+
         $payment->update([
             'status' => Payment::STATUS_SUCCEEDED,
             'paid_at' => now(),
         ]);
 
-        $this->createUserSubscription($payment);
+        // Check if this is a subscription or template purchase
+        if ($payment->subscription_id) {
+            $this->createUserSubscription($payment);
+        } else {
+            $this->processTemplatePurchase($payment);
+        }
 
         return $payment;
     }
@@ -289,31 +227,125 @@ class MoyasarService
      */
     private function createUserSubscription(Payment $payment)
     {
-        $subscription = $payment->subscription;
-        $startDate = now();
-        $endDate = $subscription->calculateEndDate($startDate);
-
-        // Cancel any existing active subscription
-        UserSubscription::where('user_id', $payment->user_id)
-            ->where('status', UserSubscription::STATUS_ACTIVE)
-            ->update([
-                'status' => UserSubscription::STATUS_CANCELED,
-                'canceled_at' => now(),
+        try {
+            \Log::info('🚀 Starting subscription creation', [
+                'payment_id' => $payment->id,
+                'user_id' => $payment->user_id,
+                'subscription_id' => $payment->subscription_id
             ]);
 
-        // Create new subscription
-        return UserSubscription::create([
-            'user_id' => $payment->user_id,
-            'subscription_id' => $payment->subscription_id,
-            'status' => UserSubscription::STATUS_ACTIVE,
-            'starts_at' => $startDate,
-            'ends_at' => $endDate,
-            'auto_renew' => false,
-            'metadata' => [
+            // Vérifier si un abonnement existe déjà pour ce paiement
+            $existingSubscription = UserSubscription::where('user_id', $payment->user_id)
+                ->whereJsonContains('metadata->payment_id', $payment->id)
+                ->first();
+
+            if ($existingSubscription) {
+                \Log::info('⚠️ Subscription already exists for this payment', [
+                    'payment_id' => $payment->id,
+                    'existing_subscription_id' => $existingSubscription->id
+                ]);
+                return $existingSubscription;
+            }
+
+            $subscription = $payment->subscription;
+            if (!$subscription) {
+                \Log::error('❌ Subscription not found for payment', ['payment_id' => $payment->id]);
+                throw new \Exception('Subscription not found');
+            }
+
+            $startDate = now();
+            $endDate = $subscription->calculateEndDate($startDate);
+
+            \Log::info('📅 Subscription dates calculated', [
+                'start_date' => $startDate,
+                'end_date' => $endDate
+            ]);
+
+            // Cancel any existing active subscription
+            $canceledCount = UserSubscription::where('user_id', $payment->user_id)
+                ->where('status', UserSubscription::STATUS_ACTIVE)
+                ->update([
+                    'status' => UserSubscription::STATUS_CANCELED,
+                    'canceled_at' => now(),
+                ]);
+
+            \Log::info('🔄 Canceled existing subscriptions', ['count' => $canceledCount]);
+
+            // Create new subscription
+            $userSubscription = UserSubscription::create([
+                'user_id' => $payment->user_id,
+                'subscription_id' => $payment->subscription_id,
+                'status' => UserSubscription::STATUS_ACTIVE,
+                'starts_at' => $startDate,
+                'ends_at' => $endDate,
+                'auto_renew' => false,
+                'metadata' => [
+                    'payment_id' => $payment->id,
+                    'moyasar_payment_id' => $payment->payment_gateway_id,
+                ],
+            ]);
+
+            \Log::info('✅ User subscription created successfully', [
+                'user_subscription_id' => $userSubscription->id,
+                'user_id' => $userSubscription->user_id,
+                'subscription_id' => $userSubscription->subscription_id,
+                'status' => $userSubscription->status
+            ]);
+
+            return $userSubscription;
+
+        } catch (\Exception $e) {
+            \Log::error('❌ Failed to create user subscription', [
                 'payment_id' => $payment->id,
-                'moyasar_payment_id' => $payment->payment_gateway_id, // Moyasar payment ID
-            ],
-        ]);
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Process template purchase after successful payment
+     */
+    private function processTemplatePurchase(Payment $payment)
+    {
+        try {
+            \Log::info('🛒 Starting template purchase processing', [
+                'payment_id' => $payment->id,
+                'user_id' => $payment->user_id
+            ]);
+
+            // Find the template purchase record
+            $templatePurchase = \App\Models\TemplatePurchase::where('payment_id', $payment->id)->first();
+
+            if (!$templatePurchase) {
+                \Log::error('❌ Template purchase not found for payment', ['payment_id' => $payment->id]);
+                throw new \Exception('Template purchase not found');
+            }
+
+            // Update template purchase status to paid
+            $templatePurchase->update([
+                'status' => \App\Models\TemplatePurchase::STATUS_PAID,
+                'paid_at' => now(),
+            ]);
+
+            \Log::info('✅ Template purchase processed successfully', [
+                'template_purchase_id' => $templatePurchase->id,
+                'template_id' => $templatePurchase->template_id,
+                'user_id' => $templatePurchase->user_id,
+                'status' => $templatePurchase->status
+            ]);
+
+            return $templatePurchase;
+
+        } catch (\Exception $e) {
+            \Log::error('❌ Failed to process template purchase', [
+                'payment_id' => $payment->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
     }
 
     /**

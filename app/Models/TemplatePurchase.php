@@ -26,6 +26,7 @@ class TemplatePurchase extends Model
     protected $fillable = [
         'user_id',
         'template_id',
+        'payment_id',
         'amount',
         'currency',
         'status',
@@ -60,6 +61,14 @@ class TemplatePurchase extends Model
     public function template(): BelongsTo
     {
         return $this->belongsTo(Template::class);
+    }
+
+    /**
+     * Get the payment associated with this purchase.
+     */
+    public function payment(): BelongsTo
+    {
+        return $this->belongsTo(Payment::class);
     }
 
     /**

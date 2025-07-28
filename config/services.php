@@ -40,8 +40,8 @@ return [
     ],
 
     'moyasar' => [
-        'publishable_key' => env('MOYASAR_PUBLISHABLE_KEY'),
-        'secret_key' => env('MOYASAR_SECRET_KEY'),
+        'publishable_key' => env('MOYASAR_API_PUBLISHABLE_KEY'),
+        'secret_key' => env('MOYASAR_API_SECRET_KEY'),
         'webhook_secret' => env('MOYASAR_WEBHOOK_SECRET'),
         'base_url' => env('MOYASAR_BASE_URL', 'https://api.moyasar.com/v1/'),
     ],

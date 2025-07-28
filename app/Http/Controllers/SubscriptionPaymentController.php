@@ -56,9 +56,40 @@ class SubscriptionPaymentController extends Controller
     /**
      * Show user's subscription management page
      */
-    public function manage()
+    public function manage(Request $request)
     {
         $user = Auth::user();
+
+        // Check if user came from payment success
+        if ($request->has('payment_success') && $request->has('payment_id')) {
+            $paymentId = $request->get('payment_id');
+
+            // Trigger payment verification in background
+            try {
+                $payment = \App\Models\Payment::find($paymentId);
+                if ($payment && $payment->status === \App\Models\Payment::STATUS_PENDING) {
+                    // Verify payment asynchronously
+                    dispatch(function() use ($payment) {
+                        $moyasarService = app(\App\Services\MoyasarService::class);
+                        $invoiceService = app(\App\Services\Moyasar\InvoiceService::class);
+
+                        try {
+                            $moyasarInvoice = $invoiceService->fetch($payment->payment_gateway_id);
+                            if ($moyasarInvoice['status'] === 'paid') {
+                                $moyasarService->handlePaymentSuccess($payment);
+                            }
+                        } catch (\Exception $e) {
+                            \Log::error('Background payment verification failed', [
+                                'payment_id' => $payment->id,
+                                'error' => $e->getMessage()
+                            ]);
+                        }
+                    });
+                }
+            } catch (\Exception $e) {
+                \Log::error('Payment verification trigger failed', ['error' => $e->getMessage()]);
+            }
+        }
         $activeSubscription = $user->activeSubscription();
         $subscriptionHistory = $user->userSubscriptions()
             ->with('subscription')
@@ -71,10 +102,68 @@ class SubscriptionPaymentController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Debug logging
+        \Log::info('🔍 Subscription Management Data', [
+            'user_id' => $user->id,
+            'activeSubscription' => $activeSubscription ? [
+                'id' => $activeSubscription->id,
+                'status' => $activeSubscription->status,
+                'subscription_id' => $activeSubscription->subscription_id,
+                'subscription_name' => $activeSubscription->subscription?->name
+            ] : null,
+            'subscriptionHistory_count' => $subscriptionHistory->count(),
+            'paymentHistory_count' => $paymentHistory->count()
+        ]);
+
+        // Simplify data to avoid potential serialization issues
+        $activeSubscriptionData = $activeSubscription ? [
+            'id' => $activeSubscription->id,
+            'status' => $activeSubscription->status,
+            'starts_at' => $activeSubscription->starts_at?->toISOString(),
+            'ends_at' => $activeSubscription->ends_at?->toISOString(),
+            'subscription' => $activeSubscription->subscription ? [
+                'id' => $activeSubscription->subscription->id,
+                'name' => $activeSubscription->subscription->name,
+                'price' => $activeSubscription->subscription->price,
+                'duration_days' => $activeSubscription->subscription->duration_days,
+            ] : null
+        ] : null;
+
+        $subscriptionHistoryData = $subscriptionHistory->map(function($sub) {
+            return [
+                'id' => $sub->id,
+                'status' => $sub->status,
+                'starts_at' => $sub->starts_at?->toISOString(),
+                'ends_at' => $sub->ends_at?->toISOString(),
+                'created_at' => $sub->created_at?->toISOString(),
+                'subscription' => $sub->subscription ? [
+                    'id' => $sub->subscription->id,
+                    'name' => $sub->subscription->name,
+                    'price' => $sub->subscription->price,
+                ] : null
+            ];
+        });
+
+        $paymentHistoryData = $paymentHistory->map(function($payment) {
+            return [
+                'id' => $payment->id,
+                'amount' => $payment->amount,
+                'currency' => $payment->currency,
+                'status' => $payment->status,
+                'payment_method' => $payment->payment_method,
+                'paid_at' => $payment->paid_at?->toISOString(),
+                'created_at' => $payment->created_at?->toISOString(),
+                'subscription' => $payment->subscription ? [
+                    'id' => $payment->subscription->id,
+                    'name' => $payment->subscription->name,
+                ] : null
+            ];
+        });
+
         return Inertia::render('Client/SubscriptionManagement', [
-            'activeSubscription' => $activeSubscription,
-            'subscriptionHistory' => $subscriptionHistory,
-            'paymentHistory' => $paymentHistory,
+            'activeSubscription' => $activeSubscriptionData,
+            'subscriptionHistory' => $subscriptionHistoryData,
+            'paymentHistory' => $paymentHistoryData,
         ]);
     }
 

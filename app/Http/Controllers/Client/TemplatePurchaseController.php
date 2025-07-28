@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\Template;
 use App\Models\TemplatePurchase;
+use App\Models\Payment;
 use App\Services\TemplatePurchaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -46,16 +47,8 @@ class TemplatePurchaseController extends Controller
                 ->with('success', 'يمكنك استخدام هذا القالب');
         }
 
-        return Inertia::render('Client/TemplatePurchase', [
-            'template' => [
-                'id' => $template->id,
-                'name' => $template->name,
-                'price' => $template->price,
-                'thumbnail_url' => $template->thumbnail_url,
-                'category' => $template->category->name ?? null,
-            ],
-            'moyasarKey' => config('services.moyasar.publishable_key'),
-        ]);
+        // Redirect to the simple Moyasar payment page
+        return redirect()->route('client.templates.purchase.simple', $template);
     }
 
     /**
@@ -102,18 +95,18 @@ class TemplatePurchaseController extends Controller
             ]);
 
             // Check payment status
-            if ($moyasarPayment['status'] === 'paid' || $moyasarPayment['status'] === 'initiated') {
+            if ($moyasarPayment['status'] === 'paid') {
+                // Payment is completed
                 $purchase = $this->templatePurchaseService->getPurchaseByPaymentId($moyasarPayment['id']);
                 $this->templatePurchaseService->handlePaymentSuccess($purchase);
 
-                \Log::info('Template purchase successful', [
+                \Log::info('Template purchase completed', [
                     'purchase_id' => $purchase->id,
                     'moyasar_status' => $moyasarPayment['status'],
                     'user_id' => $purchase->user_id,
                     'template_id' => $purchase->template_id
                 ]);
 
-                // Check if it's an Inertia request
                 if (request()->header('X-Inertia')) {
                     return redirect()->route('client.my-designs')
                         ->with('success', 'تم شراء القالب بنجاح! يمكنك الآن استخدامه بالكامل وحفظ تصميماتك وتحميلها.');
@@ -124,6 +117,21 @@ class TemplatePurchaseController extends Controller
                     'message' => 'تم شراء القالب بنجاح',
                     'redirect' => route('client.my-designs')
                 ]);
+            } elseif ($moyasarPayment['status'] === 'initiated') {
+                // Payment is created but needs to be completed via Moyasar interface
+                \Log::info('Template purchase initiated, redirecting to Moyasar', [
+                    'payment_id' => $moyasarPayment['id'],
+                    'moyasar_status' => $moyasarPayment['status']
+                ]);
+
+                // Redirect to Moyasar payment page
+                if (isset($moyasarPayment['source']['transaction_url'])) {
+                    // For Inertia requests, redirect directly to the payment URL
+                    return redirect()->away($moyasarPayment['source']['transaction_url']);
+                }
+
+                // Fallback: redirect back with message
+                return redirect()->back()->with('info', 'تم إنشاء الدفع بنجاح. يرجى إتمام عملية الدفع.');
             } elseif ($moyasarPayment['status'] === 'failed') {
                 $purchase = $this->templatePurchaseService->getPurchaseByPaymentId($moyasarPayment['id']);
                 $errorMessage = $moyasarPayment['source']['message'] ?? 'فشل الدفع';
@@ -191,8 +199,7 @@ class TemplatePurchaseController extends Controller
         $paymentId = $request->get('id');
 
         if (!$paymentId) {
-            return redirect()->route('client.templates.index')
-                ->with('error', 'معرف الدفع مفقود');
+            return $this->renderPaymentResult(false, 'معرف الدفع مفقود', route('client.templates.index'));
         }
 
         try {
@@ -200,8 +207,7 @@ class TemplatePurchaseController extends Controller
             $purchase = $this->templatePurchaseService->getPurchaseByPaymentId($paymentId);
 
             if (!$purchase) {
-                return redirect()->route('client.templates.index')
-                    ->with('error', 'عملية الشراء غير موجودة');
+                return $this->renderPaymentResult(false, 'عملية الشراء غير موجودة', route('client.templates.index'));
             }
 
             // Get payment status from Moyasar using the service method
@@ -216,14 +222,12 @@ class TemplatePurchaseController extends Controller
                     'payment_id' => $paymentId
                 ]);
 
-                return redirect()->route('client.my-designs')
-                    ->with('success', 'تم شراء القالب بنجاح! يمكنك الآن استخدامه بالكامل وحفظ تصميماتك وتحميلها.');
+                return $this->renderPaymentResult(true, 'تم شراء القالب بنجاح! يمكنك الآن استخدامه بالكامل وحفظ تصميماتك وتحميلها.', route('client.my-designs'));
             } else {
                 $errorMessage = $moyasarPayment['source']['message'] ?? 'فشل الدفع';
                 $this->templatePurchaseService->handlePaymentFailure($purchase, $errorMessage);
 
-                return redirect()->route('client.templates.purchase', $purchase->template)
-                    ->with('error', 'فشل في عملية الدفع: ' . $errorMessage);
+                return $this->renderPaymentResult(false, 'فشل في عملية الدفع: ' . $errorMessage, route('client.templates.purchase', $purchase->template));
             }
 
         } catch (Exception $e) {
@@ -247,6 +251,165 @@ class TemplatePurchaseController extends Controller
 
         return Inertia::render('Client/TemplatePurchases', [
             'purchases' => $purchases,
+        ]);
+    }
+
+    /**
+     * Create payment and redirect directly to Moyasar payment page
+     */
+    public function payWithMoyasar(Template $template)
+    {
+        try {
+            $user = auth()->user();
+
+            // Check if user already has access to this template
+            if ($this->templatePurchaseService->canUserAccessTemplate($user, $template)) {
+                return redirect()->route('client.templates.create', $template)
+                    ->with('success', 'يمكنك استخدام هذا القالب');
+            }
+
+            // Create local payment record first (like subscription)
+            $payment = Payment::create([
+                'user_id' => $user->id,
+                'subscription_id' => null, // No subscription for template purchase
+                'payment_gateway' => 'moyasar',
+                'payment_gateway_id' => 'temp_' . time(), // Temporary ID
+                'amount' => $template->price,
+                'currency' => 'SAR',
+                'status' => Payment::STATUS_PENDING,
+                'payment_method' => 'moyasar_invoice',
+                'metadata' => json_encode([
+                    'template_id' => $template->id,
+                    'purchase_type' => 'template'
+                ])
+            ]);
+
+            // Check if user already purchased this template
+            $existingPurchase = TemplatePurchase::where('user_id', $user->id)
+                ->where('template_id', $template->id)
+                ->first();
+
+            if ($existingPurchase && $existingPurchase->status === TemplatePurchase::STATUS_PAID) {
+                return redirect()->route('client.templates')
+                    ->with('error', 'لقد قمت بشراء هذا القالب مسبقاً');
+            }
+
+            // If there's a pending purchase, use it, otherwise create new one
+            if ($existingPurchase && $existingPurchase->status === TemplatePurchase::STATUS_PENDING) {
+                $purchase = $existingPurchase;
+                $purchase->update(['payment_id' => $payment->id]);
+            } else {
+                // Create template purchase record
+                $purchase = TemplatePurchase::create([
+                    'user_id' => $user->id,
+                    'template_id' => $template->id,
+                    'payment_id' => $payment->id,
+                    'amount' => $template->price,
+                    'currency' => 'SAR',
+                    'status' => TemplatePurchase::STATUS_PENDING,
+                ]);
+            }
+
+            // Create invoice via Moyasar API (hosted payment)
+            $invoiceData = [
+                'amount' => $template->price * 100, // Convert to halalas
+                'currency' => 'SAR',
+                'description' => 'شراء قالب: ' . $template->name,
+                'callback_url' => route('client.payment.return', ['type' => 'template']),
+                'metadata' => [
+                    'user_id' => $user->id,
+                    'template_id' => $template->id,
+                    'user_email' => $user->email,
+                    'purchase_type' => 'template',
+                ],
+            ];
+
+            // Create invoice using InvoiceService (better for hosted payments)
+            $invoiceService = app(\App\Services\Moyasar\InvoiceService::class);
+            $moyasarInvoice = $invoiceService->create($invoiceData);
+
+            // Update payment record with Moyasar invoice ID
+            $payment->update([
+                'payment_gateway_id' => $moyasarInvoice['id'],
+                'metadata' => json_encode([
+                    'template_id' => $template->id,
+                    'purchase_type' => 'template',
+                    'moyasar_status' => $moyasarInvoice['status'],
+                    'moyasar_amount' => $moyasarInvoice['amount'],
+                ])
+            ]);
+
+            // Also update the purchase record with the Moyasar ID
+            $purchase->update([
+                'payment_gateway_id' => $moyasarInvoice['id']
+            ]);
+
+            \Log::info('Template invoice created, redirecting to Moyasar', [
+                'purchase_id' => $purchase->id,
+                'moyasar_invoice_id' => $moyasarInvoice['id'],
+                'user_id' => $user->id,
+                'template_id' => $template->id
+            ]);
+
+            // Redirect directly to Moyasar invoice page in Arabic
+            $invoiceUrl = $moyasarInvoice['url']; // Moyasar provides a direct URL for invoices
+
+            // Add Arabic language parameter
+            $invoiceUrl .= (strpos($invoiceUrl, '?') !== false ? '&' : '?') . 'lang=ar';
+
+            return redirect()->away($invoiceUrl);
+
+        } catch (Exception $e) {
+            \Log::error('Moyasar template payment creation failed', [
+                'error' => $e->getMessage(),
+                'user_id' => auth()->id(),
+                'template_id' => $template->id
+            ]);
+
+            return redirect()->back()
+                ->withErrors(['payment' => 'فشل في إنشاء الدفع: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Show the simple template purchase page (direct to Moyasar)
+     */
+    public function showSimple(Template $template)
+    {
+        $user = auth()->user();
+
+        // Check if template is free
+        if ($template->isFree()) {
+            return redirect()->route('client.templates.create', $template)
+                ->with('success', 'هذا القالب مجاني، يمكنك استخدامه مباشرة');
+        }
+
+        // Check if user already has access
+        if ($this->templatePurchaseService->canUserAccessTemplate($user, $template)) {
+            return redirect()->route('client.templates.create', $template)
+                ->with('success', 'يمكنك استخدام هذا القالب');
+        }
+
+        return Inertia::render('Client/TemplatePurchaseSimple', [
+            'template' => [
+                'id' => $template->id,
+                'name' => $template->name,
+                'price' => $template->price,
+                'image_url' => $template->thumbnail_url,
+                'category' => $template->category,
+            ],
+        ]);
+    }
+
+    /**
+     * Render payment result page
+     */
+    private function renderPaymentResult($success, $message, $redirectUrl)
+    {
+        return Inertia::render('Client/PaymentResult', [
+            'success' => $success,
+            'message' => $message,
+            'redirectUrl' => $redirectUrl
         ]);
     }
 }

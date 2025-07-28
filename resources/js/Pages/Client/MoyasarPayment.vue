@@ -80,6 +80,30 @@
                                         </div>
                                     </div>
 
+                                    <!-- Test Cards Section -->
+                                    <div v-if="selectedPaymentMethod === 'creditcard'" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                                        <h3 class="text-sm font-medium text-yellow-800 mb-2">بطاقات اختبار</h3>
+                                        <p class="text-xs text-yellow-700 mb-3">استخدم هذه البطاقات للاختبار:</p>
+                                        <div class="space-y-2">
+                                            <button
+                                                type="button"
+                                                @click="useTestCard('4111111111111111')"
+                                                class="w-full text-left bg-white border border-yellow-300 rounded px-3 py-2 text-sm hover:bg-yellow-50"
+                                            >
+                                                <div class="font-medium">Visa: 4111 1111 1111 1111</div>
+                                                <div class="text-xs text-gray-600">CVC: 123, تاريخ الانتهاء: 12/26</div>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                @click="useTestCard('5555555555554444')"
+                                                class="w-full text-left bg-white border border-yellow-300 rounded px-3 py-2 text-sm hover:bg-yellow-50"
+                                            >
+                                                <div class="font-medium">Mastercard: 5555 5555 5555 4444</div>
+                                                <div class="text-xs text-gray-600">CVC: 123, تاريخ الانتهاء: 12/26</div>
+                                            </button>
+                                        </div>
+                                    </div>
+
                                     <!-- Credit Card Form -->
                                     <div v-if="selectedPaymentMethod === 'creditcard'" class="space-y-4">
                                         <div>
@@ -255,6 +279,13 @@ const formatExpiry = (event) => {
     form.value.card_expiry = value;
 };
 
+const useTestCard = (cardNumber) => {
+    form.value.card_name = 'Test User';
+    form.value.card_number = cardNumber.match(/.{1,4}/g).join(' ');
+    form.value.card_expiry = '12/26';
+    form.value.card_cvc = '123';
+};
+
 const processPayment = async () => {
     if (processing.value) return;
 
@@ -289,17 +320,11 @@ const processPayment = async () => {
                 // Check if there's a success response
                 if (page.props.flash?.success) {
                     router.visit(route('client.subscription.manage'));
-                } else {
-                    // Handle JSON response from controller
-                    const response = page.props.response;
-                    if (response?.success) {
-                        router.visit(response.redirect || route('client.subscription.manage'));
-                    } else if (response?.pending) {
-                        alert('الدفع قيد المعالجة، يرجى الانتظار...');
-                    } else {
-                        alert(response?.error || 'حدث خطأ أثناء معالجة الدفع');
-                    }
+                } else if (page.props.flash?.info) {
+                    // Show info message (e.g., payment pending)
+                    alert(page.props.flash.info);
                 }
+                // Note: redirect()->away() will handle automatic redirection to Moyasar
             },
             onError: (errors) => {
                 console.error('Payment errors:', errors);

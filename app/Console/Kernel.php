@@ -12,7 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Check pending payments every minute
+        $schedule->command('payments:check-pending')->everyMinute();
     }
 
     /**

@@ -169,6 +169,30 @@
                         </div>
 
                         <form v-if="paymentMethod === 'custom'" @submit.prevent="processPayment" class="space-y-6">
+                            <!-- Test Cards Section -->
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                                <h3 class="text-sm font-medium text-yellow-800 mb-2 text-right">بطاقات اختبار</h3>
+                                <p class="text-xs text-yellow-700 mb-3 text-right">استخدم هذه البطاقات للاختبار:</p>
+                                <div class="space-y-2">
+                                    <button
+                                        type="button"
+                                        @click="useTestCard('4111111111111111')"
+                                        class="w-full text-right bg-white border border-yellow-300 rounded px-3 py-2 text-sm hover:bg-yellow-50"
+                                    >
+                                        <div class="font-medium">Visa: 4111 1111 1111 1111</div>
+                                        <div class="text-xs text-gray-600">CVC: 123, تاريخ الانتهاء: 12/26</div>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        @click="useTestCard('5555555555554444')"
+                                        class="w-full text-right bg-white border border-yellow-300 rounded px-3 py-2 text-sm hover:bg-yellow-50"
+                                    >
+                                        <div class="font-medium">Mastercard: 5555 5555 5555 4444</div>
+                                        <div class="text-xs text-gray-600">CVC: 123, تاريخ الانتهاء: 12/26</div>
+                                    </button>
+                                </div>
+                            </div>
+
                             <!-- Card Holder Name -->
                             <div>
                                 <label for="card_name" class="block text-sm font-bold text-gray-800 mb-3 text-right flex items-center justify-end">
@@ -418,6 +442,15 @@ const formatExpiry = (event) => {
     }
 }
 
+const useTestCard = (cardNumber) => {
+    form.card_name = 'Test User';
+    form.card_number = cardNumber.match(/.{1,4}/g).join(' ');
+    form.card_expiry = '12/26';
+    form.card_cvc = '123';
+    form.card_month = 12;
+    form.card_year = 2026;
+};
+
 // Initialize Moyasar form
 const initializeMoyasar = async () => {
     if (paymentMethod.value === 'moyasar') {
@@ -484,7 +517,14 @@ const processPayment = () => {
         card_year: form.card_year
     }, {
         onSuccess: (page) => {
-            // Success will be handled by redirect with flash message
+            // Check for flash messages
+            if (page.props.flash?.success) {
+                // Success will be handled by redirect
+            } else if (page.props.flash?.info) {
+                // Show info message (e.g., payment pending)
+                alert(page.props.flash.info);
+            }
+            // Note: redirect()->away() will handle automatic redirection to Moyasar
             processing.value = false
         },
         onError: (responseErrors) => {

@@ -59,31 +59,26 @@
                             </svg>
                             <h3 class="text-lg font-medium text-gray-900 mb-2">لا يوجد اشتراك نشط</h3>
                             <p class="text-gray-600 mb-4">اشترك الآن للحصول على وصول كامل لجميع الميزات</p>
-                            <button
-                                @click="$inertia.visit(route('client.subscriptions.index'))"
-                                class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                            >
+                            <a href="/client/pricing" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                                 عرض الخطط المتاحة
-                            </button>
+                            </a>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Action Buttons -->
-                        <div v-if="activeSubscription" class="mt-6 flex flex-wrap gap-4 justify-center">
-                            <button
-                                @click="$inertia.visit(route('client.subscriptions.index'))"
-                                class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                                تغيير الخطة
-                            </button>
-                            
-                            <button
-                                v-if="activeSubscription.status === 'active'"
-                                @click="confirmCancelSubscription"
-                                class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
-                            >
-                                إلغاء الاشتراك
-                            </button>
-                        </div>
+                <!-- Action Buttons -->
+                <div v-if="activeSubscription" class="bg-white shadow-lg rounded-lg p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">إجراءات الاشتراك</h3>
+                    <div class="flex flex-wrap gap-4">
+                        <button
+                            @click="showCancelModal = true"
+                            class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                        >
+                            إلغاء الاشتراك
+                        </button>
+                        <a href="/client/pricing" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            ترقية الخطة
+                        </a>
                     </div>
                 </div>
 
@@ -93,49 +88,37 @@
                         <h2 class="text-xl font-semibold text-gray-900">تاريخ الاشتراكات</h2>
                     </div>
                     
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        الخطة
-                                    </th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        تاريخ البداية
-                                    </th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        تاريخ النهاية
-                                    </th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        الحالة
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr v-for="subscription in subscriptionHistory" :key="subscription.id" class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
-                                        {{ subscription.subscription.name }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                                        {{ formatDate(subscription.starts_at) }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                                        {{ formatDate(subscription.ends_at) }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    <div class="p-6">
+                        <div v-if="subscriptionHistory && subscriptionHistory.length > 0" class="space-y-4">
+                            <div v-for="subscription in subscriptionHistory" :key="subscription.id" 
+                                 class="border border-gray-200 rounded-lg p-4">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600">الخطة</label>
+                                        <p class="text-gray-900">{{ subscription.subscription?.name || 'غير محدد' }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600">الحالة</label>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
                                               :class="getStatusClass(subscription.status)">
                                             {{ getStatusText(subscription.status) }}
                                         </span>
-                                    </td>
-                                </tr>
-                                <tr v-if="subscriptionHistory.length === 0">
-                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">
-                                        لا يوجد تاريخ اشتراكات
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600">تاريخ البداية</label>
+                                        <p class="text-gray-900">{{ formatDate(subscription.starts_at) }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600">تاريخ الانتهاء</label>
+                                        <p class="text-gray-900">{{ formatDate(subscription.ends_at) }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div v-else class="text-center py-8">
+                            <p class="text-gray-500">لا يوجد تاريخ اشتراكات</p>
+                        </div>
                     </div>
                 </div>
 
@@ -145,78 +128,66 @@
                         <h2 class="text-xl font-semibold text-gray-900">تاريخ المدفوعات</h2>
                     </div>
                     
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        الخطة
-                                    </th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        المبلغ
-                                    </th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        تاريخ الدفع
-                                    </th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        طريقة الدفع
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr v-for="payment in paymentHistory" :key="payment.id" class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
-                                        {{ payment.subscription.name }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                                        {{ payment.amount }} {{ payment.currency }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                                        {{ formatDate(payment.paid_at) }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                                        {{ getPaymentMethodText(payment.payment_method) }}
-                                    </td>
-                                </tr>
-                                <tr v-if="paymentHistory.length === 0">
-                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">
-                                        لا يوجد تاريخ مدفوعات
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="p-6">
+                        <div v-if="paymentHistory && paymentHistory.length > 0" class="space-y-4">
+                            <div v-for="payment in paymentHistory" :key="payment.id" 
+                                 class="border border-gray-200 rounded-lg p-4">
+                                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600">المبلغ</label>
+                                        <p class="text-gray-900 font-semibold">{{ payment.amount }} {{ payment.currency }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600">الخطة</label>
+                                        <p class="text-gray-900">{{ payment.subscription?.name || 'غير محدد' }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600">طريقة الدفع</label>
+                                        <p class="text-gray-900">{{ getPaymentMethodText(payment.payment_method) }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600">تاريخ الدفع</label>
+                                        <p class="text-gray-900">{{ formatDate(payment.paid_at) }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-600">الحالة</label>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            مدفوع
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div v-else class="text-center py-8">
+                            <p class="text-gray-500">لا يوجد تاريخ مدفوعات</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Cancel Confirmation Modal -->
-        <div v-if="showCancelModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click="showCancelModal = false">
-            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" @click.stop>
+        <!-- Cancel Subscription Modal -->
+        <div v-if="showCancelModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
                 <div class="mt-3 text-center">
-                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-                        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 mt-2">تأكيد إلغاء الاشتراك</h3>
+                    <h3 class="text-lg font-medium text-gray-900">تأكيد إلغاء الاشتراك</h3>
                     <div class="mt-2 px-7 py-3">
                         <p class="text-sm text-gray-500">
-                            هل أنت متأكد من إلغاء اشتراكك؟ ستفقد الوصول إلى جميع الميزات المدفوعة.
+                            هل أنت متأكد من رغبتك في إلغاء الاشتراك؟ ستفقد الوصول إلى جميع الميزات المدفوعة.
                         </p>
                     </div>
-                    <div class="items-center px-4 py-3">
+                    <div class="flex justify-center gap-4 px-4 py-3">
                         <button
                             @click="cancelSubscription"
                             :disabled="cancelling"
-                            class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 disabled:opacity-50"
+                            class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50"
                         >
-                            <span v-if="cancelling">جاري الإلغاء...</span>
-                            <span v-else>نعم، إلغاء الاشتراك</span>
+                            {{ cancelling ? 'جاري الإلغاء...' : 'نعم، إلغاء الاشتراك' }}
                         </button>
                         <button
                             @click="showCancelModal = false"
-                            class="mt-3 px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                            class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400"
                         >
                             إلغاء
                         </button>
@@ -251,12 +222,18 @@ const showCancelModal = ref(false);
 const cancelling = ref(false);
 
 const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    }).split('/').reverse().join('/'); // Format: YYYY/MM/DD
+    if (!dateString) return 'غير محدد';
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'تاريخ غير صحيح';
+        return date.toLocaleDateString('en-GB', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).split('/').reverse().join('/'); // Format: YYYY/MM/DD
+    } catch (error) {
+        return 'تاريخ غير صحيح';
+    }
 };
 
 const getStatusClass = (status) => {
@@ -280,6 +257,7 @@ const getStatusText = (status) => {
 };
 
 const getDaysRemaining = (subscription) => {
+    if (!subscription || !subscription.ends_at) return 0;
     const endDate = new Date(subscription.ends_at);
     const today = new Date();
     const diffTime = endDate - today;
@@ -288,6 +266,7 @@ const getDaysRemaining = (subscription) => {
 };
 
 const getDaysRemainingClass = (subscription) => {
+    if (!subscription) return 'text-gray-600';
     const days = getDaysRemaining(subscription);
     if (days <= 3) return 'text-red-600';
     if (days <= 7) return 'text-yellow-600';
@@ -298,39 +277,20 @@ const getPaymentMethodText = (method) => {
     const methods = {
         'card': 'بطاقة ائتمان',
         'creditcard': 'بطاقة ائتمان',
-        'stcpay': 'STC Pay',
-        'applepay': 'Apple Pay'
+        'moyasar_invoice': 'فاتورة موياسار',
+        'bank_transfer': 'تحويل بنكي'
     };
     return methods[method] || method;
-};
-
-const confirmCancelSubscription = () => {
-    showCancelModal.value = true;
 };
 
 const cancelSubscription = async () => {
     cancelling.value = true;
     
     try {
-        const response = await fetch(route('client.subscription.cancel'), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            showCancelModal.value = false;
-            router.reload();
-        } else {
-            alert(result.error || 'حدث خطأ أثناء إلغاء الاشتراك');
-        }
+        await router.post('/client/subscription/cancel');
+        showCancelModal.value = false;
     } catch (error) {
-        console.error('Cancel subscription error:', error);
-        alert('حدث خطأ أثناء إلغاء الاشتراك');
+        console.error('Error cancelling subscription:', error);
     } finally {
         cancelling.value = false;
     }

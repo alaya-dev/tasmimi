@@ -119,12 +119,20 @@ Route::prefix('client')->name('client.')->group(function () {
         // Routes de paiement Moyasar
         Route::get('/payment/{subscription}', [App\Http\Controllers\MoyasarPaymentController::class, 'show'])->name('payment.show');
         Route::post('/payment/{subscription}/process', [App\Http\Controllers\MoyasarPaymentController::class, 'processPayment'])->name('payment.process');
+        Route::get('/payment/{subscription}/moyasar', [App\Http\Controllers\MoyasarPaymentController::class, 'payWithMoyasar'])->name('payment.moyasar');
+        Route::get('/payment/{subscription}/simple', [App\Http\Controllers\MoyasarPaymentController::class, 'showSimple'])->name('payment.simple');
         Route::get('/payment/callback', [App\Http\Controllers\MoyasarPaymentController::class, 'callback'])->name('payment.callback');
         Route::post('/payment/status', [App\Http\Controllers\MoyasarPaymentController::class, 'checkStatus'])->name('payment.status');
+        Route::get('/payment/verify/{payment}', [App\Http\Controllers\MoyasarPaymentController::class, 'verifyPayment'])->name('payment.verify');
+        Route::get('/payment/check/{payment}', [App\Http\Controllers\MoyasarPaymentController::class, 'showVerification'])->name('payment.check');
+        Route::get('/payment/return/{type}', [App\Http\Controllers\MoyasarPaymentController::class, 'showReturn'])->name('payment.return');
+        Route::post('/payment/check-recent', [App\Http\Controllers\MoyasarPaymentController::class, 'checkRecentPayments'])->name('payment.check-recent');
 
         // Routes d'achat de templates
         Route::get('/templates/{template}/purchase', [App\Http\Controllers\Client\TemplatePurchaseController::class, 'show'])->name('templates.purchase');
         Route::post('/templates/{template}/purchase', [App\Http\Controllers\Client\TemplatePurchaseController::class, 'processPayment'])->name('templates.purchase.process');
+        Route::get('/templates/{template}/purchase/moyasar', [App\Http\Controllers\Client\TemplatePurchaseController::class, 'payWithMoyasar'])->name('templates.purchase.moyasar');
+        Route::get('/templates/{template}/purchase/simple', [App\Http\Controllers\Client\TemplatePurchaseController::class, 'showSimple'])->name('templates.purchase.simple');
         Route::get('/template-purchase/callback', [App\Http\Controllers\Client\TemplatePurchaseController::class, 'callback'])->name('template-purchase.callback');
         Route::get('/template-purchases', [App\Http\Controllers\Client\TemplatePurchaseController::class, 'index'])->name('template-purchases.index');
     });
@@ -223,3 +231,18 @@ Route::get('/test-subscriptions', [App\Http\Controllers\TestController::class, '
 
 // Moyasar Webhook (must be accessible without authentication)
 Route::post('/moyasar/webhook', [App\Http\Controllers\MoyasarWebhookController::class, 'handleWebhook'])->name('moyasar.webhook');
+
+// Test routes (only in development)
+if (app()->environment(['local', 'testing'])) {
+    require __DIR__.'/test.php';
+
+    // Route pour simuler un callback Moyasar réussi
+    Route::get('/simulate-callback/{paymentId}', function ($paymentId) {
+        return redirect("/client/payment/callback?id={$paymentId}&status=paid");
+    })->name('simulate.callback');
+
+    // Route pour simuler un callback d'achat de template réussi
+    Route::get('/simulate-template-callback/{paymentId}', function ($paymentId) {
+        return redirect("/client/template-purchase/callback?id={$paymentId}&status=paid");
+    })->name('simulate.template.callback');
+}
