@@ -57,123 +57,8 @@
                             <div class="order-1 lg:order-2">
                                 <h2 class="text-xl font-semibold text-gray-900 mb-4">معلومات الدفع</h2>
                                 
-                                <form @submit.prevent="processPayment" class="space-y-4">
-                                    <!-- Payment Method Selection -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-3">طريقة الدفع</label>
-                                        <div class="space-y-3">
-                                            <div v-for="(method, key) in paymentMethods" :key="key" 
-                                                 class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
-                                                 :class="{ 'border-blue-500 bg-blue-50': selectedPaymentMethod === key }"
-                                                 @click="selectedPaymentMethod = key">
-                                                <input 
-                                                    v-model="selectedPaymentMethod" 
-                                                    :value="key"
-                                                    type="radio" 
-                                                    class="ml-3"
-                                                />
-                                                <div class="flex-1">
-                                                    <div class="font-medium">{{ method.name }}</div>
-                                                    <div class="text-sm text-gray-600">{{ method.description }}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Credit Card Form -->
-                                    <div v-if="selectedPaymentMethod === 'creditcard'" class="space-y-4">
-                                        <div>
-                                            <label for="card_name" class="block text-sm font-medium text-gray-700 mb-2">
-                                                اسم حامل البطاقة
-                                            </label>
-                                            <input
-                                                id="card_name"
-                                                v-model="form.card_name"
-                                                type="text"
-                                                required
-                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                                style="text-align: right; direction: rtl;"
-                                                placeholder="الاسم كما يظهر على البطاقة"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label for="card_number" class="block text-sm font-medium text-gray-700 mb-2">
-                                                رقم البطاقة
-                                            </label>
-                                            <input
-                                                id="card_number"
-                                                v-model="form.card_number"
-                                                type="text"
-                                                required
-                                                maxlength="19"
-                                                @input="formatCardNumber"
-                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                                style="direction: ltr; text-align: left;"
-                                                placeholder="1234 5678 9012 3456"
-                                            />
-                                        </div>
-
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label for="card_expiry" class="block text-sm font-medium text-gray-700 mb-2">
-                                                    تاريخ الانتهاء
-                                                </label>
-                                                <input
-                                                    id="card_expiry"
-                                                    v-model="form.card_expiry"
-                                                    type="text"
-                                                    required
-                                                    maxlength="5"
-                                                    @input="formatExpiry"
-                                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                                    style="direction: ltr; text-align: left;"
-                                                    placeholder="MM/YY"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label for="card_cvc" class="block text-sm font-medium text-gray-700 mb-2">
-                                                    رمز الأمان
-                                                </label>
-                                                <input
-                                                    id="card_cvc"
-                                                    v-model="form.card_cvc"
-                                                    type="text"
-                                                    required
-                                                    maxlength="3"
-                                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                                    style="direction: ltr; text-align: left;"
-                                                    placeholder="123"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- STC Pay / Apple Pay Token Input (hidden, would be populated by their SDKs) -->
-                                    <input v-if="selectedPaymentMethod !== 'creditcard'" v-model="form.token" type="hidden" />
-
-                                    <!-- Submit Button -->
-                                    <button
-                                        type="submit"
-                                        :disabled="processing"
-                                        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                    >
-                                        <div v-if="processing" class="flex items-center justify-center">
-                                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            جاري المعالجة...
-                                        </div>
-                                        <span v-else class="flex items-center">
-                                            دفع
-                                            <div class="flex items-center mr-2">
-                                                <span>{{ subscription.price }}</span>
-                                                <img src="/images/Saudi_Riyal.png" alt="ريال سعودي" class="w-5 h-5 mr-1">
-                                            </div>
-                                        </span>
-                                    </button>
-                                </form>
+                                <!-- Moyasar Payment Form -->
+                                <div id="mysr-form" class="mb-6"></div>
 
                                 <!-- Security Notice -->
                                 <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -197,7 +82,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import ClientLayout from '@/Layouts/ClientLayout.vue';
 
@@ -206,26 +91,10 @@ const props = defineProps({
         type: Object,
         required: true
     },
-    moyasarKey: {
-        type: String,
-        required: true
-    },
-    paymentMethods: {
+    paymentConfig: {
         type: Object,
-        default: () => ({})
+        required: true
     }
-});
-
-const processing = ref(false);
-const selectedPaymentMethod = ref('creditcard');
-
-const form = ref({
-    payment_method: 'creditcard',
-    card_name: '',
-    card_number: '',
-    card_expiry: '',
-    card_cvc: '',
-    token: ''
 });
 
 const getDurationText = (subscription) => {
@@ -241,101 +110,62 @@ const getDurationText = (subscription) => {
     return types[subscription.type] || subscription.type;
 };
 
-const formatCardNumber = (event) => {
-    let value = event.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
-    let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
-    form.value.card_number = formattedValue;
-};
-
-const formatExpiry = (event) => {
-    let value = event.target.value.replace(/\D/g, '');
-    if (value.length >= 2) {
-        value = value.substring(0, 2) + '/' + value.substring(2, 4);
-    }
-    form.value.card_expiry = value;
-};
-
-const processPayment = async () => {
-    if (processing.value) return;
-
-    processing.value = true;
-
+// Save payment ID before redirect
+const savePaymentId = async (payment) => {
     try {
-        // Prepare payment data based on payment method
-        const paymentData = {
-            payment_method: selectedPaymentMethod.value
-        };
-
-        if (selectedPaymentMethod.value === 'creditcard') {
-            // Add credit card specific fields
-            paymentData.card_name = form.value.card_name;
-            paymentData.card_number = form.value.card_number.replace(/\s/g, ''); // Remove spaces
-            paymentData.card_cvc = form.value.card_cvc;
-
-            // Convert expiry to month/year
-            if (form.value.card_expiry) {
-                const [month, year] = form.value.card_expiry.split('/');
-                paymentData.card_month = parseInt(month);
-                paymentData.card_year = parseInt('20' + year);
-            }
-        } else if (selectedPaymentMethod.value === 'stcpay' || selectedPaymentMethod.value === 'applepay') {
-            // Add token for digital wallet payments
-            paymentData.token = form.value.token;
-        }
-
-        // Use Inertia for better CSRF handling
-        router.post(route('client.subscriptions.payment', props.subscription.id), paymentData, {
-            onSuccess: (page) => {
-                // Check if there's a success response
-                if (page.props.flash?.success) {
-                    router.visit(route('client.subscription.manage'));
-                } else {
-                    // Handle JSON response from controller
-                    const response = page.props.response;
-                    if (response?.success) {
-                        router.visit(response.redirect || route('client.subscription.manage'));
-                    } else if (response?.pending) {
-                        alert('الدفع قيد المعالجة، يرجى الانتظار...');
-                    } else {
-                        alert(response?.error || 'حدث خطأ أثناء معالجة الدفع');
-                    }
-                }
-            },
-            onError: (errors) => {
-                console.error('Payment errors:', errors);
-                const errorMessage = Object.values(errors)[0] || 'حدث خطأ أثناء معالجة الدفع';
-                alert(errorMessage);
-            },
-            onFinish: () => {
-                processing.value = false;
-            }
+        await axios.post(route('client.payment.save-id', props.subscription.id), {
+            payment_id: payment.id
         });
-
-        return; // Exit early since Inertia handles the rest
-
-
+        console.log('Payment ID saved successfully:', payment.id);
     } catch (error) {
-        console.error('Payment error:', error);
-
-        let errorMessage = 'حدث خطأ أثناء معالجة الدفع';
-
-        if (error.message.includes('انتهت صلاحية الجلسة')) {
-            errorMessage = error.message;
-            // Optionally reload the page after showing the error
-            setTimeout(() => {
-                window.location.reload();
-            }, 3000);
-        } else if (error.message.includes('HTTP')) {
-            errorMessage += ': خطأ في الاتصال بالخادم';
-        } else if (error.message.includes('JSON')) {
-            errorMessage += ': استجابة غير صحيحة من الخادم';
-        } else {
-            errorMessage += ': ' + error.message;
-        }
-
-        alert(errorMessage);
-    } finally {
-        processing.value = false;
+        console.error('Failed to save payment ID:', error);
     }
 };
+
+onMounted(() => {
+    // Initialize Moyasar form when component is mounted
+    if (typeof window.Moyasar !== 'undefined') {
+        try {
+            console.log('Initializing Moyasar with config:', props.paymentConfig);
+            window.Moyasar.init({
+                element: '#mysr-form',
+                ...props.paymentConfig,
+                on_completed: async function (payment) {
+                    console.log('Payment completed:', payment);
+                    // Save payment ID before redirect
+                    await savePaymentId(payment);
+                },
+            });
+        } catch (error) {
+            console.error('Moyasar initialization error:', error);
+            // Show user-friendly error
+            const formElement = document.getElementById('mysr-form');
+            if (formElement) {
+                formElement.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                        <i class="fas fa-exclamation-triangle text-red-600 mb-2"></i>
+                        <p class="text-red-800 font-medium">خطأ في تحميل نموذج الدفع</p>
+                        <p class="text-red-600 text-sm">يرجى إعادة تحميل الصفحة والمحاولة مرة أخرى</p>
+                        <button onclick="window.location.reload()" class="mt-3 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                            إعادة التحميل
+                        </button>
+                    </div>
+                `;
+            }
+        }
+    } else {
+        console.error('Moyasar library not loaded');
+        // Show loading error
+        const formElement = document.getElementById('mysr-form');
+        if (formElement) {
+            formElement.innerHTML = `
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                    <i class="fas fa-exclamation-triangle text-yellow-600 mb-2"></i>
+                    <p class="text-yellow-800 font-medium">جاري تحميل نموذج الدفع...</p>
+                    <p class="text-yellow-600 text-sm">إذا لم يتم التحميل، يرجى التحقق من الاتصال بالإنترنت</p>
+                </div>
+            `;
+        }
+    }
+});
 </script>

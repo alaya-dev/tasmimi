@@ -13,6 +13,7 @@ class Payment extends Model
     protected $fillable = [
         'user_id',
         'subscription_id',
+        'template_id',
         'payment_gateway_id',
         'payment_method_id',
         'amount',
@@ -54,6 +55,27 @@ class Payment extends Model
     public function subscription(): BelongsTo
     {
         return $this->belongsTo(Subscription::class);
+    }
+
+    /**
+     * Get the template associated with the payment.
+     */
+    public function template(): BelongsTo
+    {
+        return $this->belongsTo(Template::class);
+    }
+
+    /**
+     * Mark payment as failed.
+     */
+    public function markAsFailed(): void
+    {
+        $this->update([
+            'status' => self::STATUS_FAILED,
+            'metadata' => array_merge($this->metadata ?? [], [
+                'failed_at' => now()->toISOString(),
+            ]),
+        ]);
     }
 
     /**

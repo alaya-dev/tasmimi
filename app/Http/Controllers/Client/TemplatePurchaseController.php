@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Template;
 use App\Models\TemplatePurchase;
 use App\Services\TemplatePurchaseService;
+use App\Services\MoyasarService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -54,8 +55,45 @@ class TemplatePurchaseController extends Controller
                 'thumbnail_url' => $template->thumbnail_url,
                 'category' => $template->category->name ?? null,
             ],
-            'moyasarKey' => config('services.moyasar.publishable_key'),
+            'paymentConfig' => app(MoyasarService::class)->createTemplatePurchasePaymentConfig($user, $template),
         ]);
+    }
+
+    /**
+     * Save payment ID after Moyasar form completion (called from frontend)
+     */
+    public function savePaymentId(Request $request, Template $template)
+    {
+        $request->validate([
+            'payment_id' => 'required|string',
+        ]);
+
+        $user = Auth::user();
+
+        try {
+            $purchase = app(MoyasarService::class)->savePaymentIdForTemplate(
+                $user, 
+                $template, 
+                $request->payment_id
+            );
+
+            return response()->json([
+                'success' => true,
+                'purchase_id' => $purchase->id,
+                'message' => 'تم حفظ معرف الدفع بنجاح'
+            ]);
+        } catch (Exception $e) {
+            \Log::error('Failed to save payment ID for template', [
+                'error' => $e->getMessage(),
+                'payment_id' => $request->payment_id,
+                'user_id' => $user->id,
+                'template_id' => $template->id
+            ]);
+
+            return response()->json([
+                'error' => 'فشل في حفظ معرف الدفع'
+            ], 500);
+        }
     }
 
     /**

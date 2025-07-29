@@ -25,155 +25,48 @@ class MoyasarPaymentController extends Controller
      */
     public function show(Subscription $subscription)
     {
+        $user = Auth::user();
+        $paymentConfig = $this->moyasarService->createSubscriptionPaymentConfig($user, $subscription);
+
         return Inertia::render('Client/MoyasarPayment', [
             'subscription' => $subscription,
-            'moyasarKey' => config('services.moyasar.publishable_key'),
-            'paymentMethods' => $this->moyasarService->getAvailablePaymentMethods(),
+            'paymentConfig' => $paymentConfig,
         ]);
     }
 
     /**
-     * Process payment for subscription
+     * Save payment ID after Moyasar form completion (called from frontend)
      */
-    public function processPayment(Request $request, Subscription $subscription)
+    public function savePaymentId(Request $request, Subscription $subscription)
     {
-        \Log::info('Payment process started', [
-            'user_id' => Auth::id(),
-            'subscription_id' => $subscription->id,
-            'payment_method' => $request->payment_method
-        ]);
-
         $request->validate([
-            'payment_method' => 'required|in:creditcard,stcpay,applepay',
-            'card_name' => 'required_if:payment_method,creditcard|string|max:255',
-            'card_number' => 'required_if:payment_method,creditcard|string',
-            'card_cvc' => 'required_if:payment_method,creditcard|string|size:3',
-            'card_month' => 'required_if:payment_method,creditcard|integer|between:1,12',
-            'card_year' => 'required_if:payment_method,creditcard|integer|min:' . date('Y'),
-            'token' => 'nullable|required_if:payment_method,stcpay|required_if:payment_method,applepay|string',
+            'payment_id' => 'required|string',
         ]);
-
-        \Log::info('Payment data validated successfully');
 
         $user = Auth::user();
 
-        // Check if user already has this subscription active
-        $existingSubscription = UserSubscription::where('user_id', $user->id)
-            ->where('subscription_id', $subscription->id)
-            ->where('status', UserSubscription::STATUS_ACTIVE)
-            ->where('ends_at', '>', now())
-            ->first();
-
-        if ($existingSubscription) {
-            \Log::info('User already has active subscription', [
-                'user_id' => $user->id,
-                'subscription_id' => $subscription->id
-            ]);
-
-            return response()->json([
-                'error' => 'لديك اشتراك نشط بالفعل في هذه الخطة'
-            ], 400);
-        }
-
         try {
-            \Log::info('Creating payment record');
+            $payment = $this->moyasarService->savePaymentIdForSubscription(
+                $user, 
+                $subscription, 
+                $request->payment_id
+            );
 
-            // Create payment record first
-            $payment = Payment::create([
-                'user_id' => $user->id,
-                'subscription_id' => $subscription->id,
-                'amount' => $subscription->price,
-                'currency' => 'SAR',
-                'status' => Payment::STATUS_PENDING,
-                'payment_method' => $request->payment_method,
+            return response()->json([
+                'success' => true,
+                'payment_id' => $payment->id,
+                'message' => 'تم حفظ معرف الدفع بنجاح'
             ]);
-
-            \Log::info('Payment record created', ['payment_id' => $payment->id]);
-
-            // Process payment with Moyasar
-            if ($request->payment_method === 'creditcard') {
-                \Log::info('Processing credit card payment');
-
-                $moyasarPayment = $this->moyasarService->createSubscriptionPayment($user, $subscription, [
-                    'name' => $request->card_name,
-                    'number' => $request->card_number,
-                    'cvc' => $request->card_cvc,
-                    'month' => $request->card_month,
-                    'year' => $request->card_year,
-                ]);
-            } else {
-                \Log::info('Processing token payment', ['payment_method' => $request->payment_method]);
-
-                $moyasarPayment = $this->moyasarService->createPaymentWithToken($user, $subscription, $request->token);
-            }
-
-            \Log::info('Moyasar payment created', ['moyasar_payment_id' => $moyasarPayment['id'] ?? 'unknown']);
-
-            // Update payment with Moyasar ID
-            $payment->update([
-                'payment_gateway_id' => $moyasarPayment['id'], // Moyasar payment ID
-            ]);
-
-            // Check payment status
-            if ($moyasarPayment['status'] === 'paid' || $moyasarPayment['status'] === 'initiated') {
-                $this->moyasarService->handlePaymentSuccess($payment);
-
-                // Check if it's an Inertia request
-                if (request()->header('X-Inertia')) {
-                    return redirect()->route('client.subscription.manage')
-                        ->with('success', 'تم الدفع بنجاح! تم تفعيل اشتراكك.');
-                }
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'تم الدفع بنجاح',
-                    'redirect' => route('client.subscription.manage')
-                ]);
-            } elseif ($moyasarPayment['status'] === 'failed') {
-                $errorMessage = $moyasarPayment['source']['message'] ?? 'فشل الدفع';
-                $this->moyasarService->handlePaymentFailure($payment, $errorMessage);
-
-                // Check if it's an Inertia request
-                if (request()->header('X-Inertia')) {
-                    return back()->withErrors(['payment' => 'فشل في معالجة الدفع: ' . $errorMessage]);
-                }
-
-                return response()->json([
-                    'error' => 'فشل في معالجة الدفع: ' . $errorMessage
-                ], 400);
-            } else {
-                // Payment is pending or requires additional action
-                // Check if it's an Inertia request
-                if (request()->header('X-Inertia')) {
-                    return back()->with('info', 'الدفع قيد المعالجة، يرجى الانتظار...');
-                }
-
-                return response()->json([
-                    'pending' => true,
-                    'payment_id' => $moyasarPayment['id'],
-                    'message' => 'الدفع قيد المعالجة'
-                ]);
-            }
-
         } catch (Exception $e) {
-            \Log::error('Payment processing failed', [
+            \Log::error('Failed to save payment ID', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'user_id' => Auth::id(),
+                'payment_id' => $request->payment_id,
+                'user_id' => $user->id,
                 'subscription_id' => $subscription->id
             ]);
 
-            if (isset($payment)) {
-                $this->moyasarService->handlePaymentFailure($payment, $e->getMessage());
-            }
-
-            // Check if it's an Inertia request
-            if (request()->header('X-Inertia')) {
-                return back()->withErrors(['payment' => $e->getMessage()]);
-            }
-
             return response()->json([
-                'error' => $e->getMessage()
+                'error' => 'فشل في حفظ معرف الدفع'
             ], 500);
         }
     }

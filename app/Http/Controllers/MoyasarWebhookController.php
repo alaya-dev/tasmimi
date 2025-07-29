@@ -106,7 +106,7 @@ class MoyasarWebhookController extends Controller
      */
     private function handlePaymentPaid($paymentData)
     {
-        $payment = Payment::where('stripe_payment_intent_id', $paymentData['id'])->first();
+        $payment = Payment::where('payment_gateway_id', $paymentData['id'])->first();
 
         if (!$payment) {
             Log::warning('Payment not found for paid Moyasar payment', [
@@ -131,7 +131,7 @@ class MoyasarWebhookController extends Controller
      */
     private function handlePaymentFailed($paymentData)
     {
-        $payment = Payment::where('stripe_payment_intent_id', $paymentData['id'])->first();
+        $payment = Payment::where('payment_gateway_id', $paymentData['id'])->first();
 
         if (!$payment) {
             Log::warning('Payment not found for failed Moyasar payment', [
@@ -155,7 +155,7 @@ class MoyasarWebhookController extends Controller
      */
     private function handlePaymentRefunded($paymentData)
     {
-        $payment = Payment::where('stripe_payment_intent_id', $paymentData['id'])->first();
+        $payment = Payment::where('payment_gateway_id', $paymentData['id'])->first();
 
         if (!$payment) {
             Log::warning('Payment not found for refunded Moyasar payment', [
