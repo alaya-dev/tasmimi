@@ -22,14 +22,22 @@ const { __, isRTL, direction } = useTranslations();
 
 const form = useForm({
     email: '',
+    phone: '',
     password: '',
     password_confirmation: '',
+    agree_terms: false,
 });
 
 const submit = () => {
     form.post(route('register'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
+};
+
+const handlePhoneInput = (event) => {
+    // Remove any non-digit characters
+    const value = event.target.value.replace(/[^0-9]/g, '');
+    form.phone = value;
 };
 </script>
 
@@ -116,6 +124,35 @@ const submit = () => {
                                 </div>
 
                                 <div>
+                                    <label for="phone" class="block text-sm font-medium text-blue-100 mb-2">
+                                        رقم الهاتف
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 flex items-center pointer-events-none" :class="isRTL ? 'right-0 pr-3' : 'left-0 pl-3'">
+                                            <svg class="w-5 h-5 text-blue-300" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                                            </svg>
+                                        </div>
+                                        <input
+                                            id="phone"
+                                            type="tel"
+                                            v-model="form.phone"
+                                            @input="handlePhoneInput"
+                                            autocomplete="tel"
+                                            class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
+                                            :class="[
+                                                isRTL ? 'pr-10 text-right' : 'pl-10',
+                                                form.errors.phone ? 'border-red-400' : ''
+                                            ]"
+                                            placeholder="رقم الهاتف (أرقام فقط)"
+                                            pattern="[0-9]*"
+                                            inputmode="numeric"
+                                        />
+                                    </div>
+                                    <InputError class="mt-2 text-red-300" :message="form.errors.phone" />
+                                </div>
+
+                                <div>
                                     <label for="password" class="block text-sm font-medium text-blue-100 mb-2">
                                         {{ __('auth.password_field') }}
                                     </label>
@@ -167,6 +204,34 @@ const submit = () => {
                                         />
                                     </div>
                                     <InputError class="mt-2 text-red-300" :message="form.errors.password_confirmation" />
+                                </div>
+
+                                <!-- Terms and Conditions Checkbox -->
+                                <div>
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5">
+                                            <input
+                                                id="agree_terms"
+                                                type="checkbox"
+                                                v-model="form.agree_terms"
+                                                class="w-4 h-4 text-blue-600 bg-white/10 border-white/20 rounded focus:ring-blue-500 focus:ring-2"
+                                                :class="form.errors.agree_terms ? 'border-red-400' : ''"
+                                            />
+                                        </div>
+                                        <div class="ml-3 text-sm" :class="isRTL ? 'text-right' : 'text-left'">
+                                            <label for="agree_terms" class="text-blue-100">
+                                                أوافق على 
+                                                <Link
+                                                    :href="route('terms-of-service.show')"
+                                                    target="_blank"
+                                                    class="text-blue-300 hover:text-blue-100 underline font-medium"
+                                                >
+                                                    اتفاقية الاستخدام وسياسة الخصوصية
+                                                </Link>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <InputError class="mt-2 text-red-300" :message="form.errors.agree_terms" />
                                 </div>
 
                                 <button

@@ -165,8 +165,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('template-sales-export', [App\Http\Controllers\Admin\TemplateSalesController::class, 'export'])->name('template-sales.export');
 
     // Gestion des conditions d'utilisation
-    Route::resource('terms-of-service', App\Http\Controllers\Admin\TermsOfServiceController::class)->except(['show']);
+    Route::resource('terms-of-service', App\Http\Controllers\Admin\TermsOfServiceController::class)->except(['show', 'edit', 'update']);
     Route::post('terms-of-service/{termsOfService}/activate', [App\Http\Controllers\Admin\TermsOfServiceController::class, 'activate'])->name('terms-of-service.activate');
+    Route::get('terms-of-service/{termsOfService}/download', [App\Http\Controllers\Admin\TermsOfServiceController::class, 'downloadFile'])->name('terms-of-service.download');
+    Route::delete('terms-of-service/{termsOfService}/file', [App\Http\Controllers\Admin\TermsOfServiceController::class, 'deleteFile'])->name('terms-of-service.delete-file');
 
     // Éditeur de design pour templates
     Route::get('templates/{template}/design', [App\Http\Controllers\Admin\TemplateController::class, 'designEditor'])->name('templates.design');

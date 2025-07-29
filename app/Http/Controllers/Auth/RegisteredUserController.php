@@ -33,11 +33,18 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'phone' => 'nullable|string|regex:/^[0-9]+$/|max:20',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'agree_terms' => 'required|accepted',
+        ], [
+            'phone.regex' => 'رقم الهاتف يجب أن يحتوي على أرقام فقط',
+            'agree_terms.required' => 'يجب الموافقة على اتفاقية الاستخدام وسياسة الخصوصية',
+            'agree_terms.accepted' => 'يجب الموافقة على اتفاقية الاستخدام وسياسة الخصوصية',
         ]);
 
         $user = User::create([
             'email' => $request->email,
+            'phone' => $request->phone,
             'password' => Hash::make($request->password),
             'role' => User::ROLE_CLIENT, // Attribuer automatiquement le rôle client
         ]);

@@ -15,16 +15,21 @@ class TermsOfService extends Model
     protected $fillable = [
         'title',
         'content',
+        'content_blocks',
+        'file_name',
+        'file_path',
+        'file_type',
+        'file_size',
+        'extracted_content',
         'is_active',
-        'version',
-        'effective_date',
         'created_by',
         'updated_by',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'effective_date' => 'datetime',
+        'content_blocks' => 'array',
+        'file_size' => 'integer',
     ];
 
     /**
@@ -61,5 +66,44 @@ class TermsOfService extends Model
         
         // Activate this one
         $this->update(['is_active' => true]);
+    }
+
+    /**
+     * Check if this terms has an uploaded file.
+     */
+    public function hasFile(): bool
+    {
+        return !empty($this->file_path);
+    }
+
+    /**
+     * Get file URL for download.
+     */
+    public function getFileUrlAttribute(): ?string
+    {
+        if (!$this->hasFile()) {
+            return null;
+        }
+        
+        return asset('storage/' . $this->file_path);
+    }
+
+    /**
+     * Get formatted file size.
+     */
+    public function getFormattedFileSizeAttribute(): ?string
+    {
+        if (!$this->file_size) {
+            return null;
+        }
+        
+        $bytes = $this->file_size;
+        if ($bytes >= 1048576) {
+            return number_format($bytes / 1048576, 2) . ' ميجابايت';
+        } elseif ($bytes >= 1024) {
+            return number_format($bytes / 1024, 2) . ' كيلوبايت';
+        } else {
+            return $bytes . ' بايت';
+        }
     }
 }
