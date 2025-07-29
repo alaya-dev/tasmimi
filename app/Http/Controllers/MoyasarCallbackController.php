@@ -184,8 +184,8 @@ class MoyasarCallbackController extends Controller
                 // Process successful payment
                 $this->moyasarService->handleTemplatePaymentSuccess($payment);
 
-                return redirect()->route('templates.create', $template)
-                    ->with('success', 'تم شراء القالب بنجاح! يمكنك الآن استخدامه وتخصيصه.');
+                return redirect()->route('client.templates.show', $template)
+                    ->with('success', 'تم شراء القالب بنجاح! يمكنك الآن استخدامه.');
 
             } else {
                 // Handle failed payment
@@ -198,7 +198,7 @@ class MoyasarCallbackController extends Controller
                     'moyasar_status' => $moyasarPayment['status'] ?? 'unknown'
                 ]);
 
-                return redirect()->route('client.templates')
+                return redirect()->route('client.templates.show', $template)
                     ->with('error', 'فشل في عملية الدفع: ' . ($message ?? 'خطأ غير معروف'));
             }
 

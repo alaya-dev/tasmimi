@@ -48,6 +48,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Route publique pour les conditions d'utilisation
+Route::get('/terms-of-service', [App\Http\Controllers\TermsOfServiceController::class, 'show'])->name('terms-of-service.show');
+
 // Client Routes
 Route::prefix('client')->name('client.')->group(function () {
     // Public client routes
@@ -161,7 +164,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('template-sales/{template}', [App\Http\Controllers\Admin\TemplateSalesController::class, 'show'])->name('template-sales.show');
     Route::get('template-sales-export', [App\Http\Controllers\Admin\TemplateSalesController::class, 'export'])->name('template-sales.export');
 
-
+    // Gestion des conditions d'utilisation
+    Route::resource('terms-of-service', App\Http\Controllers\Admin\TermsOfServiceController::class)->except(['show']);
+    Route::post('terms-of-service/{termsOfService}/activate', [App\Http\Controllers\Admin\TermsOfServiceController::class, 'activate'])->name('terms-of-service.activate');
 
     // Éditeur de design pour templates
     Route::get('templates/{template}/design', [App\Http\Controllers\Admin\TemplateController::class, 'designEditor'])->name('templates.design');

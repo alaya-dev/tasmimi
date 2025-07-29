@@ -9,93 +9,10 @@
                     <h1 class="text-2xl font-bold text-gray-900">القوالب المباعة</h1>
                     <p class="text-gray-600 mt-1">إحصائيات ومبيعات القوالب</p>
                 </div>
-                <div class="flex space-x-3 space-x-reverse">
-                    <button
-                        @click="exportData"
-                        class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2 space-x-reverse"
-                    >
-                        <i class="fas fa-download"></i>
-                        <span>تصدير البيانات</span>
-                    </button>
-                </div>
+                
             </div>
 
-            <!-- Statistics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <!-- Total Sales -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-green-100 text-green-600">
-                            <i class="fas fa-dollar-sign text-xl"></i>
-                        </div>
-                        <div class="mr-4 text-right">
-                            <p class="text-sm font-medium text-gray-600">إجمالي المبيعات</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(stats.total_sales) }}</p>
-                            <p class="text-sm text-green-600" v-if="stats.sales_growth > 0">
-                                <i class="fas fa-arrow-up"></i>
-                                +{{ formatNumber(stats.sales_growth) }}% هذا الشهر
-                            </p>
-                            <p class="text-sm text-red-600" v-else-if="stats.sales_growth < 0">
-                                <i class="fas fa-arrow-down"></i>
-                                {{ formatNumber(stats.sales_growth) }}% هذا الشهر
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Total Purchases -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                            <i class="fas fa-shopping-cart text-xl"></i>
-                        </div>
-                        <div class="mr-4 text-right">
-                            <p class="text-sm font-medium text-gray-600">عدد المشتريات</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ formatNumber(stats.total_purchases) }}</p>
-                            <p class="text-sm text-blue-600" v-if="stats.purchases_growth > 0">
-                                <i class="fas fa-arrow-up"></i>
-                                +{{ formatNumber(stats.purchases_growth) }}% هذا الشهر
-                            </p>
-                            <p class="text-sm text-red-600" v-else-if="stats.purchases_growth < 0">
-                                <i class="fas fa-arrow-down"></i>
-                                {{ formatNumber(stats.purchases_growth) }}% هذا الشهر
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-
-            <!-- Top Selling Templates -->
-            <div class="bg-white rounded-lg shadow mb-8">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <h2 class="text-lg font-semibold text-gray-900">أكثر القوالب مبيعاً</h2>
-                </div>
-                <div class="p-6">
-                    <div class="space-y-4">
-                        <div 
-                            v-for="(item, index) in topTemplates" 
-                            :key="item.template.id"
-                            class="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                        >
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                                    {{ index + 1 }}
-                                </div>
-                                <div class="mr-4">
-                                    <h3 class="font-medium text-gray-900">{{ item.template.name }}</h3>
-                                    <p class="text-sm text-gray-600">{{ formatNumber(item.sales_count) }} مبيعة</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-bold text-green-600">{{ formatCurrency(item.total_revenue) }}</p>
-                                <p class="text-sm text-gray-600">{{ formatCurrency(item.template.price) }} للقطعة</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
 
             <!-- Filters -->
             <div class="bg-white rounded-lg shadow mb-6">

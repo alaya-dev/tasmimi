@@ -121,17 +121,6 @@ class MoyasarService
     public function savePaymentIdForTemplate($user, $template, $paymentId)
     {
         try {
-            // Create payment record first
-            $payment = Payment::create([
-                'user_id' => $user->id,
-                'template_id' => $template->id,
-                'amount' => $template->price,
-                'currency' => 'SAR',
-                'status' => Payment::STATUS_PENDING,
-                'payment_gateway_id' => $paymentId,
-                'payment_method' => 'moyasar_form',
-            ]);
-
             // Check if purchase already exists
             $purchase = TemplatePurchase::where('user_id', $user->id)
                 ->where('template_id', $template->id)
@@ -155,14 +144,13 @@ class MoyasarService
             ]);
 
             \Log::info('Payment ID saved for template purchase', [
-                'payment_id' => $payment->id,
                 'purchase_id' => $purchase->id,
                 'moyasar_payment_id' => $paymentId,
                 'user_id' => $user->id,
                 'template_id' => $template->id
             ]);
 
-            return $payment; // Return payment instead of purchase
+            return $purchase;
         } catch (Exception $e) {
             \Log::error('Failed to save payment ID for template', [
                 'error' => $e->getMessage(),

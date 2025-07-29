@@ -61,9 +61,8 @@
 </template>
 
 <script setup>
-import { Head, router } from '@inertiajs/vue3'
+import { Head } from '@inertiajs/vue3'
 import { onMounted, ref } from 'vue'
-import axios from 'axios'
 import ClientLayout from '@/Layouts/ClientLayout.vue'
 
 // Props
@@ -82,71 +81,20 @@ const props = defineProps({
 const loading = ref(true)
 const errorMessage = ref('')
 
-// Save payment ID before redirect
-const savePaymentId = async (payment) => {
-    try {
-        await axios.post(route('templates.save-payment-id', props.template.id), {
-            payment_id: payment.id
-        });
-        console.log('Payment ID saved successfully for template:', payment.id);
-    } catch (error) {
-        console.error('Failed to save payment ID for template:', error);
-    }
-};
-
 // Initialize Moyasar payment form
-onMounted(() => {
-    // Initialize Moyasar form when component is mounted
-    if (typeof window.Moyasar !== 'undefined') {
-        try {
-            console.log('Template Purchase - Initializing Moyasar with config:', props.paymentConfig);
-            window.Moyasar.init({
-                element: '#mysr-form',
-                ...props.paymentConfig,
-                on_completed: async function (payment) {
-                    console.log('Template payment completed:', payment);
-                    // Save payment ID before redirect
-                    await savePaymentId(payment);
-                },
-            });
-            loading.value = false;
-            console.log('Template Purchase - Moyasar initialized successfully');
-        } catch (error) {
-            console.error('Template Purchase - Moyasar initialization error:', error);
-            errorMessage.value = `خطأ في تحميل نموذج الدفع: ${error.message || 'خطأ غير معروف'}`;
-            loading.value = false;
-            
-            // Show user-friendly error
-            const formElement = document.getElementById('mysr-form');
-            if (formElement) {
-                formElement.innerHTML = `
-                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-                        <i class="fas fa-exclamation-triangle text-red-600 mb-2"></i>
-                        <p class="text-red-800 font-medium">خطأ في تحميل نموذج الدفع</p>
-                        <p class="text-red-600 text-sm">يرجى إعادة تحميل الصفحة والمحاولة مرة أخرى</p>
-                        <button onclick="window.location.reload()" class="mt-3 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                            إعادة التحميل
-                        </button>
-                    </div>
-                `;
-            }
-        }
-    } else {
-        console.error('Template Purchase - Moyasar library not loaded');
-        errorMessage.value = 'مكتبة Moyasar غير محملة';
-        loading.value = false;
+onMounted(async () => {
+    try {
+        console.log('Template Purchase - Payment config:', props.paymentConfig)
         
-        // Show loading error
-        const formElement = document.getElementById('mysr-form');
-        if (formElement) {
-            formElement.innerHTML = `
-                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
-                    <i class="fas fa-exclamation-triangle text-yellow-600 mb-2"></i>
-                    <p class="text-yellow-800 font-medium">جاري تحميل نموذج الدفع...</p>
-                    <p class="text-yellow-600 text-sm">إذا لم يتم التحميل، يرجى التحقق من الاتصال بالإنترنت</p>
-                </div>
-            `;
-        }
+        // Initialize Moyasar payment form
+        const mysr = Moyasar.init(props.paymentConfig)
+        console.log('Template Purchase - Moyasar initialized:', mysr)
+        
+        loading.value = false
+    } catch (error) {
+        console.error('Template Purchase - Error initializing Moyasar:', error)
+        errorMessage.value = `خطأ في تحميل نموذج الدفع: ${error.message || 'خطأ غير معروف'}`
+        loading.value = false
     }
 })
 </script>
