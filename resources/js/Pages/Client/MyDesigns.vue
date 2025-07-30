@@ -354,9 +354,15 @@ const cloneDesign = async (design) => {
                 showErrorMessage(result.message || 'خطأ في استنساخ التصميم');
             }
         } else {
-            const errorText = await response.text();
-            console.error('❌ Clone request failed:', response.status, errorText);
-            showErrorMessage('خطأ في استنساخ التصميم');
+            const errorData = await response.json().catch(() => null);
+            console.error('❌ Clone request failed:', response.status, {
+                status: response.status,
+                statusText: response.statusText,
+                errorData: errorData
+            });
+            
+            const errorMessage = errorData?.message || `خطأ ${response.status}: ${response.statusText}`;
+            showErrorMessage(errorMessage);
         }
     } catch (error) {
         console.error('Error cloning design:', error);

@@ -534,12 +534,30 @@ class ClientTemplateController extends Controller
         }
 
         try {
+            \Log::info('Starting client template duplication', [
+                'original_id' => $clientTemplate->id,
+                'user_id' => auth()->id(),
+                'original_name' => $clientTemplate->name
+            ]);
+
+            // Generate a unique name for the duplicated template
+            $baseName = $clientTemplate->name . ' - نسخة';
+            $uniqueName = $this->generateUniqueName($baseName, auth()->id());
+
             $duplicatedTemplate = $clientTemplate->replicate();
-            $duplicatedTemplate->name = $clientTemplate->name . ' - نسخة';
+            $duplicatedTemplate->name = $uniqueName;
             $duplicatedTemplate->version = 1;
             $duplicatedTemplate->thumbnail = null; // Will be generated later
             $duplicatedTemplate->last_edited_at = now();
+            $duplicatedTemplate->user_id = auth()->id(); // Ensure correct user_id
             $duplicatedTemplate->save();
+
+            \Log::info('Client template duplicated successfully', [
+                'original_id' => $clientTemplate->id,
+                'new_id' => $duplicatedTemplate->id,
+                'new_name' => $uniqueName,
+                'user_id' => auth()->id()
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -554,6 +572,7 @@ class ClientTemplateController extends Controller
             \Log::error('Client template duplicate error: ' . $e->getMessage(), [
                 'client_template_id' => $clientTemplate->id,
                 'user_id' => auth()->id(),
+                'error_message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
 
@@ -562,6 +581,22 @@ class ClientTemplateController extends Controller
                 'message' => 'حدث خطأ أثناء نسخ التصميم'
             ], 500);
         }
+    }
+
+    /**
+     * Generate a unique name for the duplicated template
+     */
+    private function generateUniqueName($baseName, $userId)
+    {
+        $name = $baseName;
+        $counter = 1;
+
+        while (ClientTemplate::where('user_id', $userId)->where('name', $name)->exists()) {
+            $name = $baseName . ' (' . $counter . ')';
+            $counter++;
+        }
+
+        return $name;
     }
 
     /**
