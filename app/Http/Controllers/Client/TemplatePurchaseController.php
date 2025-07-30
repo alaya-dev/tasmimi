@@ -64,6 +64,13 @@ class TemplatePurchaseController extends Controller
      */
     public function savePaymentId(Request $request, Template $template)
     {
+        \Log::info('Template savePaymentId called', [
+            'payment_id' => $request->payment_id,
+            'template_id' => $template->id,
+            'user_id' => Auth::id(),
+            'request_data' => $request->all()
+        ]);
+
         $request->validate([
             'payment_id' => 'required|string',
         ]);
@@ -76,6 +83,12 @@ class TemplatePurchaseController extends Controller
                 $template, 
                 $request->payment_id
             );
+
+            \Log::info('Template payment ID saved successfully', [
+                'purchase_id' => $purchase->id,
+                'payment_id' => $request->payment_id,
+                'template_id' => $template->id
+            ]);
 
             return response()->json([
                 'success' => true,

@@ -127,18 +127,23 @@ class MoyasarCallbackController extends Controller
                 'payment_id' => $paymentId,
                 'status' => $status,
                 'message' => $message,
-                'template_id' => $templateId
+                'template_id' => $templateId,
+                'full_request' => $request->all()
             ]);
 
             if (!$paymentId) {
-                return redirect()->route('client.templates')
+                Log::error('Template callback: Missing payment ID');
+                return redirect()->route('client.my-designs')
                     ->with('error', 'معرف الدفع مفقود');
             }
 
             // Verify payment with Moyasar API
+            Log::info('Template callback: Verifying payment with Moyasar', ['payment_id' => $paymentId]);
             $moyasarPayment = $this->moyasarService->verifyPayment($paymentId);
+            Log::info('Template callback: Moyasar payment details', $moyasarPayment);
             
             // Find local template purchase record using the new TemplatePurchase model
+            Log::info('Template callback: Looking for local template purchase', ['payment_id' => $paymentId]);
             $templatePurchase = \App\Models\TemplatePurchase::where('payment_gateway_id', $paymentId)->first();
 
             if (!$templatePurchase) {
@@ -146,15 +151,30 @@ class MoyasarCallbackController extends Controller
                     'moyasar_payment_id' => $paymentId
                 ]);
                 
-                return redirect()->route('client.templates')
+                return redirect()->route('client.my-designs')
                     ->with('error', 'لم يتم العثور على معلومات الشراء');
             }
 
+            Log::info('Template callback: Found template purchase', [
+                'purchase_id' => $templatePurchase->id,
+                'template_id' => $templatePurchase->template_id,
+                'user_id' => $templatePurchase->user_id,
+                'current_status' => $templatePurchase->status
+            ]);
+
             $template = $templatePurchase->template;
             if (!$template) {
-                return redirect()->route('client.templates')
+                Log::error('Template callback: Template not found', [
+                    'template_id' => $templatePurchase->template_id
+                ]);
+                return redirect()->route('client.my-designs')
                     ->with('error', 'لم يتم العثور على القالب');
             }
+
+            Log::info('Template callback: Found template', [
+                'template_id' => $template->id,
+                'template_name' => $template->name
+            ]);
 
             // Handle payment based on status
             if ($status === 'paid' && $moyasarPayment['status'] === 'paid') {
@@ -167,11 +187,12 @@ class MoyasarCallbackController extends Controller
                         'payment_id' => $paymentId
                     ]);
                     
-                    return redirect()->route('client.templates')
+                    return redirect()->route('client.templates.purchase', $template)
                         ->with('error', 'خطأ في مبلغ الدفع');
                 }
 
                 // Process successful payment - mark as paid
+                Log::info('Template callback: Marking purchase as paid');
                 $templatePurchase->update([
                     'status' => \App\Models\TemplatePurchase::STATUS_PAID,
                     'paid_at' => now(),
@@ -184,11 +205,21 @@ class MoyasarCallbackController extends Controller
                 ]);
 
                 // Redirect to template create page
+                Log::info('Template callback: Redirecting to template create page', [
+                    'template_id' => $template->id,
+                    'redirect_route' => route('client.templates.create', $template)
+                ]);
+                
                 return redirect()->route('client.templates.create', $template)
                     ->with('success', 'تم شراء القالب بنجاح! يمكنك الآن استخدامه وإنشاء تصميماتك.');
 
             } else {
                 // Handle failed payment
+                Log::info('Template callback: Payment failed or not paid', [
+                    'status' => $status,
+                    'moyasar_status' => $moyasarPayment['status'] ?? 'unknown'
+                ]);
+                
                 $templatePurchase->update([
                     'status' => \App\Models\TemplatePurchase::STATUS_FAILED
                 ]);
@@ -207,11 +238,14 @@ class MoyasarCallbackController extends Controller
         } catch (Exception $e) {
             Log::error('Template callback error', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
                 'payment_id' => $request->query('id'),
-                'status' => $request->query('status')
+                'status' => $request->query('status'),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
             ]);
 
-            return redirect()->route('client.templates')
+            return redirect()->route('client.my-designs')
                 ->with('error', 'حدث خطأ في معالجة الدفع');
         }
     }

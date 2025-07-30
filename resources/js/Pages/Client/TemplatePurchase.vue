@@ -93,12 +93,18 @@ const props = defineProps({
 // Save payment ID before redirect
 const savePaymentId = async (payment) => {
     try {
-        await axios.post(route('client.templates.save-payment-id', props.template.id), {
+        console.log('Attempting to save payment ID:', payment.id);
+        console.log('Template ID:', props.template.id);
+        console.log('Route:', route('client.templates.save-payment-id', props.template.id));
+        
+        const response = await window.axios.post(route('client.templates.save-payment-id', props.template.id), {
             payment_id: payment.id
         });
         console.log('Template payment ID saved successfully:', payment.id);
+        console.log('Response:', response.data);
     } catch (error) {
         console.error('Failed to save template payment ID:', error);
+        console.error('Error details:', error.response?.data);
     }
 };
 
