@@ -1,109 +1,106 @@
 <template>
     <AdminLayoutSidebar>
-        <Head title="تعديل ملف اتفاقية الاستخدام" />
+        <Head title="تعديل اتفاقية الاستخدام" />
         
         <div class="bg-white rounded-lg shadow-md p-6" dir="rtl">
             <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900 mb-2">تعديل ملف اتفاقية الاستخدام</h1>
-                <p class="text-gray-600">تحميل الملف الحالي أو استبداله بملف جديد</p>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">تعديل اتفاقية الاستخدام</h1>
+                <p class="text-gray-600">قم بتعديل محتوى اتفاقية الاستخدام مع دعم التنسيق الغني</p>
             </div>
 
-            <!-- Current File Info -->
-            <div v-if="terms.file_name" class="mb-6 p-4 bg-gray-50 rounded-lg">
-                <h3 class="text-lg font-medium text-gray-900 mb-3">الملف الحالي</h3>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <svg class="h-6 w-6 text-red-600 ml-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-                        </svg>
-                        <div>
-                            <div class="text-sm font-medium text-gray-900">{{ terms.file_name }}</div>
-                            <div v-if="terms.file_size" class="text-xs text-gray-500">{{ formatFileSize(terms.file_size) }}</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Download Button -->
-                    <a
-                        :href="route('admin.terms-of-service.download', terms.id)"
-                        class="inline-flex items-center px-3 py-2 bg-green-600 border border-transparent rounded text-sm text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150"
-                    >
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        تحميل الملف
-                    </a>
-                </div>
-            </div>
-
-            <!-- Replace File Form -->
-            <form @submit.prevent="submit" enctype="multipart/form-data">
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        استبدال بملف جديد
+            <form @submit.prevent="submit" class="space-y-6">
+                <!-- Title Field -->
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                        عنوان الاتفاقية <span class="text-red-500">*</span>
                     </label>
-                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                        <div class="space-y-1 text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <div class="flex text-sm text-gray-600">
-                                <label for="file" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                                    <span>اختر ملف PDF جديد</span>
-                                    <input
-                                        id="file"
-                                        type="file"
-                                        class="sr-only"
-                                        accept=".pdf"
-                                        @change="handleFileChange"
-                                    />
-                                </label>
-                                <p class="pr-1">أو سحب وإفلات</p>
-                            </div>
-                            <p class="text-xs text-gray-500">
-                                PDF فقط حتى 10MB
-                            </p>
-                        </div>
+                    <input
+                        type="text"
+                        id="title"
+                        v-model="form.title"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="مثال: اتفاقية استخدام موقع سامقة للتصميم"
+                        required
+                    />
+                    <div v-if="form.errors.title" class="mt-1 text-sm text-red-600">
+                        {{ form.errors.title }}
                     </div>
-                    
-                    <!-- Display selected file -->
-                    <div v-if="selectedFile" class="mt-3 p-3 bg-gray-50 rounded-md">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-red-600 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-                                </svg>
-                                <span class="text-sm font-medium text-gray-900">{{ selectedFile.name }}</span>
-                                <span class="text-sm text-gray-500 mr-2">({{ formatFileSize(selectedFile.size) }})</span>
-                            </div>
-                            <button type="button" @click="removeFile" class="text-red-600 hover:text-red-800">
-                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                        </div>
+                </div>
+
+                <!-- Version Field -->
+                <div>
+                    <label for="version" class="block text-sm font-medium text-gray-700 mb-2">
+                        رقم الإصدار
+                    </label>
+                    <input
+                        type="text"
+                        id="version"
+                        v-model="form.version"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="مثال: 1.0"
+                    />
+                    <div v-if="form.errors.version" class="mt-1 text-sm text-red-600">
+                        {{ form.errors.version }}
                     </div>
-                    
-                    <div v-if="form.errors.file" class="mt-1 text-sm text-red-600">
-                        {{ form.errors.file }}
+                </div>
+
+                <!-- Rich Text Content -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        محتوى الاتفاقية <span class="text-red-500">*</span>
+                    </label>
+                    <RichTextEditor
+                        v-model="form.content"
+                        placeholder="اكتب محتوى اتفاقية الاستخدام هنا..."
+                        class="min-h-[400px]"
+                    />
+                    <div v-if="form.errors.content" class="mt-1 text-sm text-red-600">
+                        {{ form.errors.content }}
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">
+                        يمكنك استخدام التنسيق الغني مثل النص العريض، المائل، القوائم والعناوين. يدعم النص العربي مع المحاذاة من اليمين لليسار.
+                    </p>
+                </div>
+
+                <!-- Terms Status -->
+                <div v-if="terms.is_active" class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 text-green-600 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-sm font-medium text-green-800">هذه الاتفاقية نشطة حالياً</span>
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex items-center justify-end space-x-3 space-x-reverse">
-                    <Link
-                        :href="route('admin.terms-of-service.index')"
-                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded transition duration-200"
-                    >
-                        إلغاء
-                    </Link>
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <Link
+                            :href="route('admin.terms-of-service.index')"
+                            class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition duration-200"
+                        >
+                            إلغاء
+                        </Link>
+                        <button
+                            type="submit"
+                            :disabled="form.processing || !form.title || !form.content"
+                            class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-2 px-6 rounded-lg transition duration-200 disabled:cursor-not-allowed"
+                        >
+                            <span v-if="form.processing">جاري التحديث...</span>
+                            <span v-else>تحديث الاتفاقية</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Activate Terms Button -->
                     <button
-                        v-if="selectedFile"
-                        type="submit"
-                        :disabled="form.processing"
-                        class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-2 px-4 rounded transition duration-200"
+                        v-if="!terms.is_active"
+                        type="button"
+                        @click="activateTerms"
+                        :disabled="activating"
+                        class="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-bold py-2 px-6 rounded-lg transition duration-200 disabled:cursor-not-allowed"
                     >
-                        <span v-if="form.processing">جاري التحديث...</span>
-                        <span v-else>استبدال الملف</span>
+                        <span v-if="activating">جاري التفعيل...</span>
+                        <span v-else>تفعيل الاتفاقية</span>
                     </button>
                 </div>
             </form>
@@ -113,60 +110,42 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Head, Link, useForm } from '@inertiajs/vue3'
+import { Head, Link, useForm, router } from '@inertiajs/vue3'
 import AdminLayoutSidebar from '@/Layouts/AdminLayoutSidebar.vue'
+import RichTextEditor from '@/Components/RichTextEditor.vue'
 
-// Props
 const props = defineProps({
     terms: Object
 })
 
-const selectedFile = ref(null)
+const activating = ref(false)
 
 const form = useForm({
-    title: '',
-    file: null,
-    is_active: props.terms.is_active
+    title: props.terms.title || '',
+    content: props.terms.content || '',
+    version: props.terms.version || '1.0'
 })
 
-const handleFileChange = (event) => {
-    const file = event.target.files[0]
-    if (file) {
-        selectedFile.value = file
-        form.file = file
-    }
-}
-
-const removeFile = () => {
-    selectedFile.value = null
-    form.file = null
-    document.getElementById('file').value = ''
-}
-
-const formatFileSize = (bytes) => {
-    if (!bytes) return ''
-    if (bytes === 0) return '0 بايت'
-    
-    const k = 1024
-    const sizes = ['بايت', 'كيلوبايت', 'ميجابايت', 'جيجابايت']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
-
 const submit = () => {
-    if (!selectedFile.value) {
-        return
-    }
-    
-    // Pour les fichiers avec Laravel, utiliser PUT via _method
-    form.transform((data) => ({
-        ...data,
-        _method: 'PUT'
-    })).post(route('admin.terms-of-service.update', props.terms.id), {
-        forceFormData: true,
+    form.put(route('admin.terms-of-service.update', props.terms.id), {
         onSuccess: () => {
-            selectedFile.value = null
+            // Form will be redirected automatically
+        },
+        onError: (errors) => {
+            console.error('Validation errors:', errors)
+        }
+    })
+}
+
+const activateTerms = () => {
+    activating.value = true
+    
+    router.post(route('admin.terms-of-service.activate', props.terms.id), {}, {
+        onSuccess: () => {
+            activating.value = false
+        },
+        onError: () => {
+            activating.value = false
         }
     })
 }

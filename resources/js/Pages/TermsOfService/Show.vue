@@ -18,7 +18,6 @@
                     
                     <div class="text-right">
                         <h1 class="text-lg font-semibold text-gray-900">{{ terms.title }}</h1>
-                        <p class="text-sm text-gray-600">تاريخ الإنشاء: {{ formatDate(terms.created_at) }}</p>
                     </div>
                 </div>
             </div>
@@ -30,10 +29,8 @@
                 <div class="px-6 py-4 bg-blue-50 border-b border-blue-200">
                     <div class="flex justify-between items-center">
                         <div class="text-right flex-1">
-                            <h2 class="text-xl font-bold text-blue-900">{{ terms.title }}</h2>
-                            <p class="text-blue-700 text-sm mt-1">
-                                تاريخ الإنشاء: {{ formatDate(terms.created_at) }}
-                            </p>
+                            <h2 class="text-center font-bold text-blue-900">{{ terms.title }}</h2>
+                            
                         </div>
                         
                         <!-- PDF Download button -->
@@ -90,12 +87,7 @@
                     </div>
                 </div>
 
-                <!-- Footer -->
-                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                    <div class="text-center text-sm text-gray-600">
-                        <p>آخر تحديث: {{ formatDate(terms.updated_at) }}</p>
-                    </div>
-                </div>
+                
             </div>
         </main>
     </div>

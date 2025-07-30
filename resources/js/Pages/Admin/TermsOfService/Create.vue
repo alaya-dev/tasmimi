@@ -1,79 +1,82 @@
 <template>
     <AdminLayoutSidebar>
-        <Head title="إضافة ملف اتفاقية الاستخدام" />
+        <Head title="إضافة اتفاقية الاستخدام" />
         
         <div class="bg-white rounded-lg shadow-md p-6" dir="rtl">
             <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900 mb-2">إضافة ملف اتفاقية الاستخدام</h1>
-                <p class="text-gray-600">قم برفع ملف PDF لاتفاقية الاستخدام (ملف واحد فقط مسموح)</p>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">إضافة اتفاقية الاستخدام</h1>
+                <p class="text-gray-600">قم بكتابة اتفاقية الاستخدام بالتفصيل مع دعم التنسيق الغني</p>
             </div>
 
-            <form @submit.prevent="submit" enctype="multipart/form-data">
-                <!-- File Upload Only -->
-                <div class="mb-6">
-                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                        <div class="space-y-1 text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <div class="flex text-sm text-gray-600">
-                                <label for="file" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                                    <span>اختر ملف PDF</span>
-                                    <input
-                                        id="file"
-                                        type="file"
-                                        class="sr-only"
-                                        accept=".pdf"
-                                        @change="handleFileChange"
-                                        required
-                                    />
-                                </label>
-                                <p class="pr-1">أو سحب وإفلات</p>
-                            </div>
-                            <p class="text-xs text-gray-500">
-                                PDF فقط حتى 10MB
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <!-- Display selected file -->
-                    <div v-if="selectedFile" class="mt-3 p-3 bg-gray-50 rounded-md">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-red-600 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-                                </svg>
-                                <span class="text-sm font-medium text-gray-900">{{ selectedFile.name }}</span>
-                                <span class="text-sm text-gray-500 mr-2">({{ formatFileSize(selectedFile.size) }})</span>
-                            </div>
-                            <button type="button" @click="removeFile" class="text-red-600 hover:text-red-800">
-                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div v-if="form.errors.file" class="mt-1 text-sm text-red-600">
-                        {{ form.errors.file }}
+            <form @submit.prevent="submit" class="space-y-6">
+                <!-- Title Field -->
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                        عنوان الاتفاقية <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="title"
+                        v-model="form.title"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="مثال: اتفاقية استخدام موقع سامقة للتصميم"
+                        required
+                    />
+                    <div v-if="form.errors.title" class="mt-1 text-sm text-red-600">
+                        {{ form.errors.title }}
                     </div>
                 </div>
 
+                <!-- Version Field -->
+                <div>
+                    <label for="version" class="block text-sm font-medium text-gray-700 mb-2">
+                        رقم الإصدار
+                    </label>
+                    <input
+                        type="text"
+                        id="version"
+                        v-model="form.version"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="مثال: 1.0"
+                    />
+                    <div v-if="form.errors.version" class="mt-1 text-sm text-red-600">
+                        {{ form.errors.version }}
+                    </div>
+                </div>
+
+                <!-- Rich Text Content -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        محتوى الاتفاقية <span class="text-red-500">*</span>
+                    </label>
+                    <RichTextEditor
+                        v-model="form.content"
+                        placeholder="اكتب محتوى اتفاقية الاستخدام هنا..."
+                        class="min-h-[400px]"
+                    />
+                    <div v-if="form.errors.content" class="mt-1 text-sm text-red-600">
+                        {{ form.errors.content }}
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">
+                        يمكنك استخدام التنسيق الغني مثل النص العريض، المائل، القوائم والعناوين. يدعم النص العربي مع المحاذاة من اليمين لليسار.
+                    </p>
+                </div>
+
                 <!-- Action Buttons -->
-                <div class="flex items-center justify-end space-x-3 space-x-reverse">
+                <div class="flex items-center justify-end space-x-3 space-x-reverse pt-6 border-t border-gray-200">
                     <Link
                         :href="route('admin.terms-of-service.index')"
-                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded transition duration-200"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition duration-200"
                     >
                         إلغاء
                     </Link>
                     <button
                         type="submit"
-                        :disabled="form.processing || !selectedFile"
-                        class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-2 px-4 rounded transition duration-200"
+                        :disabled="form.processing || !form.title || !form.content"
+                        class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-2 px-6 rounded-lg transition duration-200 disabled:cursor-not-allowed"
                     >
-                        <span v-if="form.processing">جاري الرفع...</span>
-                        <span v-else>رفع الملف</span>
+                        <span v-if="form.processing">جاري الحفظ...</span>
+                        <span v-else>حفظ الاتفاقية</span>
                     </button>
                 </div>
             </form>
@@ -82,53 +85,23 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { Head, Link, useForm } from '@inertiajs/vue3'
 import AdminLayoutSidebar from '@/Layouts/AdminLayoutSidebar.vue'
-
-const selectedFile = ref(null)
+import RichTextEditor from '@/Components/RichTextEditor.vue'
 
 const form = useForm({
-    file: null,
-    is_active: true
+    title: '',
+    content: '',
+    version: '1.0'
 })
 
-const handleFileChange = (event) => {
-    const file = event.target.files[0]
-    if (file) {
-        selectedFile.value = file
-        form.file = file
-    }
-}
-
-const removeFile = () => {
-    selectedFile.value = null
-    form.file = null
-    document.getElementById('file').value = ''
-}
-
-const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 بايت'
-    
-    const k = 1024
-    const sizes = ['بايت', 'كيلوبايت', 'ميجابايت', 'جيجابايت']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
-
 const submit = () => {
-    if (!selectedFile.value) {
-        return
-    }
-    
-    // Utiliser le nom du fichier comme titre automatiquement
-    form.title = selectedFile.value.name.replace('.pdf', '')
-    
     form.post(route('admin.terms-of-service.store'), {
-        forceFormData: true,
         onSuccess: () => {
-            selectedFile.value = null
+            // Form will be redirected automatically
+        },
+        onError: (errors) => {
+            console.error('Validation errors:', errors)
         }
     })
 }

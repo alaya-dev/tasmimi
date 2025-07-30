@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TermsOfService;
-use App\Services\FileProcessorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -36,61 +35,30 @@ class TermsOfServiceController extends Controller
      */
     public function create(): Response
     {
-        // Check if there's already a terms file
-        $existingTerms = TermsOfService::first();
-        
-        if ($existingTerms) {
-            return redirect()->route('admin.terms-of-service.edit', $existingTerms)
-                ->with('warning', 'يمكن رفع ملف واحد فقط. يمكنك استبدال الملف الموجود.');
-        }
-
         return Inertia::render('Admin/TermsOfService/Create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, FileProcessorService $fileProcessor): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        // Validate based on input type
-        if ($request->hasFile('file')) {
-            // Check if there's already a terms file (limit to one file only)
-            $existingTerms = TermsOfService::first();
-            if ($existingTerms) {
-                return back()->withErrors(['file' => 'يمكن رفع ملف واحد فقط. يرجى حذف الملف الموجود أولاً أو استبداله.']);
-            }
-            
-            // File upload mode
-            $request->validate([
-                'file' => 'required|file|mimes:pdf|max:10240', // 10MB max, PDF seulement
-            ]);
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string|min:10',
+            'version' => 'nullable|string|max:50',
+        ]);
 
-            // Process the uploaded file
-            $result = $fileProcessor->processFile($request->file('file'));
-            
-            if (!$result['success']) {
-                return back()->withErrors(['file' => $result['error']]);
-            }
+        // Clean and prepare the content
+        $content = $this->cleanHtmlContent($request->content);
 
-            // Use filename as title automatically
-            $title = $request->title ?? pathinfo($request->file('file')->getClientOriginalName(), PATHINFO_FILENAME);
-
-            $terms = TermsOfService::create([
-                'title' => $title,
-                'content' => '',
-                'content_blocks' => [],
-                'file_name' => $result['file_name'],
-                'file_path' => $result['file_path'],
-                'file_type' => $result['file_type'],
-                'file_size' => $result['file_size'],
-                'extracted_content' => $result['extracted_content'],
-                'is_active' => true, // Always active since only one file allowed
-                'created_by' => Auth::id(),
-            ]);
-        } else {
-            // No file provided
-            return back()->withErrors(['file' => 'يرجى اختيار ملف PDF للرفع.']);
-        }
+        TermsOfService::create([
+            'title' => $request->title,
+            'content' => $content,
+            'version' => $request->version ?? '1.0',
+            'is_active' => true,
+            'created_by' => Auth::id(),
+        ]);
 
         return redirect()->route('admin.terms-of-service.index')
             ->with('success', 'تم إنشاء اتفاقية الاستخدام بنجاح.');
@@ -109,71 +77,51 @@ class TermsOfServiceController extends Controller
     }
 
     /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(TermsOfService $termsOfService): Response
+    {
+        return Inertia::render('Admin/TermsOfService/Edit', [
+            'terms' => $termsOfService,
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, TermsOfService $termsOfService): RedirectResponse
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string|min:10',
+            'version' => 'nullable|string|max:50',
+            'is_active' => 'boolean',
+        ]);
+
+        // Clean and prepare the content
+        $content = $this->cleanHtmlContent($request->content);
+
+        $termsOfService->update([
+            'title' => $request->title,
+            'content' => $content,
+            'version' => $request->version ?? $termsOfService->version,
+            'is_active' => $request->is_active ?? $termsOfService->is_active,
+            'updated_by' => Auth::id(),
+        ]);
+
+        return redirect()->route('admin.terms-of-service.index')
+            ->with('success', 'تم تحديث اتفاقية الاستخدام بنجاح.');
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TermsOfService $termsOfService, FileProcessorService $fileProcessor): RedirectResponse
+    public function destroy(TermsOfService $termsOfService): RedirectResponse
     {
-        // Delete associated file if exists
-        if ($termsOfService->hasFile()) {
-            $fileProcessor->deleteFile($termsOfService->file_path);
-        }
-        
         $termsOfService->delete();
 
         return redirect()->route('admin.terms-of-service.index')
             ->with('success', 'تم حذف اتفاقية الاستخدام بنجاح.');
-    }
-
-    /**
-     * Download the original file.
-     */
-    public function downloadFile(TermsOfService $termsOfService)
-    {
-        if (!$termsOfService->hasFile()) {
-            return redirect()->back()->withErrors(['file' => 'لا يوجد ملف مرفق.']);
-        }
-
-        $filePath = storage_path('app/public/' . $termsOfService->file_path);
-        
-        if (!file_exists($filePath)) {
-            return redirect()->back()->withErrors(['file' => 'الملف غير موجود.']);
-        }
-
-        return response()->download($filePath, $termsOfService->file_name);
-    }
-
-    /**
-     * Delete file and switch to manual mode.
-     */
-    public function deleteFile(TermsOfService $termsOfService, FileProcessorService $fileProcessor): RedirectResponse
-    {
-        if (!$termsOfService->hasFile()) {
-            return redirect()->back()->withErrors(['file' => 'لا يوجد ملف مرفق.']);
-        }
-
-        // Delete file from storage
-        $fileProcessor->deleteFile($termsOfService->file_path);
-
-        // Clear file fields but keep extracted content as content_blocks
-        $contentBlocks = [];
-        if ($termsOfService->extracted_content) {
-            $contentBlocks[] = [
-                'subtitle' => 'المحتوى المستخرج',
-                'content' => $termsOfService->extracted_content
-            ];
-        }
-
-        $termsOfService->update([
-            'file_name' => null,
-            'file_path' => null,
-            'file_type' => null,
-            'file_size' => null,
-            'extracted_content' => null,
-            'content_blocks' => $contentBlocks,
-            'updated_by' => Auth::id(),
-        ]);
-
-        return redirect()->back()->with('success', 'تم حذف الملف وتحويل المحتوى إلى النمط اليدوي.');
     }
 
     /**
@@ -185,5 +133,30 @@ class TermsOfServiceController extends Controller
 
         return redirect()->route('admin.terms-of-service.index')
             ->with('success', 'تم تفعيل اتفاقية الاستخدام بنجاح.');
+    }
+
+    /**
+     * Clean HTML content for safe storage and RTL support
+     */
+    private function cleanHtmlContent(string $content): string
+    {
+        // Allow specific HTML tags for rich text with RTL support
+        $allowedTags = '<p><br><b><strong><i><em><u><ul><ol><li><div><span><h1><h2><h3><h4><h5><h6><center>';
+        $content = strip_tags($content, $allowedTags);
+        
+        // Ensure RTL direction for Arabic content
+        if (preg_match('/[\x{0600}-\x{06FF}]/u', $content)) {
+            // Add RTL attributes if not already present
+            if (strpos($content, 'dir="rtl"') === false && strpos($content, 'text-align:') === false) {
+                // Wrap content in RTL container
+                $content = '<div dir="rtl" style="text-align: right; line-height: 1.8;">' . $content . '</div>';
+            }
+        }
+        
+        // Clean up extra spaces and formatting
+        $content = preg_replace('/\s+/', ' ', $content);
+        $content = str_replace(['<p> </p>', '<p></p>'], '', $content);
+        
+        return trim($content);
     }
 }

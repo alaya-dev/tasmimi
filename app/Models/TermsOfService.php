@@ -15,21 +15,14 @@ class TermsOfService extends Model
     protected $fillable = [
         'title',
         'content',
-        'content_blocks',
-        'file_name',
-        'file_path',
-        'file_type',
-        'file_size',
-        'extracted_content',
         'is_active',
+        'version',
         'created_by',
         'updated_by',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'content_blocks' => 'array',
-        'file_size' => 'integer',
     ];
 
     /**
@@ -69,41 +62,24 @@ class TermsOfService extends Model
     }
 
     /**
-     * Check if this terms has an uploaded file.
+     * Clean and validate HTML content for RTL support
      */
-    public function hasFile(): bool
+    public function getCleanContentAttribute(): string
     {
-        return !empty($this->file_path);
-    }
-
-    /**
-     * Get file URL for download.
-     */
-    public function getFileUrlAttribute(): ?string
-    {
-        if (!$this->hasFile()) {
-            return null;
+        $content = $this->content ?? '';
+        
+        // Allow specific HTML tags for rich text
+        $allowedTags = '<p><br><b><strong><i><em><u><ul><ol><li><div><span><h1><h2><h3><h4><h5><h6>';
+        $content = strip_tags($content, $allowedTags);
+        
+        // Ensure RTL direction for Arabic content
+        if (preg_match('/[\x{0600}-\x{06FF}]/u', $content)) {
+            // Wrap content in RTL div if it contains Arabic
+            if (strpos($content, 'dir="rtl"') === false && strpos($content, 'text-align: right') === false) {
+                $content = '<div dir="rtl" style="text-align: right;">' . $content . '</div>';
+            }
         }
         
-        return asset('storage/' . $this->file_path);
-    }
-
-    /**
-     * Get formatted file size.
-     */
-    public function getFormattedFileSizeAttribute(): ?string
-    {
-        if (!$this->file_size) {
-            return null;
-        }
-        
-        $bytes = $this->file_size;
-        if ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' ميجابايت';
-        } elseif ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' كيلوبايت';
-        } else {
-            return $bytes . ' بايت';
-        }
+        return $content;
     }
 }
