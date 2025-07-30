@@ -51,6 +51,10 @@ Route::middleware('auth')->group(function () {
 // Route publique pour les conditions d'utilisation
 Route::get('/terms-of-service', [App\Http\Controllers\TermsOfServiceController::class, 'show'])->name('terms-of-service.show');
 
+// Moyasar callback routes (no authentication required for external callbacks)
+Route::get('/client/payment/callback', [App\Http\Controllers\MoyasarCallbackController::class, 'handleSubscriptionCallback'])->name('client.payment.callback');
+Route::get('/client/template-purchase/callback', [App\Http\Controllers\MoyasarCallbackController::class, 'handleTemplateCallback'])->name('client.template-purchase.callback');
+
 // Client Routes
 Route::prefix('client')->name('client.')->group(function () {
     // Public client routes
@@ -123,14 +127,12 @@ Route::prefix('client')->name('client.')->group(function () {
         Route::get('/payment/{subscription}', [App\Http\Controllers\MoyasarPaymentController::class, 'show'])->name('payment.show');
         Route::post('/payment/{subscription}/save-id', [App\Http\Controllers\MoyasarPaymentController::class, 'savePaymentId'])->name('payment.save-id');
         Route::post('/payment/{subscription}/process', [App\Http\Controllers\MoyasarPaymentController::class, 'processPayment'])->name('payment.process');
-        Route::get('/payment/callback', [App\Http\Controllers\MoyasarCallbackController::class, 'handleSubscriptionCallback'])->name('payment.callback');
         Route::post('/payment/status', [App\Http\Controllers\MoyasarPaymentController::class, 'checkStatus'])->name('payment.status');
 
         // Routes d'achat de templates
         Route::get('/templates/{template}/purchase', [App\Http\Controllers\Client\TemplatePurchaseController::class, 'show'])->name('templates.purchase');
         Route::post('/templates/{template}/save-payment-id', [App\Http\Controllers\Client\TemplatePurchaseController::class, 'savePaymentId'])->name('templates.save-payment-id');
         Route::post('/templates/{template}/purchase', [App\Http\Controllers\Client\TemplatePurchaseController::class, 'processPayment'])->name('templates.purchase.process');
-        Route::get('/template-purchase/callback', [App\Http\Controllers\MoyasarCallbackController::class, 'handleTemplateCallback'])->name('template-purchase.callback');
         Route::get('/template-purchases', [App\Http\Controllers\Client\TemplatePurchaseController::class, 'index'])->name('template-purchases.index');
     });
 });

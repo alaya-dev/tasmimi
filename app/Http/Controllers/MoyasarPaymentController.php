@@ -39,6 +39,13 @@ class MoyasarPaymentController extends Controller
      */
     public function savePaymentId(Request $request, Subscription $subscription)
     {
+        \Log::info('Subscription savePaymentId called', [
+            'payment_id' => $request->payment_id,
+            'subscription_id' => $subscription->id,
+            'user_id' => Auth::id(),
+            'request_data' => $request->all()
+        ]);
+
         $request->validate([
             'payment_id' => 'required|string',
         ]);
@@ -51,6 +58,12 @@ class MoyasarPaymentController extends Controller
                 $subscription, 
                 $request->payment_id
             );
+
+            \Log::info('Subscription payment ID saved successfully', [
+                'payment_id' => $payment->id,
+                'moyasar_payment_id' => $request->payment_id,
+                'subscription_id' => $subscription->id
+            ]);
 
             return response()->json([
                 'success' => true,

@@ -47,7 +47,7 @@ class MoyasarService
             'currency' => 'SAR',
             'description' => 'اشتراك ' . $subscription->name,
             'publishable_api_key' => config('services.moyasar.publishable_key'),
-            'callback_url' => url('/client/payment/callback'),
+            'callback_url' => url('/client/payment/callback?subscription_id=' . $subscription->id),
             'methods' => ['creditcard', 'stcpay'], // Removed Apple Pay
             'metadata' => [
                 'user_id' => $user->id,
@@ -363,10 +363,23 @@ class MoyasarService
      */
     public function handleSubscriptionPaymentSuccess(Payment $payment)
     {
+        \Log::info('Starting subscription payment success handling', [
+            'payment_id' => $payment->id,
+            'current_status' => $payment->status,
+            'user_id' => $payment->user_id,
+            'subscription_id' => $payment->subscription_id
+        ]);
+
         // Update payment status
         $payment->update([
             'status' => Payment::STATUS_SUCCEEDED,
             'paid_at' => now(),
+        ]);
+
+        \Log::info('Payment status updated', [
+            'payment_id' => $payment->id,
+            'new_status' => $payment->fresh()->status,
+            'paid_at' => $payment->fresh()->paid_at
         ]);
 
         // Create user subscription
@@ -375,7 +388,8 @@ class MoyasarService
         \Log::info('Subscription payment processed successfully', [
             'payment_id' => $payment->id,
             'user_id' => $payment->user_id,
-            'subscription_id' => $payment->subscription_id
+            'subscription_id' => $payment->subscription_id,
+            'final_status' => $payment->fresh()->status
         ]);
 
         return $payment;
