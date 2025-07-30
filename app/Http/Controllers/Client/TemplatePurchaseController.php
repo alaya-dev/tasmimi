@@ -153,14 +153,14 @@ class TemplatePurchaseController extends Controller
 
                 // Check if it's an Inertia request
                 if (request()->header('X-Inertia')) {
-                    return redirect()->route('client.my-designs')
-                        ->with('success', 'تم شراء القالب بنجاح! يمكنك الآن استخدامه بالكامل وحفظ تصميماتك وتحميلها.');
+                    return redirect()->route('client.templates.create', $template)
+                        ->with('success', 'تم شراء القالب بنجاح! يمكنك الآن استخدامه وإنشاء تصميماتك.');
                 }
 
                 return response()->json([
                     'success' => true,
                     'message' => 'تم شراء القالب بنجاح',
-                    'redirect' => route('client.my-designs')
+                    'redirect' => route('client.templates.create', $template)
                 ]);
             } elseif ($moyasarPayment['status'] === 'failed') {
                 $purchase = $this->templatePurchaseService->getPurchaseByPaymentId($moyasarPayment['id']);
@@ -254,8 +254,8 @@ class TemplatePurchaseController extends Controller
                     'payment_id' => $paymentId
                 ]);
 
-                return redirect()->route('client.my-designs')
-                    ->with('success', 'تم شراء القالب بنجاح! يمكنك الآن استخدامه بالكامل وحفظ تصميماتك وتحميلها.');
+                return redirect()->route('client.templates.create', $purchase->template)
+                    ->with('success', 'تم شراء القالب بنجاح! يمكنك الآن استخدامه وإنشاء تصميماتك.');
             } else {
                 $errorMessage = $moyasarPayment['source']['message'] ?? 'فشل الدفع';
                 $this->templatePurchaseService->handlePaymentFailure($purchase, $errorMessage);

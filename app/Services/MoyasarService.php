@@ -68,7 +68,7 @@ class MoyasarService
             'currency' => 'SAR',
             'description' => 'شراء قالب: ' . $template->name,
             'publishable_api_key' => config('services.moyasar.publishable_key'),
-            'callback_url' => url('/client/template-purchase/callback'),
+            'callback_url' => url('/client/template-purchase/callback?template_id=' . $template->id),
             'methods' => ['creditcard', 'stcpay'], // Removed Apple Pay
             'metadata' => [
                 'user_id' => $user->id,
