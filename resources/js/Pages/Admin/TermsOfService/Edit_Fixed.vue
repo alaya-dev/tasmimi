@@ -129,7 +129,7 @@ const form = useForm({
 })
 
 const submit = () => {
-    // IMPORTANT : Toujours récupérer le contenu via getCurrentContent() pour éviter toute auto-soumission.
+    // Get the current content from the rich text editor
     if (richTextEditor.value) {
         form.content = richTextEditor.value.getCurrentContent()
     }

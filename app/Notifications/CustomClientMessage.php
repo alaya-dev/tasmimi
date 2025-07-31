@@ -42,10 +42,10 @@ class CustomClientMessage extends Notification
     {
         return (new MailMessage)
             ->subject($this->subject)
-            ->greeting('مرحباً!')
+            ->greeting('مرحباً')
             ->line($this->messageContent)
             ->line('شكراً لك على استخدام منصة سامقة للتصميم.')
-            ->salutation('مع أطيب التحيات، ' . $this->senderName);
+            ->salutation('مع أطيب التحيات، ' );
     }
 
     /**

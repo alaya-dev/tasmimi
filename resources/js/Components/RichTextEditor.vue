@@ -5,10 +5,11 @@
             <!-- Text Formatting -->
             <div class="flex items-center gap-1 border-l border-gray-300 pl-2 ml-2">
                 <button
-                    @click="editor.chain().focus().toggleBold().run()"
-                    :class="{ 'bg-blue-100 text-blue-600': editor?.isActive('bold') }"
-                    class="p-2 rounded hover:bg-gray-100 transition-colors"
-                    title="نص عريض"
+                type="button"
+                @click="editor.chain().focus().toggleBold().run()"
+                :class="{ 'bg-blue-100 text-blue-600': editor?.isActive('bold') }"
+                class="p-2 rounded hover:bg-gray-100 transition-colors"
+                title="نص عريض"
                 >
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M5 3h5.5c1.5 0 2.5 1 2.5 2.5S12 8 10.5 8H5V3zm0 7h6c1.5 0 3 1 3 2.5S12.5 15 11 15H5v-5z"/>
@@ -16,10 +17,11 @@
                 </button>
                 
                 <button
-                    @click="editor.chain().focus().toggleItalic().run()"
-                    :class="{ 'bg-blue-100 text-blue-600': editor?.isActive('italic') }"
-                    class="p-2 rounded hover:bg-gray-100 transition-colors"
-                    title="نص مائل"
+                type="button"
+                @click="editor.chain().focus().toggleItalic().run()"
+                :class="{ 'bg-blue-100 text-blue-600': editor?.isActive('italic') }"
+                class="p-2 rounded hover:bg-gray-100 transition-colors"
+                title="نص مائل"
                 >
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M8 3h6v2H12.5l-3 10H12v2H6v-2h1.5l3-10H8V3z"/>
@@ -30,10 +32,11 @@
             <!-- Text Alignment -->
             <div class="flex items-center gap-1 border-l border-gray-300 pl-2 ml-2">
                 <button
-                    @click="editor.chain().focus().setTextAlign('right').run()"
-                    :class="{ 'bg-blue-100 text-blue-600': editor?.isActive({ textAlign: 'right' }) }"
-                    class="p-2 rounded hover:bg-gray-100 transition-colors"
-                    title="محاذاة يمين"
+                type="button"
+                @click="editor.chain().focus().setTextAlign('right').run()"
+                :class="{ 'bg-blue-100 text-blue-600': editor?.isActive({ textAlign: 'right' }) }"
+                class="p-2 rounded hover:bg-gray-100 transition-colors"
+                title="محاذاة يمين"
                 >
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M2 4h16v2H2V4zm4 4h12v2H6V8zm-4 4h16v2H2v-2zm4 4h12v2H6v-2z"/>
@@ -41,10 +44,11 @@
                 </button>
                 
                 <button
-                    @click="editor.chain().focus().setTextAlign('center').run()"
-                    :class="{ 'bg-blue-100 text-blue-600': editor?.isActive({ textAlign: 'center' }) }"
-                    class="p-2 rounded hover:bg-gray-100 transition-colors"
-                    title="محاذاة وسط"
+                type="button"
+                @click="editor.chain().focus().setTextAlign('center').run()"
+                :class="{ 'bg-blue-100 text-blue-600': editor?.isActive({ textAlign: 'center' }) }"
+                class="p-2 rounded hover:bg-gray-100 transition-colors"
+                title="محاذاة وسط"
                 >
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M2 4h16v2H2V4zm2 4h12v2H4V8zm-2 4h16v2H2v-2zm2 4h12v2H4v-2z"/>
@@ -52,10 +56,11 @@
                 </button>
                 
                 <button
-                    @click="editor.chain().focus().setTextAlign('left').run()"
-                    :class="{ 'bg-blue-100 text-blue-600': editor?.isActive({ textAlign: 'left' }) }"
-                    class="p-2 rounded hover:bg-gray-100 transition-colors"
-                    title="محاذاة يسار"
+                type="button"
+                @click="editor.chain().focus().setTextAlign('left').run()"
+                :class="{ 'bg-blue-100 text-blue-600': editor?.isActive({ textAlign: 'left' }) }"
+                class="p-2 rounded hover:bg-gray-100 transition-colors"
+                title="محاذاة يسار"
                 >
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M2 4h16v2H2V4zm0 4h12v2H2V8zm0 4h16v2H2v-2zm0 4h12v2H2v-2z"/>
@@ -66,10 +71,11 @@
             <!-- Lists -->
             <div class="flex items-center gap-1 border-l border-gray-300 pl-2 ml-2">
                 <button
-                    @click="editor.chain().focus().toggleBulletList().run()"
-                    :class="{ 'bg-blue-100 text-blue-600': editor?.isActive('bulletList') }"
-                    class="p-2 rounded hover:bg-gray-100 transition-colors"
-                    title="قائمة نقطية"
+                type="button"
+                @click="editor.chain().focus().toggleBulletList().run()"
+                :class="{ 'bg-blue-100 text-blue-600': editor?.isActive('bulletList') }"
+                class="p-2 rounded hover:bg-gray-100 transition-colors"
+                title="قائمة نقطية"
                 >
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M4 6a2 2 0 110-4 2 2 0 010 4zM4 13a2 2 0 110-4 2 2 0 010 4zM4 20a2 2 0 110-4 2 2 0 010 4zM8 5h10v2H8V5zm0 7h10v2H8v-2zm0 7h10v2H8v-2z"/>
@@ -77,10 +83,11 @@
                 </button>
                 
                 <button
-                    @click="editor.chain().focus().toggleOrderedList().run()"
-                    :class="{ 'bg-blue-100 text-blue-600': editor?.isActive('orderedList') }"
-                    class="p-2 rounded hover:bg-gray-100 transition-colors"
-                    title="قائمة مرقمة"
+                type="button"
+                @click="editor.chain().focus().toggleOrderedList().run()"
+                :class="{ 'bg-blue-100 text-blue-600': editor?.isActive('orderedList') }"
+                class="p-2 rounded hover:bg-gray-100 transition-colors"
+                title="قائمة مرقمة"
                 >
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M3 4h2v12H3V4zm2 0h12v2H5V4zm0 4h12v2H5V8zm0 4h12v2H5v-2z"/>
@@ -136,7 +143,7 @@ const props = defineProps({
     },
     initialContent: {
         type: String,
-        default: ''
+        default: null // Changed to null to properly detect when it's provided
     },
     placeholder: {
         type: String,
@@ -150,15 +157,18 @@ const emit = defineEmits(['update:modelValue'])
 // Editor instance
 const editor = ref(null)
 
+// Determine if we're in initialContent mode (read-only mode without auto-emit)
+const isInitialContentMode = props.initialContent !== null
+
 // Internal content state - use initialContent if provided, otherwise modelValue
-const internalContent = ref(props.initialContent || props.modelValue)
+const internalContent = ref(isInitialContentMode ? props.initialContent : props.modelValue)
 
 // Timeout for debounced updates
 const updateTimeout = ref(null)
 
 // Create editor
 const createEditor = () => {
-    const initialEditorContent = props.initialContent || props.modelValue
+    const initialEditorContent = isInitialContentMode ? props.initialContent : props.modelValue
     
     editor.value = new Editor({
         content: initialEditorContent,
@@ -184,10 +194,11 @@ const createEditor = () => {
             CharacterCount
         ],
         onUpdate: ({ editor }) => {
-            // Store content internally but don't emit automatically
+            // Always store content internally for getCurrentContent()
             internalContent.value = editor.getHTML()
-            // Only emit if we're using v-model (when initialContent is not provided)
-            if (!props.initialContent) {
+            
+            // NEVER auto-emit when in initialContent mode - only emit when using v-model
+            if (!isInitialContentMode) {
                 clearTimeout(updateTimeout.value)
                 updateTimeout.value = setTimeout(() => {
                     emit('update:modelValue', internalContent.value)
@@ -206,12 +217,12 @@ const getCurrentContent = () => {
     return internalContent.value
 }
 
-// Method to force immediate update (for form submission)
+// Method to force immediate update (for form submission when using v-model)
 const forceUpdate = () => {
-    if (updateTimeout.value) {
+    if (!isInitialContentMode && updateTimeout.value) {
         clearTimeout(updateTimeout.value)
+        emit('update:modelValue', internalContent.value)
     }
-    emit('update:modelValue', internalContent.value)
 }
 
 // Expose methods to parent
@@ -238,17 +249,17 @@ const getActiveHeading = () => {
     return ''
 }
 
-// Watch for external changes
+// Watch for external changes (only when using v-model)
 watch(() => props.modelValue, (newValue) => {
-    if (editor.value && editor.value.getHTML() !== newValue && !props.initialContent) {
+    if (editor.value && editor.value.getHTML() !== newValue && !isInitialContentMode) {
         editor.value.commands.setContent(newValue, false)
         internalContent.value = newValue
     }
 })
 
-// Watch for initialContent changes (if using initialContent prop)
+// Watch for initialContent changes (only when using initialContent prop)
 watch(() => props.initialContent, (newValue) => {
-    if (editor.value && editor.value.getHTML() !== newValue && props.initialContent) {
+    if (editor.value && editor.value.getHTML() !== newValue && isInitialContentMode) {
         editor.value.commands.setContent(newValue, false)
         internalContent.value = newValue
     }

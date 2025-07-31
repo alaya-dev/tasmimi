@@ -73,7 +73,7 @@
                     </Link>
                     <button
                         type="submit"
-                        :disabled="form.processing || !form.title || !form.content"
+                        :disabled="form.processing || !form.title"
                         class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-2 px-6 rounded-lg transition duration-200 disabled:cursor-not-allowed"
                     >
                         <span v-if="form.processing">جاري الحفظ...</span>
@@ -100,9 +100,15 @@ const form = useForm({
 })
 
 const submit = () => {
-    // Get the current content from the rich text editor
+    // IMPORTANT : Toujours récupérer le contenu via getCurrentContent() pour éviter toute auto-soumission.
     if (richTextEditor.value) {
         form.content = richTextEditor.value.getCurrentContent()
+    }
+    
+    // Validate that we have content
+    if (!form.content || form.content.trim() === '' || form.content === '<p></p>') {
+        form.setError('content', 'محتوى الاتفاقية مطلوب')
+        return
     }
     
     form.post(route('admin.terms-of-service.store'), {
