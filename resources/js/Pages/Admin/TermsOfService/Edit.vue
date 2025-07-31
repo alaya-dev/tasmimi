@@ -50,7 +50,8 @@
                         محتوى الاتفاقية <span class="text-red-500">*</span>
                     </label>
                     <RichTextEditor
-                        v-model="form.content"
+                        ref="richTextEditor"
+                        :initial-content="props.terms.content || ''"
                         placeholder="اكتب محتوى اتفاقية الاستخدام هنا..."
                         class="min-h-[400px]"
                     />
@@ -119,14 +120,20 @@ const props = defineProps({
 })
 
 const activating = ref(false)
+const richTextEditor = ref(null)
 
 const form = useForm({
     title: props.terms.title || '',
-    content: props.terms.content || '',
+    content: '', // We'll get this from the editor when submitting
     version: props.terms.version || '1.0'
 })
 
 const submit = () => {
+    // Get the current content from the rich text editor
+    if (richTextEditor.value) {
+        form.content = richTextEditor.value.getCurrentContent()
+    }
+    
     form.put(route('admin.terms-of-service.update', props.terms.id), {
         onSuccess: () => {
             // Form will be redirected automatically

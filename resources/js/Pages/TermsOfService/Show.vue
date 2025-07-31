@@ -16,9 +16,7 @@
                         العودة
                     </button>
                     
-                    <div class="text-right">
-                        <h1 class="text-lg font-semibold text-gray-900">{{ terms.title }}</h1>
-                    </div>
+                    
                 </div>
             </div>
         </header>

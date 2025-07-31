@@ -134,6 +134,10 @@ const props = defineProps({
         type: String,
         default: ''
     },
+    initialContent: {
+        type: String,
+        default: ''
+    },
     placeholder: {
         type: String,
         default: 'اكتب النص هنا...'
@@ -146,10 +150,18 @@ const emit = defineEmits(['update:modelValue'])
 // Editor instance
 const editor = ref(null)
 
+// Internal content state - use initialContent if provided, otherwise modelValue
+const internalContent = ref(props.initialContent || props.modelValue)
+
+// Timeout for debounced updates
+const updateTimeout = ref(null)
+
 // Create editor
 const createEditor = () => {
+    const initialEditorContent = props.initialContent || props.modelValue
+    
     editor.value = new Editor({
-        content: props.modelValue,
+        content: initialEditorContent,
         editorProps: {
             attributes: {
                 dir: 'rtl',
@@ -172,7 +184,15 @@ const createEditor = () => {
             CharacterCount
         ],
         onUpdate: ({ editor }) => {
-            emit('update:modelValue', editor.getHTML())
+            // Store content internally but don't emit automatically
+            internalContent.value = editor.getHTML()
+            // Only emit if we're using v-model (when initialContent is not provided)
+            if (!props.initialContent) {
+                clearTimeout(updateTimeout.value)
+                updateTimeout.value = setTimeout(() => {
+                    emit('update:modelValue', internalContent.value)
+                }, 500)
+            }
         },
         onCreate: ({ editor }) => {
             // Set RTL direction on creation
@@ -180,6 +200,25 @@ const createEditor = () => {
         }
     })
 }
+
+// Method to get current content (for parent components to access)
+const getCurrentContent = () => {
+    return internalContent.value
+}
+
+// Method to force immediate update (for form submission)
+const forceUpdate = () => {
+    if (updateTimeout.value) {
+        clearTimeout(updateTimeout.value)
+    }
+    emit('update:modelValue', internalContent.value)
+}
+
+// Expose methods to parent
+defineExpose({
+    getCurrentContent,
+    forceUpdate
+})
 
 // Helper methods
 const setHeading = (level) => {
@@ -201,8 +240,17 @@ const getActiveHeading = () => {
 
 // Watch for external changes
 watch(() => props.modelValue, (newValue) => {
-    if (editor.value && editor.value.getHTML() !== newValue) {
+    if (editor.value && editor.value.getHTML() !== newValue && !props.initialContent) {
         editor.value.commands.setContent(newValue, false)
+        internalContent.value = newValue
+    }
+})
+
+// Watch for initialContent changes (if using initialContent prop)
+watch(() => props.initialContent, (newValue) => {
+    if (editor.value && editor.value.getHTML() !== newValue && props.initialContent) {
+        editor.value.commands.setContent(newValue, false)
+        internalContent.value = newValue
     }
 })
 
@@ -212,6 +260,9 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+    if (updateTimeout.value) {
+        clearTimeout(updateTimeout.value)
+    }
     if (editor.value) {
         editor.value.destroy()
     }

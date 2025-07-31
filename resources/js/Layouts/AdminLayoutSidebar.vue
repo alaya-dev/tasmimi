@@ -177,6 +177,22 @@
                         </svg>
                     </Link>
 
+                    <!-- Client Messaging -->
+                    <Link
+                        :href="route('admin.client-messaging.index')"
+                        :class="[
+                            'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-right',
+                            route().current('admin.client-messaging.*')
+                                ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
+                                : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                        ]"
+                    >
+                        <span class="text-right flex-1">مراسلة العملاء</span>
+                        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                        </svg>
+                    </Link>
+
 
                     <!-- Smart Cards Section -->
                     <div class="pt-4">

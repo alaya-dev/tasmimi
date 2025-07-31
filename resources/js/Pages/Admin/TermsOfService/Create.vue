@@ -50,7 +50,8 @@
                         محتوى الاتفاقية <span class="text-red-500">*</span>
                     </label>
                     <RichTextEditor
-                        v-model="form.content"
+                        ref="richTextEditor"
+                        :initial-content="''"
                         placeholder="اكتب محتوى اتفاقية الاستخدام هنا..."
                         class="min-h-[400px]"
                     />
@@ -85,17 +86,25 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { Head, Link, useForm } from '@inertiajs/vue3'
 import AdminLayoutSidebar from '@/Layouts/AdminLayoutSidebar.vue'
 import RichTextEditor from '@/Components/RichTextEditor.vue'
 
+const richTextEditor = ref(null)
+
 const form = useForm({
     title: '',
-    content: '',
+    content: '', // We'll get this from the editor when submitting
     version: '1.0'
 })
 
 const submit = () => {
+    // Get the current content from the rich text editor
+    if (richTextEditor.value) {
+        form.content = richTextEditor.value.getCurrentContent()
+    }
+    
     form.post(route('admin.terms-of-service.store'), {
         onSuccess: () => {
             // Form will be redirected automatically

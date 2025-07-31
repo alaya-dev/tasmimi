@@ -147,6 +147,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Gestion des contacts/réclamations
     Route::resource('contacts', App\Http\Controllers\Admin\ContactController::class)->except(['create', 'store', 'edit']);
 
+    // Messagerie des clients
+    Route::prefix('client-messaging')->name('client-messaging.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\ClientMessagingController::class, 'index'])->name('index');
+        Route::post('/send', [App\Http\Controllers\Admin\ClientMessagingController::class, 'send'])->name('send');
+    });
+
     // Gestion des catégories
     Route::resource('categories', App\Http\Controllers\Admin\CategoryController::class)->except(['show', 'create', 'edit']);
 

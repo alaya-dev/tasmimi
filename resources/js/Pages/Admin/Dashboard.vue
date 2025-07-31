@@ -6,12 +6,7 @@
             <span class="text-gray-500">{{ __('common.dashboard') }}</span>
         </template>
 
-        <template #header>
-            <div class="text-right">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('common.dashboard') }}</h2>
-                <p class="mt-1 text-sm text-gray-600">{{ __('common.admin_dashboard_description') }}</p>
-            </div>
-        </template>
+        
 
         <div class="py-12 bg-gray-50 min-h-screen">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
