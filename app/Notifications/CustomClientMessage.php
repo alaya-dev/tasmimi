@@ -13,16 +13,14 @@ class CustomClientMessage extends Notification
 
     protected $subject;
     protected $messageContent;
-    protected $senderName;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($subject, $messageContent, $senderName = 'فريق سامقة للتصميم')
+    public function __construct($subject, $messageContent = 'فريق سامقة للتصميم')
     {
         $this->subject = $subject;
         $this->messageContent = $messageContent;
-        $this->senderName = $senderName;
     }
 
     /**
@@ -42,10 +40,10 @@ class CustomClientMessage extends Notification
     {
         return (new MailMessage)
             ->subject($this->subject)
-            ->greeting('مرحباً')
-            ->line($this->messageContent)
-            ->line('شكراً لك على استخدام منصة سامقة للتصميم.')
-            ->salutation('مع أطيب التحيات، ' );
+            ->view('emails.custom-client-message', [
+                'messageContent' => $this->messageContent,
+                
+            ]);
     }
 
     /**
@@ -58,7 +56,7 @@ class CustomClientMessage extends Notification
         return [
             'subject' => $this->subject,
             'message' => $this->messageContent,
-            'sender' => $this->senderName,
+            
         ];
     }
 }

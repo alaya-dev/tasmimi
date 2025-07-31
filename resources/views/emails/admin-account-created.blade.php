@@ -39,11 +39,14 @@
         }
         .content {
             padding: 0 10px;
+            direction: rtl;
+            text-align: right;
         }
         .welcome-text {
             font-size: 18px;
             margin-bottom: 25px;
             color: #555;
+            text-align: right;
         }
         .credentials-box {
             background-color: #f8f9fa;
@@ -52,6 +55,7 @@
             padding: 25px;
             margin: 25px 0;
             text-align: center;
+            direction: rtl;
         }
         .credentials-box h3 {
             color: #495057;
@@ -65,6 +69,8 @@
             background-color: white;
             border-radius: 5px;
             border: 1px solid #dee2e6;
+            text-align: right;
+            direction: rtl;
         }
         .credential-label {
             font-weight: bold;
@@ -106,6 +112,8 @@
             padding: 20px;
             margin: 25px 0;
             color: #856404;
+            text-align: right;
+            direction: rtl;
         }
         .security-notice h4 {
             margin-top: 0;
@@ -119,6 +127,7 @@
             text-align: center;
             color: #6c757d;
             font-size: 14px;
+            direction: rtl;
         }
         .footer p {
             margin: 5px 0;

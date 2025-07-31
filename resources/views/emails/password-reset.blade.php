@@ -27,6 +27,7 @@
             color: white;
             padding: 30px;
             text-align: center;
+            direction: rtl;
         }
         .header h1 {
             margin: 0;
@@ -35,17 +36,21 @@
         }
         .content {
             padding: 40px 30px;
+            direction: rtl;
+            text-align: right;
         }
         .greeting {
             font-size: 18px;
             margin-bottom: 20px;
             color: #2c3e50;
+            text-align: right;
         }
         .message {
             font-size: 16px;
             margin-bottom: 30px;
             line-height: 1.8;
             color: #555;
+            text-align: right;
         }
         .button-container {
             text-align: center;
@@ -72,6 +77,7 @@
             font-size: 14px;
             color: #666;
             border-top: 1px solid #e9ecef;
+            direction: rtl;
         }
         .security-note {
             background-color: #fff3cd;
@@ -81,6 +87,8 @@
             margin: 20px 0;
             font-size: 14px;
             color: #856404;
+            text-align: right;
+            direction: rtl;
         }
         .link-fallback {
             margin-top: 20px;
@@ -90,6 +98,8 @@
             font-size: 14px;
             color: #666;
             word-break: break-all;
+            text-align: right;
+            direction: rtl;
         }
     </style>
 </head>

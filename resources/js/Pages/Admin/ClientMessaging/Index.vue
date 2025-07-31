@@ -90,28 +90,7 @@
                     <p class="mt-1 text-sm text-gray-500">{{ form.message.length }}/2000 حرف</p>
                 </div>
 
-                <!-- Preview Section -->
-                <div v-if="form.client_id && form.subject && form.message" class="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <h3 class="text-lg font-medium text-gray-900 mb-3">معاينة الرسالة</h3>
-                    <div class="bg-white border rounded-lg p-4 text-sm">
-                        <div class="mb-2">
-                            <strong>إلى:</strong> {{ getSelectedClientEmail() }}
-                            <span v-if="getSelectedClientPhone()"> - {{ getSelectedClientPhone() }}</span>
-                            <span v-else class="text-gray-500"> - لا يوجد رقم هاتف</span>
-                        </div>
-                        <div class="mb-2">
-                            <strong>الموضوع:</strong> {{ form.subject }}
-                        </div>
-                        <div class="border-t pt-3 mt-3">
-                            <div class="mb-3">مرحباً!</div>
-                            <div class="mb-3 whitespace-pre-wrap">{{ form.message }}</div>
-                            <div class="mb-2">شكراً لك على استخدام منصة سامقة للتصميم.</div>
-                            <div class="text-gray-600">
-                                مع أطيب التحيات، {{ $page.props.auth.user.role === 'super_admin' ? 'المدير العام - فريق سامقة للتصميم' : 'الإدارة - فريق سامقة للتصميم' }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
 
                 <!-- Action Buttons -->
                 <div class="flex items-center justify-between pt-6 border-t border-gray-200">
