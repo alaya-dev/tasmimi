@@ -2010,7 +2010,6 @@ const generateAdvancedPreviewHTML = (designData) => {
             </div>
             <div class="footer">
                 تم إنشاؤه بواسطة منصة سامقة للتصميم - معاينة الإدارة<br>
-                ${new Date().toLocaleString('ar-SA')}
             </div>
         </body>
         </html>

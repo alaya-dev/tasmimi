@@ -44,6 +44,7 @@
                         </div>
                     </div>
                     <div class="font-bold text-lg text-gray-800 text-center mb-1 truncate w-full">{{ template.name }}</div>
+                    <div class="text-sm text-gray-600 text-center mb-1">قالب رقم {{ template.id }}</div>
                     <div v-if="selectedCategory === 'all'" class="text-xs text-purple-500 bg-purple-100 px-2 py-1 rounded-full mb-2">({{ template.category.name }})</div>
 
                     <!-- Price Badge - Optional display -->
