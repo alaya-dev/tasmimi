@@ -349,11 +349,11 @@
                             >
                                 <!-- Diagonal watermark pattern -->
                                 <div
-                                    v-for="i in Math.ceil((canvasWidth + canvasHeight) / 120)"
+                                    v-for="i in Math.ceil((canvasWidth + canvasHeight) / 120) - 3"
                                     :key="i"
                                     class="absolute"
                                     :style="{
-                                        left: (i * 120 - canvasHeight / 2) + 'px',
+                                        left: ((i + 3) * 120 - canvasHeight / 2) + 'px',
                                         top: '50%',
                                         fontSize: '16px',
                                         color: 'rgba(0, 0, 0, 0.15)',
@@ -1181,8 +1181,8 @@ const generatePreviewHTML = (designData) => {
     })
 
     html += `<div style="position: absolute; inset: 0; pointer-events: none; z-index: 9999;">`
-    for (let i = 0; i < count; i++) {
-        const x = (i * spacing) - canvasH / 2
+    for (let i = 0; i < count - 3; i++) {
+        const x = ((i + 3) * spacing) - canvasH / 2
         const y = canvasH / 2
         html += `
             <div style="
@@ -1984,8 +1984,8 @@ const generateAdvancedPreviewHTML = (designData) => {
     })
 
     html += `<div style="position: absolute; inset: 0; pointer-events: none; z-index: 9999;">`
-    for (let i = 0; i < count; i++) {
-        const x = (i * spacing) - canvasH / 2
+    for (let i = 0; i < count - 3; i++) {
+        const x = ((i + 3) * spacing) - canvasH / 2
         const y = canvasH / 2
         html += `
             <div style="
@@ -2010,6 +2010,7 @@ const generateAdvancedPreviewHTML = (designData) => {
             </div>
             <div class="footer">
                 تم إنشاؤه بواسطة منصة سامقة للتصميم - معاينة الإدارة<br>
+                
             </div>
         </body>
         </html>
