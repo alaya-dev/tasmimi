@@ -207,16 +207,16 @@
         </div>
 
         <!-- Modal pour ajouter un utilisateur -->
-        <div v-if="showCreateModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div v-if="showCreateModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" dir="rtl">
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showCreateModal = false"></div>
 
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="inline-block align-bottom bg-white rounded-lg text-right overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <div class="sm:flex sm:items-start">
-                            <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                            <div class="mt-3 text-center sm:mt-0 sm:text-right w-full">
                                 <h3 class="text-lg leading-6 font-medium text-gray-900 text-right mb-4" id="modal-title">
                                     إضافة مستخدم جديد
                                 </h3>
@@ -224,14 +224,17 @@
                                 <form @submit.prevent="createUser" class="space-y-4">
                                     <!-- Email Field -->
                                     <div>
-                                        <label for="modal_email" class="block text-sm font-medium text-gray-700 text-right mb-2">
-                                            البريد الإلكتروني
-                                        </label>
+                                        <div class="mb-3" style="text-align: right !important;">
+                                            <label for="modal_email" class="text-sm font-medium text-gray-700" style="text-align: right !important; display: block;">
+                                                البريد الإلكتروني
+                                            </label>
+                                        </div>
                                         <input
                                             id="modal_email"
                                             v-model="createForm.email"
                                             type="email"
-                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            style="text-align: right !important; direction: rtl !important;"
                                             required
                                         />
                                         <div v-if="createForm.errors.email" class="mt-1 text-sm text-red-600 text-right">
@@ -241,13 +244,16 @@
 
                                     <!-- Role Field -->
                                     <div>
-                                        <label for="modal_role" class="block text-sm font-medium text-gray-700 text-right mb-2">
-                                            الدور
-                                        </label>
+                                        <div class="mb-3" style="text-align: right !important;">
+                                            <label for="modal_role" class="text-sm font-medium text-gray-700" style="text-align: right !important; display: block;">
+                                                الدور
+                                            </label>
+                                        </div>
                                         <select
                                             id="modal_role"
                                             v-model="createForm.role"
-                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            style="text-align: right !important; direction: rtl !important;"
                                             required
                                         >
                                             <option value="">اختر الدور</option>
@@ -262,14 +268,17 @@
 
                                     <!-- Password Field -->
                                     <div>
-                                        <label for="modal_password" class="block text-sm font-medium text-gray-700 text-right mb-2">
-                                            كلمة المرور
-                                        </label>
+                                        <div class="mb-3" style="text-align: right !important;">
+                                            <label for="modal_password" class="text-sm font-medium text-gray-700" style="text-align: right !important; display: block;">
+                                                كلمة المرور
+                                            </label>
+                                        </div>
                                         <input
                                             id="modal_password"
                                             v-model="createForm.password"
                                             type="password"
-                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            style="text-align: right !important; direction: rtl !important;"
                                             required
                                         />
                                         <div v-if="createForm.errors.password" class="mt-1 text-sm text-red-600 text-right">
@@ -279,14 +288,17 @@
 
                                     <!-- Password Confirmation Field -->
                                     <div>
-                                        <label for="modal_password_confirmation" class="block text-sm font-medium text-gray-700 text-right mb-2">
-                                            تأكيد كلمة المرور
-                                        </label>
+                                        <div class="mb-3" style="text-align: right !important;">
+                                            <label for="modal_password_confirmation" class="text-sm font-medium text-gray-700" style="text-align: right !important; display: block;">
+                                                تأكيد كلمة المرور
+                                            </label>
+                                        </div>
                                         <input
                                             id="modal_password_confirmation"
                                             v-model="createForm.password_confirmation"
                                             type="password"
-                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            style="text-align: right !important; direction: rtl !important;"
                                             required
                                         />
                                         <div v-if="createForm.errors.password_confirmation" class="mt-1 text-sm text-red-600 text-right">
