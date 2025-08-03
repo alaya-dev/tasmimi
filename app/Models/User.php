@@ -156,6 +156,7 @@ class User extends Authenticatable
     public function activeSubscription()
     {
         return $this->userSubscriptions()
+                    ->with('subscription')
                     ->where('status', UserSubscription::STATUS_ACTIVE)
                     ->where('ends_at', '>', now())
                     ->first();

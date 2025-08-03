@@ -43,7 +43,7 @@ const submit = () => {
 <template>
     <div :dir="direction" class="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
         <Head :title="__('auth.login')" />
-        
+
         <div class="min-h-screen flex flex-col justify-between">
             <div class="flex-1 flex">
                 <!-- Left Side - Branding -->
@@ -58,7 +58,7 @@ const submit = () => {
                                 {{ __('auth.design_description') }}
                             </p>
                         </div>
-                        
+
                         <!-- Animated Circuit Pattern -->
                         <div class="absolute inset-0 opacity-10">
                             <svg class="w-full h-full" viewBox="0 0 400 400" fill="none">
@@ -191,7 +191,7 @@ const submit = () => {
 
                                 <div class="text-center">
                                     <p class="text-blue-100">
-                                        {{ __('auth.already_registered') }}
+
                                         <Link
                                             :href="route('register')"
                                             class="text-blue-300 hover:text-blue-100 font-medium transition-colors duration-200"

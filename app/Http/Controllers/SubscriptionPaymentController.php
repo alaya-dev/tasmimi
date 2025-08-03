@@ -60,6 +60,12 @@ class SubscriptionPaymentController extends Controller
     {
         $user = Auth::user();
         $activeSubscription = $user->activeSubscription();
+
+        // Load the subscription relationship if it exists
+        if ($activeSubscription) {
+            $activeSubscription->load('subscription');
+        }
+
         $subscriptionHistory = $user->userSubscriptions()
             ->with('subscription')
             ->orderBy('created_at', 'desc')

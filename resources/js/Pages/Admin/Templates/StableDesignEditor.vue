@@ -1966,7 +1966,7 @@ const generateAdvancedPreviewHTML = (designData) => {
             </div>
             <div class="footer">
                 تم إنشاؤه بواسطة منصة سامقة للتصميم - معاينة الإدارة<br>
-                
+
             </div>
         </body>
         </html>

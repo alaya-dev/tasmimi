@@ -15,7 +15,7 @@
                     <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
                         <h2 class="text-xl font-semibold text-white">الاشتراك الحالي</h2>
                     </div>
-                    
+
                     <div class="p-6">
                         <div v-if="activeSubscription" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             <!-- Plan Info -->
@@ -75,7 +75,7 @@
                             >
                                 تغيير الخطة
                             </button>
-                            
+
                             <button
                                 v-if="activeSubscription.status === 'active'"
                                 @click="confirmCancelSubscription"
@@ -92,7 +92,7 @@
                     <div class="bg-gray-50 px-6 py-4 border-b">
                         <h2 class="text-xl font-semibold text-gray-900">تاريخ الاشتراكات</h2>
                     </div>
-                    
+
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -144,7 +144,7 @@
                     <div class="bg-gray-50 px-6 py-4 border-b">
                         <h2 class="text-xl font-semibold text-gray-900">تاريخ المدفوعات</h2>
                     </div>
-                    
+
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -310,7 +310,7 @@ const confirmCancelSubscription = () => {
 
 const cancelSubscription = async () => {
     cancelling.value = true;
-    
+
     try {
         const response = await fetch(route('client.subscription.cancel'), {
             method: 'POST',

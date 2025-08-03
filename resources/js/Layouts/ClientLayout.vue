@@ -102,18 +102,6 @@
                                         </svg>
                                         <span>إدارة الاشتراك</span>
                                     </DropdownLink>
-                                    <DropdownLink :href="route('client.orders')" class="flex items-center space-x-2 space-x-reverse">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                        </svg>
-                                        <span>الطلبات</span>
-                                    </DropdownLink>
-                                    <DropdownLink :href="route('client.orders')" class="flex items-center space-x-2 space-x-reverse">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                        </svg>
-                                        <span>الفواتير</span>
-                                    </DropdownLink>
                                     <DropdownLink :href="route('client.contact')" class="flex items-center space-x-2 space-x-reverse">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
@@ -129,15 +117,6 @@
                                     </DropdownLink>
                                 </template>
                             </Dropdown>
-                            <!-- Cart Icon -->
-                            <Link :href="route('client.cart')" class="relative p-3 text-gray-600 hover:text-purple-600 transition-colors duration-200 hover:bg-purple-50 rounded-xl group">
-                                <svg class="w-6 h-6 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6m0 0h15.5M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/>
-                                </svg>
-                                <span v-if="cartCount > 0" class="absolute -top-1 -left-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold animate-pulse">
-                                    {{ cartCount }}
-                                </span>
-                            </Link>
                         </div>
                     </div>
                 </div>
@@ -174,16 +153,6 @@
                                     <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
                             </button>
-
-                            <!-- Cart Icon (Mobile) -->
-                            <Link v-if="$page.props.auth.user" :href="route('client.cart')" class="relative p-2 text-gray-600 hover:text-purple-600 transition-colors duration-200 hover:bg-purple-50 rounded-lg">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6m0 0h15.5M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/>
-                                </svg>
-                                <span v-if="cartCount > 0" class="absolute -top-1 -left-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                                    {{ cartCount }}
-                                </span>
-                            </Link>
                         </div>
                     </div>
 
@@ -239,18 +208,6 @@
                                     </svg>
                                     <span>إدارة الاشتراك</span>
                                 </Link>
-                                <Link :href="route('client.orders')" class="flex items-center space-x-3 space-x-reverse py-3 px-4 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                    </svg>
-                                    <span>الطلبات</span>
-                                </Link>
-                                <Link :href="route('client.invoices')" class="flex items-center space-x-3 space-x-reverse py-3 px-4 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                    </svg>
-                                    <span>الفواتير</span>
-                                </Link>
                                 <Link :href="route('client.contact')" class="flex items-center space-x-3 space-x-reverse py-3 px-4 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
@@ -286,14 +243,6 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import { Link } from '@inertiajs/vue3';
 import { useTranslations } from '@/Composables/useTranslations';
-
-// Props
-defineProps({
-    cartCount: {
-        type: Number,
-        default: 0
-    }
-});
 
 // Composables
 const { direction } = useTranslations();
