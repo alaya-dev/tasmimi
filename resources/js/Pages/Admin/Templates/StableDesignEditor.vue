@@ -268,15 +268,6 @@
                                     <i class="fas fa-search-plus"></i>
                                 </button>
                             </div>
-                            <!-- Watermark Toggle (Admin only) -->
-                            <button
-                                v-if="context === 'admin'"
-                                @click="showWatermark = !showWatermark"
-                                :class="['p-2 rounded transition-colors', showWatermark ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:text-gray-800']"
-                                title="تبديل العلامة المائية"
-                            >
-                                <i class="fas fa-certificate"></i>
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -367,31 +358,6 @@
                                 >
                                     سامقة للتصميم
                                 </div>
-                            </div>
-
-                            <!-- Single watermark for admin contexts -->
-                            <div
-                                v-else-if="showWatermark"
-                                class="absolute pointer-events-none select-none"
-                                :style="{
-                                    bottom: '15px',
-                                    right: '15px',
-                                    fontSize: '14px',
-                                    color: 'rgba(0, 0, 0, 0.25)',
-                                    fontFamily: 'Cairo, sans-serif',
-                                    fontWeight: 'bold',
-                                    textShadow: '1px 1px 2px rgba(255, 255, 255, 0.8)',
-                                    zIndex: 9999,
-                                    transform: 'rotate(-15deg)',
-                                    transformOrigin: 'center',
-                                    userSelect: 'none',
-                                    WebkitUserSelect: 'none',
-                                    MozUserSelect: 'none',
-                                    msUserSelect: 'none',
-                                    letterSpacing: '1px'
-                                }"
-                            >
-                                سامقة للتصميم
                             </div>
                         </div>
                     </div>
@@ -579,8 +545,6 @@ const showPhotoEditor = ref(false)
 const photoEditorImage = ref(null)
 const canvasBackground = ref('')
 const backgroundSize = ref('contain')
-// Watermark is always on for client context, toggleable for admin
-const showWatermark = ref(props.context === 'client' ? true : true)
 const pendingElementType = ref(null)
 const showDeleteConfirm = ref(false)
 const layerToDelete = ref(null)
@@ -1429,10 +1393,6 @@ const removeCanvasBackground = () => {
 
 const exportDesignWithWatermark = async () => {
     try {
-        // Temporarily ensure watermark is visible
-        const originalWatermarkState = showWatermark.value
-        showWatermark.value = true
-
         // Wait for DOM update
         await nextTick()
 
@@ -1653,10 +1613,6 @@ const exportDesignWithWatermark = async () => {
 
         // Watermark removed from export as requested
             downloadCanvas(exportCanvas)
-
-        // Restore original watermark state
-        showWatermark.value = originalWatermarkState
-
     } catch (error) {
         console.error('Export error:', error)
         alert('خطأ في تصدير التصميم')
@@ -2382,8 +2338,6 @@ const exportDesignWithFormat = async () => {
     isExporting.value = true
 
     try {
-        const originalWatermarkState = showWatermark.value
-        showWatermark.value = true
         await nextTick()
 
         console.log(`🎯 Lancement export format: ${selectedExportFormat.value}`)
@@ -2402,7 +2356,6 @@ const exportDesignWithFormat = async () => {
                 break
         }
 
-        showWatermark.value = originalWatermarkState
         showExportModal.value = false
         console.log('✅ ===== EXPORT TERMINÉ AVEC SUCCÈS (ADMIN) =====')
 
