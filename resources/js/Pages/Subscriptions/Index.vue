@@ -1,5 +1,5 @@
 <template>
-    <Head title="إدارة الاشتراكات - Bitaqati" />
+    <Head title="إدارة الاشتراكات " />
 
     <AdminLayoutSidebar>
         <template #breadcrumb>

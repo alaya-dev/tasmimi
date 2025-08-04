@@ -1,5 +1,5 @@
 <template>
-    <Head title="الدفع - Bitaqati" />
+    <Head title="الدفع " />
 
     <ClientLayout>
         <div class="py-12" dir="rtl">

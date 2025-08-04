@@ -1,5 +1,5 @@
 <template>
-    <Head title="الاشتراكات - Bitaqati" />
+    <Head title="الاشتراكات " />
 
     <ClientLayout>
         <div class="py-12" dir="rtl">

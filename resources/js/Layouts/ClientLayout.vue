@@ -102,12 +102,7 @@
                                         </svg>
                                         <span>إدارة الاشتراك</span>
                                     </DropdownLink>
-                                    <DropdownLink :href="route('client.contact')" class="flex items-center space-x-2 space-x-reverse">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                        </svg>
-                                        <span>اتصل بنا</span>
-                                    </DropdownLink>
+                                   
                                     <hr class="my-1">
                                     <DropdownLink :href="route('logout')" method="post" as="button" class="flex items-center space-x-2 space-x-reverse text-red-600 hover:text-red-800">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

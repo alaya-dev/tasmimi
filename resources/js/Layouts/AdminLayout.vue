@@ -8,7 +8,7 @@
                         <!-- Logo -->
                         <div class="flex-shrink-0 flex items-center">
                             <ApplicationLogo class="block h-9 w-auto fill-current text-gray-800" />
-                            <span :class="isRTL ? 'mr-2' : 'ml-2'" class="text-xl font-semibold text-gray-800">Bitaqati Admin</span>
+                            <span :class="isRTL ? 'mr-2' : 'ml-2'" class="text-xl font-semibold text-gray-800"> Admin</span>
                         </div>
 
                         <!-- Navigation Links -->

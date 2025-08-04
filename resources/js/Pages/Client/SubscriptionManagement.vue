@@ -1,5 +1,5 @@
 <template>
-    <Head title="إدارة الاشتراك - Bitaqati" />
+    <Head title="إدارة الاشتراك " />
 
     <ClientLayout>
         <div class="py-12" dir="rtl">
