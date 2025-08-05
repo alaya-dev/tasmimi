@@ -1,25 +1,31 @@
 <template>
     <Head title="الرئيسية - سامقة" />
     <ClientLayout>
-        <!-- Categories List -->
-        <div class="flex items-center gap-2 overflow-x-auto py-4 px-2 bg-white rounded-lg shadow mb-8 scrollbar-thin scrollbar-thumb-purple-200 scrollbar-track-transparent">
-            <button
-                :class="['flex items-center gap-2 px-5 py-2 rounded-full font-bold transition-all duration-200 border', selectedCategory === 'all' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-105 border-transparent' : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-purple-50 hover:text-purple-700']"
-                @click="selectCategory('all')"
-            >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h8"/></svg>
-                الكل
-            </button>
-            <button
-                v-for="cat in props.categories"
-                :key="cat.id"
-                :class="['flex items-center gap-2 px-5 py-2 rounded-full font-bold transition-all duration-200 border', selectedCategory === cat.id ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-105 border-transparent' : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-purple-50 hover:text-purple-700']"
-                @click="selectCategory(cat.id)"
-            >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                {{ cat.name }}
-            </button>
-                </div>
+        <!-- Categories List - Organized in 2 rows with uniform height -->
+        <div class="bg-white rounded-lg shadow mb-8 p-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 auto-rows-fr">
+                <!-- "الكل" button -->
+                <button
+                    :class="['flex items-center justify-center gap-2 px-4 py-3 h-14 rounded-full font-bold transition-all duration-200 border text-center', selectedCategory === 'all' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-105 border-transparent' : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-purple-50 hover:text-purple-700']"
+                    @click="selectCategory('all')"
+                >
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h8"/></svg>
+                    <span class="truncate text-sm">الكل</span>
+                </button>
+                
+                <!-- Category buttons -->
+                <button
+                    v-for="cat in props.categories"
+                    :key="cat.id"
+                    :class="['flex items-center justify-center gap-2 px-4 py-3 h-14 rounded-full font-bold transition-all duration-200 border text-center', selectedCategory === cat.id ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-105 border-transparent' : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-purple-50 hover:text-purple-700']"
+                    @click="selectCategory(cat.id)"
+                    :title="cat.name"
+                >
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <span class="truncate text-sm leading-tight">{{ cat.name }}</span>
+                </button>
+            </div>
+        </div>
 
         <!-- Templates Section -->
         <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg shadow p-6">
