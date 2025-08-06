@@ -176,6 +176,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('terms-of-service', App\Http\Controllers\Admin\TermsOfServiceController::class);
     Route::post('terms-of-service/{termsOfService}/activate', [App\Http\Controllers\Admin\TermsOfServiceController::class, 'activate'])->name('terms-of-service.activate');
 
+    // Gestion des paramètres de contact
+    Route::get('contact-settings', [App\Http\Controllers\Admin\ContactSettingsController::class, 'index'])->name('contact-settings.index');
+    Route::put('contact-settings', [App\Http\Controllers\Admin\ContactSettingsController::class, 'update'])->name('contact-settings.update');
+
     // Éditeur de design pour templates
     Route::get('templates/{template}/design', [App\Http\Controllers\Admin\TemplateController::class, 'designEditor'])->name('templates.design');
 

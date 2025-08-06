@@ -102,6 +102,12 @@
                                         </svg>
                                         <span>إدارة الاشتراك</span>
                                     </DropdownLink>
+                                    <DropdownLink :href="route('client.contact')" class="flex items-center space-x-2 space-x-reverse">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                        </svg>
+                                        <span>اتصل بنا</span>
+                                    </DropdownLink>
                                     
                                     <hr class="my-1">
                                     <DropdownLink :href="route('logout')" method="post" as="button" class="flex items-center space-x-2 space-x-reverse text-red-600 hover:text-red-800">
@@ -202,6 +208,12 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     </svg>
                                     <span>إدارة الاشتراك</span>
+                                </Link>
+                                <Link :href="route('client.contact')" class="flex items-center space-x-3 space-x-reverse py-3 px-4 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span>اتصل بنا</span>
                                 </Link>
                                 
                                 <hr class="my-1">

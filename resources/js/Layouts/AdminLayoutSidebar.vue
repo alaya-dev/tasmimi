@@ -334,10 +334,26 @@
                                     <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
                                 </svg>
                             </Link>
+
+                            <!-- Contact Settings -->
+                            <Link
+                                :href="route('admin.contact-settings.index')"
+                                :class="[
+                                    'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-right',
+                                    route().current('admin.contact-settings.*')
+                                        ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
+                                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                ]"
+                            >
+                                <span class="text-right flex-1">إعدادات الاتصال</span>
+                                <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                                </svg>
+                            </Link>
                         </div>
                     </div>
                 </div>
-            </nav>
+            </nav>>
         </div>
 
         <!-- Mobile sidebar overlay -->

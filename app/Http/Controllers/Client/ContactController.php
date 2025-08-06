@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
+use App\Models\ContactSetting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,7 +16,13 @@ class ContactController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('Client/Contact');
+        return Inertia::render('Client/Contact', [
+            'contactInfo' => [
+                'email' => ContactSetting::get('email', 'support@bitaqati.com'),
+                'phone' => ContactSetting::get('phone', '+966 12 345 6789'),
+                'address' => ContactSetting::get('address', 'الرياض، المملكة العربية السعودية')
+            ]
+        ]);
     }
 
     /**
