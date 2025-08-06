@@ -11,18 +11,22 @@
         :style="elementStyle"
         @mousedown="startDrag"
         @click="handleClick"
+        @dblclick="handleDoubleClick"
     >
         <!-- Text Element -->
         <div
             v-if="element.type === 'text'"
+            ref="textElement"
             :style="textStyle"
-            class="w-full h-full"
-            contenteditable
+            class="w-full h-full outline-none"
+            contenteditable="true"
             @blur="updateText"
             @input="updateText"
-        >
-            {{ element.text || 'اكتب النص هنا' }}
-        </div>
+            @click.stop="handleTextClick"
+            @keydown="handleTextKeydown"
+            spellcheck="false"
+            v-html="element.text || 'اكتب النص هنا'"
+        ></div>
 
         <!-- Image Element -->
         <img
@@ -209,6 +213,8 @@ const isResizing = ref(false)
 const isRotating = ref(false)
 const dragStart = ref({ x: 0, y: 0 })
 const resizeHandle = ref('')
+const textElement = ref(null)
+const rotatingElement = ref(null)
 
 // Computed Styles
 const elementStyle = computed(() => ({
@@ -224,14 +230,23 @@ const elementStyle = computed(() => ({
 
 const textStyle = computed(() => {
     const alignment = props.element.textAlign || props.element.properties?.textAlign || 'right'
+    console.log('🎯 Text Alignment:', alignment)
+    
     return {
         fontSize: (props.element.fontSize || props.element.properties?.fontSize || 16) + 'px',
         fontFamily: props.element.fontFamily || props.element.properties?.fontFamily || 'Cairo',
         fontWeight: props.element.fontWeight || props.element.properties?.fontWeight || 'normal',
         color: props.element.color || props.element.properties?.color || '#000000',
-        textAlign: alignment,
         lineHeight: props.element.lineHeight || props.element.properties?.lineHeight || 1.5,
-        padding: '8px'
+        padding: '8px',
+        minHeight: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: alignment === 'center' ? 'center' : (alignment === 'left' ? 'flex-start' : 'flex-end'),
+        textAlign: alignment,
+        direction: 'ltr', // Toujours LTR pour éviter les conflits
+        wordWrap: 'break-word',
+        overflowWrap: 'break-word'
     }
 })
 
@@ -427,16 +442,17 @@ const startRotate = (event) => {
     if (props.element.locked) return
 
     isRotating.value = true
+    rotatingElement.value = event.target.closest('.design-element')
     document.addEventListener('mousemove', handleRotate)
     document.addEventListener('mouseup', stopRotate)
     event.preventDefault()
 }
 
 const handleRotate = (event) => {
-    if (!isRotating.value) return
+    if (!isRotating.value || !rotatingElement.value) return
 
     // Calculate rotation based on mouse position
-    const rect = event.target.closest('.design-element').getBoundingClientRect()
+    const rect = rotatingElement.value.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2
 
@@ -450,13 +466,65 @@ const handleRotate = (event) => {
 
 const stopRotate = () => {
     isRotating.value = false
+    rotatingElement.value = null
     document.removeEventListener('mousemove', handleRotate)
     document.removeEventListener('mouseup', stopRotate)
 }
 
 const updateText = (event) => {
-    const newText = event.target.textContent
-    emit('update', props.element.id, { text: newText })
+    const newText = event.target.textContent || event.target.innerText
+    if (newText !== props.element.text) {
+        emit('update', props.element.id, { text: newText })
+    }
+}
+
+const handleTextKeydown = (event) => {
+    // Permettre de sortir du mode édition avec Échap
+    if (event.key === 'Escape') {
+        event.target.blur()
+        event.preventDefault()
+    }
+    // Ne pas propager les événements clavier pour éviter les conflits
+    event.stopPropagation()
+}
+
+const handleTextClick = (event) => {
+    // Toujours sélectionner l'élément pour permettre les modifications de style
+    event.stopPropagation()
+    selectElement()
+    
+    // Si l'élément est déjà sélectionné, permettre l'édition directe
+    if (props.selected) {
+        const textEl = event.target
+        textEl.focus()
+        
+        // Sélectionner tout le texte si c'est le placeholder
+        if (textEl.textContent === 'اكتب النص هنا') {
+            setTimeout(() => {
+                const range = document.createRange()
+                range.selectNodeContents(textEl)
+                const selection = window.getSelection()
+                selection.removeAllRanges()
+                selection.addRange(range)
+            }, 10)
+        }
+    }
+}
+
+const focusText = (event) => {
+    // Focus on the text element for immediate editing
+    event.stopPropagation()
+    const textEl = event.target
+    textEl.focus()
+    
+    // Select all text if it's the placeholder text
+    if (textEl.textContent === 'اكتب النص هنا') {
+        const range = document.createRange()
+        range.selectNodeContents(textEl)
+        const selection = window.getSelection()
+        selection.removeAllRanges()
+        selection.addRange(range)
+    }
 }
 
 const handleImageError = (event) => {
@@ -581,10 +649,43 @@ const getIconSymbol = (iconInput) => {
     return '●'
 }
 
+function handleDoubleClick(event) {
+    if (props.element.type === 'text') {
+        event.stopPropagation();
+        const textEl = event.currentTarget.querySelector('[contenteditable]');
+        if (textEl) {
+            textEl.focus();
+            
+            // Sélectionner tout le texte si c'est le placeholder
+            if (textEl.textContent === 'اكتب النص هنا') {
+                const range = document.createRange();
+                range.selectNodeContents(textEl);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
+    }
+}
+
 function handleClick(event) {
     if (!props.placementMode) {
         event.stopPropagation();
+        
+        // Toujours sélectionner l'élément, même pour les textes
         selectElement();
+        
+        // Si c'est un élément texte et qu'il est déjà sélectionné, on peut activer l'édition
+        if (props.element.type === 'text' && props.selected) {
+            const textEl = event.target.closest('[contenteditable]');
+            if (textEl) {
+                // Délai court pour permettre la sélection d'abord
+                setTimeout(() => {
+                    textEl.focus();
+                }, 50);
+                return;
+            }
+        }
     }
 }
 
@@ -694,4 +795,29 @@ function getPolygonPoints(cx, cy, radius, numSides) {
 .cursor-s-resize { cursor: s-resize; }
 .cursor-w-resize { cursor: w-resize; }
 .cursor-e-resize { cursor: e-resize; }
+
+/* Text editing styles */
+[contenteditable="true"] {
+    cursor: text;
+}
+
+[contenteditable="true"]:focus {
+    outline: 2px solid #7c3aed;
+    outline-offset: 2px;
+    background-color: rgba(124, 58, 237, 0.05);
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+}
+
+[contenteditable="true"]:empty:before {
+    content: attr(placeholder);
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* Améliorer la visibilité quand l'élément est sélectionné ET en édition */
+.design-element.ring-2 [contenteditable="true"]:focus {
+    outline: 2px solid #10b981;
+    background-color: rgba(16, 185, 129, 0.05);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
 </style>
