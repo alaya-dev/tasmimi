@@ -54,13 +54,13 @@ class CreateSuperAdmin extends Command
             'password' => $password,
         ], [
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:4',
         ], [
             'email.required' => 'Email is required.',
             'email.email' => 'Please enter a valid email address.',
             'email.unique' => 'This email is already registered.',
             'password.required' => 'Password is required.',
-            'password.min' => 'Password must be at least 8 characters long.',
+            'password.min' => 'Password must be at least 4 characters long.',
         ]);
 
         if ($validator->fails()) {
