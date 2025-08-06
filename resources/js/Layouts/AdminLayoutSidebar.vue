@@ -350,6 +350,19 @@
                                     <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                                 </svg>
                             </Link>
+
+                            <!-- Logout Button -->
+                            <Link
+                                :href="route('logout')"
+                                method="post"
+                                as="button"
+                                class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-red-600 hover:bg-red-50 hover:text-red-700 text-right w-full"
+                            >
+                                <span class="text-right flex-1">تسجيل الخروج</span>
+                                <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                                </svg>
+                            </Link>
                         </div>
                     </div>
                 </div>
