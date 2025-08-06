@@ -135,7 +135,9 @@ export const styleManagerConfig = {
                         { value: 'Noto Sans Arabic, sans-serif', name: 'Noto Sans Arabic' },
                         { value: 'Tajawal, sans-serif', name: 'Tajawal' },
                         { value: 'Almarai, sans-serif', name: 'Almarai' },
-                        { value: 'Changa, sans-serif', name: 'Changa' }
+                        { value: 'Changa, sans-serif', name: 'Changa' },
+                        { value: 'خط المهند, sans-serif', name: 'خط المهند' },
+                        { value: 'Tahoma, sans-serif', name: 'Tahoma خط' }
                     ]
                 },
                 {

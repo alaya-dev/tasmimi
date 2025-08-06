@@ -161,6 +161,8 @@
                                 <option value="Markazi Text">Markazi Text</option>
                                 <option value="Noto Kufi Arabic">Noto Kufi Arabic</option>
                                 <option value="Amiri Quran">Amiri Quran</option>
+                                <option value="خط المهند">خط المهند</option>
+                                <option value="Tahoma">Tahoma </option>
                             </select>
                         </div>
                         <div>
