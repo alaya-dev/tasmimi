@@ -16,7 +16,7 @@
         <div
             v-if="element.type === 'text'"
             :style="textStyle"
-            class="w-full h-full flex items-center"
+            class="w-full h-full"
             contenteditable
             @blur="updateText"
             @input="updateText"
@@ -222,42 +222,45 @@ const elementStyle = computed(() => ({
     visibility: props.element.visible !== false ? 'visible' : 'hidden'
 }))
 
-const textStyle = computed(() => ({
-    fontSize: (props.element.fontSize || 16) + 'px',
-    fontFamily: props.element.fontFamily || 'Cairo',
-    fontWeight: props.element.fontWeight || 'normal',
-    color: props.element.color || '#000000',
-    textAlign: props.element.textAlign || 'right',
-    lineHeight: props.element.lineHeight || 1.5,
-    padding: '8px'
-}))
+const textStyle = computed(() => {
+    const alignment = props.element.textAlign || props.element.properties?.textAlign || 'right'
+    return {
+        fontSize: (props.element.fontSize || props.element.properties?.fontSize || 16) + 'px',
+        fontFamily: props.element.fontFamily || props.element.properties?.fontFamily || 'Cairo',
+        fontWeight: props.element.fontWeight || props.element.properties?.fontWeight || 'normal',
+        color: props.element.color || props.element.properties?.color || '#000000',
+        textAlign: alignment,
+        lineHeight: props.element.lineHeight || props.element.properties?.lineHeight || 1.5,
+        padding: '8px'
+    }
+})
 
 const imageStyle = computed(() => ({
-    objectFit: props.element.objectFit || 'cover',
-    borderRadius: (props.element.borderRadius || 0) + 'px'
+    objectFit: props.element.objectFit || props.element.properties?.objectFit || 'cover',
+    borderRadius: (props.element.borderRadius || props.element.properties?.borderRadius || 0) + 'px'
 }))
 
 const rectangleStyle = computed(() => ({
-    backgroundColor: props.element.backgroundColor || '#8b5cf6',
-    borderRadius: (props.element.borderRadius || 0) + 'px',
-    border: props.element.borderWidth ?
-        `${props.element.borderWidth}px solid ${props.element.borderColor || '#000'}` : 'none'
+    backgroundColor: props.element.backgroundColor || props.element.properties?.backgroundColor || '#8b5cf6',
+    borderRadius: (props.element.borderRadius || props.element.properties?.borderRadius || 0) + 'px',
+    border: (props.element.borderWidth || props.element.properties?.borderWidth) ?
+        `${props.element.borderWidth || props.element.properties?.borderWidth}px solid ${props.element.borderColor || props.element.properties?.borderColor || '#000'}` : 'none'
 }))
 
 const circleStyle = computed(() => ({
-    backgroundColor: props.element.backgroundColor || '#10b981',
-    border: props.element.borderWidth ?
-        `${props.element.borderWidth}px solid ${props.element.borderColor || '#000'}` : 'none'
+    backgroundColor: props.element.backgroundColor || props.element.properties?.backgroundColor || '#10b981',
+    border: (props.element.borderWidth || props.element.properties?.borderWidth) ?
+        `${props.element.borderWidth || props.element.properties?.borderWidth}px solid ${props.element.borderColor || props.element.properties?.borderColor || '#000'}` : 'none'
 }))
 
 const buttonStyle = computed(() => ({
-    backgroundColor: props.element.backgroundColor || '#3b82f6',
-    color: props.element.color || '#ffffff',
-    fontSize: (props.element.fontSize || 14) + 'px',
-    fontWeight: props.element.fontWeight || 'bold',
-    borderRadius: (props.element.borderRadius || 6) + 'px',
-    border: props.element.borderWidth ?
-        `${props.element.borderWidth}px solid ${props.element.borderColor || 'transparent'}` : 'none'
+    backgroundColor: props.element.backgroundColor || props.element.properties?.backgroundColor || '#3b82f6',
+    color: props.element.color || props.element.properties?.color || '#ffffff',
+    fontSize: (props.element.fontSize || props.element.properties?.fontSize || 14) + 'px',
+    fontWeight: props.element.fontWeight || props.element.properties?.fontWeight || 'bold',
+    borderRadius: (props.element.borderRadius || props.element.properties?.borderRadius || 6) + 'px',
+    border: (props.element.borderWidth || props.element.properties?.borderWidth) ?
+        `${props.element.borderWidth || props.element.properties?.borderWidth}px solid ${props.element.borderColor || props.element.properties?.borderColor || 'transparent'}` : 'none'
 }))
 
 const lineStyle = computed(() => ({
@@ -266,7 +269,7 @@ const lineStyle = computed(() => ({
 }))
 
 const iconStyle = computed(() => ({
-    color: props.element.color || '#374151'
+    color: props.element.color || props.element.properties?.color || '#374151'
     // fontSize is handled inline on the span element
 }))
 

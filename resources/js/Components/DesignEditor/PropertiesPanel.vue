@@ -179,20 +179,26 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">محاذاة النص</label>
-                            <div class="flex space-x-1 space-x-reverse">
+                            <div class="flex gap-1">
                                 <button
                                     v-for="align in textAlignments"
                                     :key="align.value"
-                                    @click="updateProperty('textAlign', align.value)"
+                                    @click="updateTextAlign(align.value)"
                                     :class="[
-                                        'flex-1 p-2 border rounded transition-colors',
+                                        'flex-1 h-10 border rounded-md flex items-center justify-center transition-all duration-200 cursor-pointer text-align-button',
                                         localProperties.textAlign === align.value
-                                            ? 'border-purple-500 bg-purple-50 text-purple-700'
-                                            : 'border-gray-300 hover:border-gray-400'
+                                            ? 'border-purple-500 bg-purple-100 text-purple-700 active'
+                                            : 'border-gray-300 hover:border-purple-300 hover:bg-purple-50'
                                     ]"
+                                    :title="align.label"
+                                    type="button"
                                 >
-                                    <i :class="align.icon"></i>
+                                    <i :class="align.icon" class="text-sm"></i>
                                 </button>
+                            </div>
+                            <!-- Debug info -->
+                            <div class="text-xs text-gray-500 mt-1">
+                                المحاذاة الحالية: {{ currentTextAlign }}
                             </div>
                         </div>
                     </div>
@@ -397,24 +403,54 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['update-properties', 'move-layer', 'duplicate-element', 'request-delete'])
+const emit = defineEmits([
+    'update-properties', 
+    'update-text-align',
+    'move-layer', 
+    'duplicate-element', 
+    'request-delete'
+])
 
 // State
 const localProperties = reactive({})
 
+// Computed properties for debugging
+const currentTextAlign = computed(() => {
+    const alignValue = localProperties.textAlign || 'none'
+    const alignLabels = {
+        'right': 'يمين',
+        'center': 'وسط', 
+        'left': 'يسار',
+        'none': 'غير محدد'
+    }
+    return alignLabels[alignValue] || alignValue
+})
+
 // Configuration
 const textAlignments = [
-    { value: 'right', icon: 'fas fa-align-right' },
-    { value: 'center', icon: 'fas fa-align-center' },
-    { value: 'left', icon: 'fas fa-align-left' }
+    { value: 'right', icon: 'fas fa-align-right', label: 'يمين' },
+    { value: 'center', icon: 'fas fa-align-center', label: 'وسط' },
+    { value: 'left', icon: 'fas fa-align-left', label: 'يسار' }
 ]
 
 // Watchers
 watch(() => props.selectedElement, (newElement) => {
+    console.log('Selected element changed:', newElement)
     if (newElement) {
-        // Flatten properties for editing
+        // Clear existing properties
         Object.keys(localProperties).forEach(key => { delete localProperties[key] })
+        
+        // Merge element properties
         Object.assign(localProperties, newElement, newElement.properties || {})
+        
+        // Set default text alignment if not set
+        if (newElement.type === 'text') {
+            if (!localProperties.textAlign) {
+                localProperties.textAlign = 'right' // Default for Arabic text
+                console.log('Set default textAlign to right')
+            }
+            console.log('Text element - textAlign is:', localProperties.textAlign)
+        }
     } else {
         Object.keys(localProperties).forEach(key => { delete localProperties[key] })
     }
@@ -422,9 +458,47 @@ watch(() => props.selectedElement, (newElement) => {
 
 // Methods
 const updateProperty = (key, value) => {
+    console.log(`🔧 Updating property ${key} to:`, value)
+    console.log('📊 Current localProperties before update:', { ...localProperties })
+    
+    // Update local property immediately
     localProperties[key] = value
-    // If the property is part of the element's properties, update that
+    
+    console.log('📊 localProperties after local update:', { ...localProperties })
+    
+    // Emit the update to parent component
+    console.log('📤 Emitting update-properties event with:', { [key]: value })
     emit('update-properties', { [key]: value })
+    
+    // Special handling for textAlign
+    if (key === 'textAlign') {
+        console.log('🎯 Text align specifically updated to:', value)
+        
+        // Try alternative emit formats
+        emit('update-properties', { textAlign: value })
+        
+        // Force update on next tick
+        setTimeout(() => {
+            console.log('⏰ Force update textAlign after timeout:', value)
+            localProperties.textAlign = value
+        }, 50)
+    }
+    
+    console.log('✅ Property update completed')
+}
+
+const updateTextAlign = (alignValue) => {
+    // Update local property immediately for visual feedback
+    localProperties.textAlign = alignValue
+    
+    // Multiple emit strategies to ensure one works
+    emit('update-properties', { textAlign: alignValue })
+    emit('update-text-align', alignValue)
+    
+    // Force DOM update
+    document.querySelectorAll('.text-align-button').forEach(btn => {
+        btn.classList.remove('active')
+    })
 }
 
 const moveLayer = (direction) => {
@@ -499,5 +573,32 @@ input[type="range"]::-moz-range-thumb {
     border-radius: 50%;
     cursor: pointer;
     border: none;
+}
+
+/* Text alignment buttons styling */
+.text-align-button {
+    transition: all 0.2s ease;
+}
+
+.text-align-button.active {
+    border-color: #7c3aed !important;
+    background-color: #f3e8ff !important;
+    color: #7c3aed !important;
+    box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
+}
+
+button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* Ensure FontAwesome icons are visible */
+.fas {
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
 }
 </style>
