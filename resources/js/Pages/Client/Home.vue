@@ -58,8 +58,9 @@
                         <span v-if="template.is_free" class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-semibold">
                             مجاني
                         </span>
-                        <span v-else class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-semibold">
-                            {{ template.formatted_price }} ريال
+                        <span v-else class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-semibold flex items-center justify-center space-x-1 space-x-reverse">
+                            <span>{{ template.formatted_price }}</span>
+                            <img src="/images/Saudi_riyal.png" alt="ريال سعودي" class="w-3 h-3">
                         </span>
                     </div>
 
