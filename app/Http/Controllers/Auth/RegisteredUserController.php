@@ -33,11 +33,12 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'phone' => 'nullable|string|regex:/^[0-9]+$/|max:20',
+            'phone' => 'nullable|string|regex:/^[0-9]{12}$/|size:12',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'agree_terms' => 'required|accepted',
         ], [
-            'phone.regex' => 'رقم الهاتف يجب أن يحتوي على أرقام فقط',
+            'phone.regex' => 'رقم الهاتف يجب أن يحتوي على 12 رقم بالضبط (مثال: 966xxxxxxxxx)',
+            'phone.size' => 'رقم الهاتف يجب أن يكون 12 رقم بالضبط',
             'agree_terms.required' => 'يجب الموافقة على اتفاقية الاستخدام وسياسة الخصوصية',
             'agree_terms.accepted' => 'يجب الموافقة على اتفاقية الاستخدام وسياسة الخصوصية',
         ]);

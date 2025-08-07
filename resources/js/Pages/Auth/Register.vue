@@ -35,8 +35,8 @@ const submit = () => {
 };
 
 const handlePhoneInput = (event) => {
-    // Remove any non-digit characters
-    const value = event.target.value.replace(/[^0-9]/g, '');
+    // Remove any non-digit characters and limit to 12 digits
+    const value = event.target.value.replace(/[^0-9]/g, '').slice(0, 12);
     form.phone = value;
 };
 </script>
@@ -144,12 +144,14 @@ const handlePhoneInput = (event) => {
                                                 isRTL ? 'pr-10 text-right' : 'pl-10',
                                                 form.errors.phone ? 'border-red-400' : ''
                                             ]"
-                                            placeholder="رقم الهاتف (أرقام فقط)"
-                                            pattern="[0-9]*"
+                                            placeholder="966xxxxxxxxx (12 رقم)"
+                                            pattern="[0-9]{12}"
                                             inputmode="numeric"
+                                            maxlength="12"
                                         />
                                     </div>
                                     <InputError class="mt-2 text-red-300" :message="form.errors.phone" />
+                                    <p class="mt-1 text-sm text-blue-200">مثال: 966xxxxxxxxx (12 رقم)</p>
                                 </div>
 
                                 <div>
