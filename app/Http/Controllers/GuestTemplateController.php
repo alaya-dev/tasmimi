@@ -26,6 +26,9 @@ class GuestTemplateController extends Controller
         // Add thumbnail URL if exists
         $template->thumbnail_url = $template->thumbnail ? asset('storage/' . $template->thumbnail) : null;
 
+        // Include design data for preview rendering
+        $template->makeVisible(['design_data']);
+
         return Inertia::render('Guest/TemplatePreview', [
             'template' => $template,
             'canLogin' => true,

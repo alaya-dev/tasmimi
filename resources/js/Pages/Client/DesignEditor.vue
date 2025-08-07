@@ -103,7 +103,7 @@
 
                         <!-- Back -->
                         <Link
-                            :href="route('client.my-designs')"
+                            :href="route('client.home')"
                             class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 flex items-center space-x-2 space-x-reverse"
                         >
                             <i class="fas fa-arrow-right"></i>

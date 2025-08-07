@@ -73,18 +73,87 @@
 
             <!-- Template Preview -->
             <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-                <div class="p-6 border-b border-gray-200">
+                <div class="p-4 border-b border-gray-200">
                     <h2 class="text-xl font-semibold text-gray-900 text-right">معاينة القالب</h2>
                     <p class="text-gray-600 text-right mt-1">يمكنك مشاهدة القالب هنا. للتعديل، يرجى تسجيل الدخول أولاً.</p>
                 </div>
 
                 <!-- Preview Container -->
-                <div class="p-6">
+                <div class="p-2">
                     <div class="relative">
                         <!-- Preview Area -->
-                        <div class="bg-gray-100 rounded-lg p-8 min-h-[600px] flex items-center justify-center">
-                            <!-- Template Thumbnail or Preview -->
-                            <div v-if="template.thumbnail_url" class="max-w-md mx-auto">
+                        <div class="bg-gray-50 rounded-lg p-2 min-h-[900px] flex items-center justify-center overflow-auto">
+                            <!-- Actual Design Preview -->
+                            <div v-if="template.design_data" class="w-full flex justify-center">
+                                <div
+                                    ref="previewCanvas"
+                                    class="bg-white rounded-lg shadow-lg mx-auto"
+                                    :style="canvasStyle"
+                                >
+                                    <!-- Render design elements -->
+                                    <div
+                                        v-for="element in designElements"
+                                        :key="element.id"
+                                        class="absolute pointer-events-none"
+                                        :style="getElementStyle(element)"
+                                    >
+                                        <!-- Text Element -->
+                                        <div v-if="element.type === 'text'"
+                                             :style="getTextStyle(element)"
+                                             v-html="element.content || element.text || 'نص تجريبي'">
+                                        </div>
+
+                                        <!-- Shape Elements -->
+                                        <div v-else-if="element.type === 'rectangle' || element.type === 'rect'"
+                                             :style="getShapeStyle(element)">
+                                        </div>
+
+                                        <div v-else-if="element.type === 'circle' || element.type === 'ellipse'"
+                                             :style="getCircleStyle(element)">
+                                        </div>
+
+                                        <!-- Triangle -->
+                                        <div v-else-if="element.type === 'triangle'"
+                                             :style="getTriangleStyle(element)">
+                                        </div>
+
+                                        <!-- Line -->
+                                        <div v-else-if="element.type === 'line'"
+                                             :style="getLineStyle(element)">
+                                        </div>
+
+                                        <!-- Image Element -->
+                                        <img v-else-if="element.type === 'image' && (element.src || element.url)"
+                                             :src="element.src || element.url"
+                                             :alt="element.alt || 'صورة'"
+                                             :style="getImageStyle(element)"
+                                             class="object-cover">
+
+                                        <!-- SVG Element -->
+                                        <div v-else-if="element.type === 'svg'"
+                                             :style="getSvgStyle(element)"
+                                             v-html="element.content || element.svg">
+                                        </div>
+
+                                        <!-- Generic Element Fallback -->
+                                        <div v-else
+                                             :style="getGenericStyle(element)"
+                                             class="bg-gray-200 border border-gray-400 flex items-center justify-center text-xs text-gray-600">
+                                            {{ element.type || 'عنصر' }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Preview Watermark -->
+                                    <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+                                        <div class="text-6xl font-bold text-gray-200 opacity-20 transform rotate-45 select-none">
+                                            سامقة
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fallback to Thumbnail -->
+                            <div v-else-if="template.thumbnail_url" class="max-w-md mx-auto">
                                 <img
                                     :src="template.thumbnail_url"
                                     :alt="template.name"
@@ -92,7 +161,7 @@
                                 />
                             </div>
 
-                            <!-- Fallback Preview -->
+                            <!-- Final Fallback -->
                             <div v-else class="text-center">
                                 <div class="w-64 h-96 bg-gradient-to-br from-purple-200 to-pink-200 rounded-lg shadow-lg flex items-center justify-center mx-auto mb-4">
                                     <div class="text-center">
@@ -192,6 +261,7 @@
 
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
     template: {
@@ -207,6 +277,217 @@ const props = defineProps({
         default: true
     }
 });
+
+const previewCanvas = ref(null);
+
+// Parse design data
+const designData = computed(() => {
+    if (!props.template.design_data) return null;
+    try {
+        return typeof props.template.design_data === 'string'
+            ? JSON.parse(props.template.design_data)
+            : props.template.design_data;
+    } catch (error) {
+        console.error('Error parsing design data:', error);
+        return null;
+    }
+});
+
+// Get design elements
+const designElements = computed(() => {
+    return designData.value?.elements || [];
+});
+
+// Canvas style with enhanced background support - Full Size Display
+const canvasStyle = computed(() => {
+    const canvas = designData.value?.canvas || { width: 800, height: 600 };
+
+    // Calculate scale to fit nicely in viewport while maintaining aspect ratio
+    const viewportWidth = window.innerWidth || 1200;
+    const viewportHeight = window.innerHeight || 800;
+    const maxWidth = Math.min(viewportWidth * 0.8, 1000); // Use 80% of viewport width, max 1000px
+    const maxHeight = Math.min(viewportHeight * 0.7, 700); // Use 70% of viewport height, max 700px
+
+    const scaleX = maxWidth / canvas.width;
+    const scaleY = maxHeight / canvas.height;
+    const scale = Math.min(scaleX, scaleY, 1.2); // Allow up to 120% scaling for better visibility
+
+    // Handle different background types
+    let backgroundStyle = '#ffffff'; // Default white background
+
+    if (canvas.background) {
+        if (canvas.background.startsWith('data:image/') || canvas.background.startsWith('http')) {
+            // Background image
+            backgroundStyle = `url(${canvas.background})`;
+        } else if (canvas.background.startsWith('linear-gradient') || canvas.background.startsWith('radial-gradient')) {
+            // CSS gradient
+            backgroundStyle = canvas.background;
+        } else if (canvas.background.startsWith('#') || canvas.background.startsWith('rgb') || canvas.background.startsWith('hsl')) {
+            // Solid color
+            backgroundStyle = canvas.background;
+        } else {
+            // Try to parse as color name or fallback
+            backgroundStyle = canvas.background;
+        }
+    }
+
+    return {
+        width: `${canvas.width}px`,
+        height: `${canvas.height}px`,
+        position: 'relative',
+        transform: `scale(${scale})`,
+        transformOrigin: 'center center',
+        background: backgroundStyle,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        border: '2px solid #d1d5db', // Slightly thicker border for better definition
+        borderRadius: '12px',
+        overflow: 'hidden',
+        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', // Nice shadow
+        margin: '20px auto' // Center with margin
+    };
+});
+
+// Element positioning and styling - Full Size
+const getElementStyle = (element) => {
+    return {
+        left: `${element.x || 0}px`,
+        top: `${element.y || 0}px`,
+        width: `${element.width || 100}px`,
+        height: `${element.height || 100}px`,
+        transform: `rotate(${element.rotation || 0}deg)`,
+        opacity: element.opacity !== undefined ? element.opacity : 1,
+        zIndex: element.zIndex || 0,
+        display: element.visible === false ? 'none' : 'block'
+    };
+};
+
+const getTextStyle = (element) => {
+    return {
+        fontSize: `${element.fontSize || 16}px`,
+        fontFamily: element.fontFamily || 'Arial, sans-serif',
+        fontWeight: element.fontWeight || 'normal',
+        fontStyle: element.fontStyle || 'normal',
+        color: element.color || element.fill || '#000000',
+        textAlign: element.textAlign || 'left',
+        lineHeight: element.lineHeight || 1.2,
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: element.textAlign === 'center' ? 'center' :
+                       element.textAlign === 'right' ? 'flex-end' : 'flex-start',
+        padding: '4px',
+        boxSizing: 'border-box',
+        wordWrap: 'break-word',
+        overflow: 'hidden',
+        textDecoration: element.textDecoration || 'none',
+        textShadow: element.textShadow || 'none',
+        letterSpacing: element.letterSpacing ? `${element.letterSpacing}px` : 'normal'
+    };
+};
+
+const getShapeStyle = (element) => {
+    // Handle background (solid color or gradient)
+    let backgroundStyle = element.backgroundColor || element.fill || '#cccccc';
+    let backgroundImage = 'none';
+
+    if (backgroundStyle && (backgroundStyle.startsWith('linear-gradient') || backgroundStyle.startsWith('radial-gradient'))) {
+        backgroundImage = backgroundStyle;
+        backgroundStyle = 'transparent';
+    }
+
+    return {
+        width: '100%',
+        height: '100%',
+        backgroundColor: backgroundStyle,
+        backgroundImage: backgroundImage,
+        border: element.borderWidth && element.borderWidth > 0 ?
+                `${element.borderWidth}px solid ${element.borderColor || element.stroke || '#000000'}` : 'none',
+        borderRadius: element.borderRadius ? `${element.borderRadius}px` : '0',
+        boxShadow: element.shadow || element.boxShadow || 'none'
+    };
+};
+
+const getCircleStyle = (element) => {
+    // Handle background (solid color or gradient)
+    let backgroundStyle = element.backgroundColor || element.fill || '#cccccc';
+    let backgroundImage = 'none';
+
+    if (backgroundStyle && (backgroundStyle.startsWith('linear-gradient') || backgroundStyle.startsWith('radial-gradient'))) {
+        backgroundImage = backgroundStyle;
+        backgroundStyle = 'transparent';
+    }
+
+    return {
+        width: '100%',
+        height: '100%',
+        backgroundColor: backgroundStyle,
+        backgroundImage: backgroundImage,
+        border: element.borderWidth && element.borderWidth > 0 ?
+                `${element.borderWidth}px solid ${element.borderColor || element.stroke || '#000000'}` : 'none',
+        borderRadius: '50%',
+        boxShadow: element.shadow || element.boxShadow || 'none'
+    };
+};
+
+const getImageStyle = (element) => {
+    return {
+        width: '100%',
+        height: '100%',
+        borderRadius: element.borderRadius ? `${element.borderRadius}px` : '0',
+        border: element.borderWidth && element.borderWidth > 0 ?
+                `${element.borderWidth}px solid ${element.borderColor || element.stroke || '#000000'}` : 'none',
+        boxShadow: element.shadow || element.boxShadow || 'none',
+        objectFit: element.objectFit || 'cover',
+        objectPosition: element.objectPosition || 'center'
+    };
+};
+
+const getTriangleStyle = (element) => {
+    const size = Math.min(element.width || 50, element.height || 50);
+    const color = element.backgroundColor || element.fill || '#cccccc';
+
+    return {
+        width: '0',
+        height: '0',
+        borderLeft: `${size/2}px solid transparent`,
+        borderRight: `${size/2}px solid transparent`,
+        borderBottom: `${size}px solid ${color}`,
+        margin: 'auto'
+    };
+};
+
+const getLineStyle = (element) => {
+    return {
+        width: '100%',
+        height: `${element.strokeWidth || element.borderWidth || 2}px`,
+        backgroundColor: element.stroke || element.borderColor || element.color || '#000000',
+        margin: `${(element.height - (element.strokeWidth || 2)) / 2}px 0`
+    };
+};
+
+const getSvgStyle = (element) => {
+    return {
+        width: '100%',
+        height: '100%',
+        fill: element.fill || element.color || '#000000',
+        stroke: element.stroke || element.borderColor || 'none',
+        strokeWidth: element.strokeWidth || element.borderWidth || 0
+    };
+};
+
+const getGenericStyle = (element) => {
+    return {
+        width: '100%',
+        height: '100%',
+        backgroundColor: element.backgroundColor || element.fill || '#f3f4f6',
+        border: element.borderWidth && element.borderWidth > 0 ?
+                `${element.borderWidth}px solid ${element.borderColor || element.stroke || '#d1d5db'}` : '1px solid #d1d5db',
+        borderRadius: element.borderRadius ? `${element.borderRadius}px` : '4px'
+    };
+};
 
 const formatPrice = (price) => {
     return new Intl.NumberFormat('ar-SA').format(price);

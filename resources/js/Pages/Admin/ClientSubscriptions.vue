@@ -7,7 +7,7 @@
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     اشتراكات العملاء
                 </h2>
-                
+
             </div>
         </template>
 

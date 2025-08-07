@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Services\DesignDataService;
 
 class ClientTemplate extends Model
 {
@@ -34,10 +35,36 @@ class ClientTemplate extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'design_data' => 'array',
         'editable_elements' => 'array',
         'last_edited_at' => 'datetime',
     ];
+
+    /**
+     * Get the design_data attribute with decompression.
+     */
+    public function getDesignDataAttribute($value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        return DesignDataService::decompressDesignData($value);
+    }
+
+    /**
+     * Set the design_data attribute with compression.
+     */
+    public function setDesignDataAttribute($value)
+    {
+        if (empty($value)) {
+            $this->attributes['design_data'] = null;
+            return;
+        }
+
+        // Optimize and compress the design data
+        $optimized = DesignDataService::optimizeDesignData($value);
+        $this->attributes['design_data'] = DesignDataService::compressDesignData($optimized);
+    }
 
     /**
      * Get the user that owns the client template.
@@ -132,7 +159,7 @@ class ClientTemplate extends Model
         if (!$attribute) {
             $this->last_edited_at = now();
         }
-        
+
         return parent::touch($attribute);
     }
 }

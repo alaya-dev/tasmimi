@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Services\DesignDataService;
 
 class Template extends Model
 {
@@ -41,7 +42,6 @@ class Template extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'has_watermark' => 'boolean',
-        'design_data' => 'array',
         'editable_elements' => 'array',
         'last_edited_at' => 'datetime',
         'price' => 'decimal:2',
@@ -61,6 +61,33 @@ class Template extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Get the design_data attribute with decompression.
+     */
+    public function getDesignDataAttribute($value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        return DesignDataService::decompressDesignData($value);
+    }
+
+    /**
+     * Set the design_data attribute with compression.
+     */
+    public function setDesignDataAttribute($value)
+    {
+        if (empty($value)) {
+            $this->attributes['design_data'] = null;
+            return;
+        }
+
+        // Optimize and compress the design data
+        $optimized = DesignDataService::optimizeDesignData($value);
+        $this->attributes['design_data'] = DesignDataService::compressDesignData($optimized);
     }
 
     /**

@@ -1062,9 +1062,22 @@ const saveDesign = async () => {
     }
 }
 
-// Go back to previous page
+// Go back to home page instead of login
 const goBack = () => {
-    window.history.back()
+    // Check if user is authenticated and redirect accordingly
+    if (props.user) {
+        // User is logged in, check their role
+        if (props.user.role === 'admin' || props.user.role === 'super_admin') {
+            // Admin users go to admin dashboard
+            window.location.href = route('admin.dashboard')
+        } else {
+            // Regular users go to client home
+            window.location.href = route('client.home')
+        }
+    } else {
+        // Guest users go to public home page
+        window.location.href = route('client.home')
+    }
 }
 
 const previewDesign = () => {
