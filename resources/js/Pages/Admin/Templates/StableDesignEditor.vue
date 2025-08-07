@@ -90,7 +90,11 @@
                             title="شراء القالب للحصول على إمكانية التحميل"
                         >
                             <i class="fas fa-shopping-cart"></i>
-                            <span>شراء القالب ({{ props.templatePrice }} ريال)</span>
+                            <span class="flex items-center space-x-1 space-x-reverse">
+                                <span>شراء القالب ({{ props.templatePrice }}</span>
+                                <img src="/images/Saudi_riyal.png" alt="ريال سعودي" class="w-4 h-4">
+                                <span>)</span>
+                            </span>
                         </button>
                         <button
                             v-else-if="props.context !== 'client' || props.canSaveAndDownload"
