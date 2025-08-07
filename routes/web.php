@@ -55,6 +55,9 @@ Route::get('/terms-of-service', [App\Http\Controllers\TermsOfServiceController::
 Route::get('/client/payment/callback', [App\Http\Controllers\MoyasarCallbackController::class, 'handleSubscriptionCallback'])->name('client.payment.callback');
 Route::get('/client/template-purchase/callback', [App\Http\Controllers\MoyasarCallbackController::class, 'handleTemplateCallback'])->name('client.template-purchase.callback');
 
+// Guest template preview (public route)
+Route::get('/templates/{template}/preview', [App\Http\Controllers\GuestTemplateController::class, 'preview'])->name('guest.templates.preview');
+
 // Client Routes
 Route::prefix('client')->name('client.')->group(function () {
     // Public client routes
@@ -109,11 +112,9 @@ Route::prefix('client')->name('client.')->group(function () {
             ]);
         })->name('orders');
 
-        Route::get('/invoices', function () {
-            return Inertia::render('Client/Invoices', [
-                'invoices' => []
-            ]);
-        })->name('invoices');
+        // Gestion des factures (client)
+        Route::get('/invoices', [App\Http\Controllers\Client\InvoiceController::class, 'index'])->name('invoices.index');
+        Route::get('/invoices/{invoice}', [App\Http\Controllers\Client\InvoiceController::class, 'show'])->name('invoices.show');
 
         // Routes de paiement et abonnements
         Route::get('/subscriptions', [App\Http\Controllers\SubscriptionPaymentController::class, 'index'])->name('subscriptions.index');
@@ -168,6 +169,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('client-subscriptions/create', [App\Http\Controllers\Admin\ClientSubscriptionController::class, 'create'])->name('client-subscriptions.create');
     Route::post('client-subscriptions', [App\Http\Controllers\Admin\ClientSubscriptionController::class, 'store'])->name('client-subscriptions.store');
     Route::delete('client-subscriptions/{subscription}', [App\Http\Controllers\Admin\ClientSubscriptionController::class, 'destroy'])->name('client-subscriptions.destroy');
+
+    // Gestion des factures (admin)
+    Route::get('invoices', [App\Http\Controllers\Admin\InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('invoices/{invoice}', [App\Http\Controllers\Admin\InvoiceController::class, 'show'])->name('invoices.show');
 
     // Gestion des ventes de templates
     Route::get('template-sales', [App\Http\Controllers\Admin\TemplateSalesController::class, 'index'])->name('template-sales.index');

@@ -375,14 +375,14 @@
                             class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 text-sm flex items-center justify-center space-x-2 space-x-reverse"
                         >
                             <i class="fas fa-copy"></i>
-                            <span>تكرار العنصر</span>
+                            <span>نسخ القالب</span>
                         </button>
                         <button
                             @click="deleteElement"
                             class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 text-sm flex items-center justify-center space-x-2 space-x-reverse"
                         >
                             <i class="fas fa-trash"></i>
-                            <span>حذف العنصر</span>
+                            <span>حذف القالب</span>
                         </button>
                     </div>
                 </div>
@@ -404,10 +404,10 @@ const props = defineProps({
 
 // Emits
 const emit = defineEmits([
-    'update-properties', 
+    'update-properties',
     'update-text-align',
-    'move-layer', 
-    'duplicate-element', 
+    'move-layer',
+    'duplicate-element',
     'request-delete'
 ])
 
@@ -419,7 +419,7 @@ const currentTextAlign = computed(() => {
     const alignValue = localProperties.textAlign || 'none'
     const alignLabels = {
         'right': 'يمين',
-        'center': 'وسط', 
+        'center': 'وسط',
         'left': 'يسار',
         'none': 'غير محدد'
     }
@@ -439,10 +439,10 @@ watch(() => props.selectedElement, (newElement) => {
     if (newElement) {
         // Clear existing properties
         Object.keys(localProperties).forEach(key => { delete localProperties[key] })
-        
+
         // Merge element properties
         Object.assign(localProperties, newElement, newElement.properties || {})
-        
+
         // Set default text alignment if not set
         if (newElement.type === 'text') {
             if (!localProperties.textAlign) {
@@ -460,41 +460,41 @@ watch(() => props.selectedElement, (newElement) => {
 const updateProperty = (key, value) => {
     console.log(`🔧 Updating property ${key} to:`, value)
     console.log('📊 Current localProperties before update:', { ...localProperties })
-    
+
     // Update local property immediately
     localProperties[key] = value
-    
+
     console.log('📊 localProperties after local update:', { ...localProperties })
-    
+
     // Emit the update to parent component
     console.log('📤 Emitting update-properties event with:', { [key]: value })
     emit('update-properties', { [key]: value })
-    
+
     // Special handling for textAlign
     if (key === 'textAlign') {
         console.log('🎯 Text align specifically updated to:', value)
-        
+
         // Try alternative emit formats
         emit('update-properties', { textAlign: value })
-        
+
         // Force update on next tick
         setTimeout(() => {
             console.log('⏰ Force update textAlign after timeout:', value)
             localProperties.textAlign = value
         }, 50)
     }
-    
+
     console.log('✅ Property update completed')
 }
 
 const updateTextAlign = (alignValue) => {
     // Update local property immediately for visual feedback
     localProperties.textAlign = alignValue
-    
+
     // Multiple emit strategies to ensure one works
     emit('update-properties', { textAlign: alignValue })
     emit('update-text-align', alignValue)
-    
+
     // Force DOM update
     document.querySelectorAll('.text-align-button').forEach(btn => {
         btn.classList.remove('active')

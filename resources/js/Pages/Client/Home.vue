@@ -12,7 +12,7 @@
                     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h8"/></svg>
                     <span class="truncate text-sm">الكل</span>
                 </button>
-                
+
                 <!-- Category buttons -->
                 <button
                     v-for="cat in props.categories"
@@ -66,7 +66,7 @@
 
                     <!-- Unified Action Button -->
                     <Link
-                        :href="route('client.templates.create', template.id)"
+                        :href="getTemplateLink(template)"
                         @click.stop
                         class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full font-semibold mt-2 shadow-lg hover:from-purple-600 hover:to-pink-600 inline-block text-center"
                     >
@@ -91,6 +91,7 @@ const props = defineProps({
     canRegister: Boolean,
     categories: Array,
     allTemplates: Object,
+    auth: Object, // Add auth prop to check if user is logged in
 });
 
 // State for selected category
@@ -128,6 +129,18 @@ const selectedCategoryName = computed(() => {
     const cat = props.categories.find(c => c.id === selectedCategory.value);
     return cat ? cat.name : '';
 });
+
+// Get template link based on authentication status
+const getTemplateLink = (template) => {
+    // Check if user is authenticated
+    if (props.auth && props.auth.user) {
+        // User is logged in, go directly to template editor
+        return route('client.templates.create', template.id);
+    } else {
+        // User is not logged in, go to guest preview
+        return route('guest.templates.preview', template.id);
+    }
+};
 
 
 </script>

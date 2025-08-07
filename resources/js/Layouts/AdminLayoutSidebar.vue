@@ -319,6 +319,34 @@
                         </div>
                     </div>
 
+                    <!-- Invoices Section -->
+                    <div v-if="$page.props.auth.user.role === 'super_admin' || $page.props.auth.user.role === 'admin'" class="pt-4">
+                        <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
+                            الفواتير
+                        </h3>
+                        <div class="mt-2 space-y-1">
+                            <!-- Invoice Management -->
+                            <Link
+                                :href="route('admin.invoices.index')"
+                                :class="[
+                                    'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-right',
+                                    route().current('admin.invoices.*')
+                                        ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
+                                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                ]"
+                            >
+                                <span class="text-right flex-1">إدارة الفواتير</span>
+                                <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                                    <polyline points="14,2 14,8 20,8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                    <polyline points="10,9 9,9 8,9"/>
+                                </svg>
+                            </Link>
+                        </div>
+                    </div>
+
                     <!-- Settings Section -->
                     <div class="pt-4">
                         <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
