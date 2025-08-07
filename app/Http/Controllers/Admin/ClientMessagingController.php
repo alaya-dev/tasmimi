@@ -33,11 +33,14 @@ class ClientMessagingController extends Controller
     public function send(Request $request)
     {
         $request->validate([
-            'client_id' => 'required|exists:users,id',
+            'send_type' => 'required|in:single,all',
+            'client_id' => 'required_if:send_type,single|nullable|exists:users,id',
             'subject' => 'required|string|max:255',
             'message' => 'required|string|max:2000',
         ], [
-            'client_id.required' => 'يجب اختيار العميل.',
+            'send_type.required' => 'يجب اختيار نوع الإرسال.',
+            'send_type.in' => 'نوع الإرسال غير صحيح.',
+            'client_id.required_if' => 'يجب اختيار العميل.',
             'client_id.exists' => 'العميل المحدد غير موجود.',
             'subject.required' => 'يجب إدخال موضوع الرسالة.',
             'subject.max' => 'موضوع الرسالة لا يجب أن يتجاوز 255 حرف.',
@@ -46,7 +49,6 @@ class ClientMessagingController extends Controller
         ]);
 
         try {
-            $client = User::findOrFail($request->client_id);
             $currentUser = Auth::user();
             
             // Determine sender name based on role
@@ -54,14 +56,53 @@ class ClientMessagingController extends Controller
                 'المدير العام - فريق سامقة للتصميم' : 
                 'الإدارة - فريق سامقة للتصميم';
 
-            // Send the notification
-            $client->notify(new CustomClientMessage(
-                $request->subject,
-                $request->message,
-                $senderName
-            ));
+            if ($request->send_type === 'single') {
+                // Send to single client
+                $client = User::findOrFail($request->client_id);
+                
+                $client->notify(new CustomClientMessage(
+                    $request->subject,
+                    $request->message,
+                    $senderName
+                ));
 
-            return redirect()->back()->with('success', 'تم إرسال الرسالة بنجاح إلى ' . $client->email);
+                return redirect()->back()->with('success', 'تم إرسال الرسالة بنجاح إلى ' . $client->email);
+                
+            } else {
+                // Send to all clients
+                $clients = User::whereNotIn('role', ['admin', 'super_admin'])->get();
+                
+                if ($clients->count() === 0) {
+                    return redirect()->back()->with('error', 'لا يوجد عملاء لإرسال الرسالة إليهم.');
+                }
+
+                $successCount = 0;
+                $failedEmails = [];
+
+                foreach ($clients as $client) {
+                    try {
+                        $client->notify(new CustomClientMessage(
+                            $request->subject,
+                            $request->message,
+                            $senderName
+                        ));
+                        $successCount++;
+                    } catch (\Exception $e) {
+                        $failedEmails[] = $client->email;
+                        \Log::error('Failed to send message to client: ' . $client->email . ' - Error: ' . $e->getMessage());
+                    }
+                }
+
+                if ($successCount === $clients->count()) {
+                    return redirect()->back()->with('success', 'تم إرسال الرسالة بنجاح إلى جميع العملاء (' . $successCount . ' عميل)');
+                } else {
+                    $message = 'تم إرسال الرسالة إلى ' . $successCount . ' من أصل ' . $clients->count() . ' عميل';
+                    if (!empty($failedEmails)) {
+                        $message .= '. فشل الإرسال إلى: ' . implode(', ', $failedEmails);
+                    }
+                    return redirect()->back()->with('error', $message);
+                }
+            }
 
         } catch (\Exception $e) {
             \Log::error('Failed to send client message: ' . $e->getMessage());
