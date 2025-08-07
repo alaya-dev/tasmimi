@@ -8,8 +8,12 @@
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
         <!-- Favicon and Icons -->
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='4' y='8' width='24' height='16' rx='2' fill='none' stroke='%238B5CF6' stroke-width='2'/><path d='M6 10l10 8 10-8' fill='none' stroke='%238B5CF6' stroke-width='2'/></svg>">
-        <link rel="alternate icon" type="image/png" href="/images/logo.png">
+        <link rel="icon" type="image/png" href="/images/favicon.png">
+        <link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+        <link rel="apple-touch-icon" href="/images/favicon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.png">
+        <link rel="manifest" href="/site.webmanifest">
         <meta name="theme-color" content="#8B5CF6">
 
         <!-- Fonts -->
