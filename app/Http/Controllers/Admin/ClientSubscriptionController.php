@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\UserSubscription;
 use App\Models\User;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class ClientSubscriptionController extends Controller
 {
@@ -46,6 +48,73 @@ class ClientSubscriptionController extends Controller
             'clientSubscriptions' => $clientSubscriptions,
             'stats' => $stats
         ]);
+    }
+
+    /**
+     * Show the form for creating a new client subscription.
+     */
+    public function create()
+    {
+        // Get all clients (users with role 'client')
+        $clients = User::where('role', 'client')
+            ->select('id', 'email', 'phone')
+            ->orderBy('email')
+            ->get();
+
+        // Get all active subscription plans
+        $subscriptions = Subscription::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        return Inertia::render('Admin/ClientSubscriptions/Create', [
+            'clients' => $clients,
+            'subscriptions' => $subscriptions
+        ]);
+    }
+
+    /**
+     * Store a newly created client subscription.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'subscription_id' => 'required|exists:subscriptions,id',
+            'status' => 'required|in:active,pending,canceled,expired',
+            'starts_at' => 'required|date',
+            'ends_at' => 'required|date|after:starts_at',
+            'auto_renew' => 'boolean'
+        ]);
+
+        // Verify the user is a client
+        $user = User::findOrFail($request->user_id);
+        if ($user->role !== 'client') {
+            return redirect()->back()->withErrors(['user_id' => 'المستخدم المحدد ليس عميلاً']);
+        }
+
+        // Check if user already has an active subscription
+        $existingActiveSubscription = UserSubscription::where('user_id', $request->user_id)
+            ->where('status', 'active')
+            ->where('ends_at', '>', now())
+            ->first();
+
+        if ($existingActiveSubscription) {
+            return redirect()->back()->withErrors(['user_id' => 'العميل لديه اشتراك نشط بالفعل']);
+        }
+
+        // Create the subscription
+        UserSubscription::create([
+            'user_id' => $request->user_id,
+            'subscription_id' => $request->subscription_id,
+            'status' => $request->status,
+            'starts_at' => Carbon::parse($request->starts_at),
+            'ends_at' => Carbon::parse($request->ends_at),
+            'auto_renew' => $request->boolean('auto_renew', false),
+            'stripe_subscription_id' => null, // Admin created subscriptions don't have Stripe IDs
+        ]);
+
+        return redirect()->route('admin.client-subscriptions.index')
+            ->with('success', 'تم إنشاء الاشتراك بنجاح');
     }
 
     /**

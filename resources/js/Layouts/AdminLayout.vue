@@ -25,6 +25,9 @@
                             <NavLink :href="route('admin.client-subscriptions.index')" :active="route().current('admin.client-subscriptions.*')">
                                 اشتراكات العملاء
                             </NavLink>
+                            <NavLink :href="route('admin.client-subscriptions.create')" :active="route().current('admin.client-subscriptions.create')">
+                                إنشاء اشتراك
+                            </NavLink>
                         </div>
                     </div>
 
@@ -116,6 +119,9 @@
                     </ResponsiveNavLink>
                     <ResponsiveNavLink :href="route('admin.client-subscriptions.index')" :active="route().current('admin.client-subscriptions.*')">
                         اشتراكات العملاء
+                    </ResponsiveNavLink>
+                    <ResponsiveNavLink :href="route('admin.client-subscriptions.create')" :active="route().current('admin.client-subscriptions.create')">
+                        إنشاء اشتراك
                     </ResponsiveNavLink>
                 </div>
 

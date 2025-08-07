@@ -16,7 +16,7 @@ class PexelsService
 
     public function __construct()
     {
-        $this->apiKey = config('services.pexels.api_key', env('PEXELS_API_KEY'));
+        $this->apiKey = config('services.pexels.api_key', env('PEXELS_API_KEY')) ?? '';
     }
 
     /**
@@ -44,7 +44,7 @@ class PexelsService
 
             if ($response->successful()) {
                 $data = $response->json();
-                
+
                 return [
                     'success' => true,
                     'photos' => $this->formatPhotos($data['photos'] ?? []),
@@ -90,7 +90,7 @@ class PexelsService
 
             if ($response->successful()) {
                 $data = $response->json();
-                
+
                 return [
                     'success' => true,
                     'photos' => $this->formatPhotos($data['photos'] ?? []),
@@ -143,7 +143,7 @@ class PexelsService
 
             // Download the image
             $imageResponse = Http::get($imageUrl);
-            
+
             if (!$imageResponse->successful()) {
                 return [
                     'success' => false,
@@ -162,7 +162,7 @@ class PexelsService
             // Get image metadata
             $tempPath = storage_path('app/public/' . $path);
             $metadata = [];
-            
+
             try {
                 $image = Image::make($tempPath);
                 $metadata['dimensions'] = [

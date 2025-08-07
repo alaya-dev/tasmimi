@@ -165,6 +165,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Gestion des abonnements clients
     Route::get('client-subscriptions', [App\Http\Controllers\Admin\ClientSubscriptionController::class, 'index'])->name('client-subscriptions.index');
+    Route::get('client-subscriptions/create', [App\Http\Controllers\Admin\ClientSubscriptionController::class, 'create'])->name('client-subscriptions.create');
+    Route::post('client-subscriptions', [App\Http\Controllers\Admin\ClientSubscriptionController::class, 'store'])->name('client-subscriptions.store');
     Route::delete('client-subscriptions/{subscription}', [App\Http\Controllers\Admin\ClientSubscriptionController::class, 'destroy'])->name('client-subscriptions.destroy');
 
     // Gestion des ventes de templates

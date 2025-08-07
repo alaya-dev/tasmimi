@@ -3,7 +3,7 @@
         <!-- Main Content -->
         <div class="content-with-sidebar">
             <!-- Top Bar -->
-            <div class="fixed top-0 left-0 bg-white shadow-sm border-b border-gray-200 z-40 h-16" 
+            <div class="fixed top-0 left-0 bg-white shadow-sm border-b border-gray-200 z-40 h-16"
                  style="right: 16rem;">
                 <div class="px-4 sm:px-6 lg:px-8 h-full">
                     <div class="flex justify-between items-center h-full">
@@ -42,7 +42,7 @@
                         <div class="flex items-center space-x-4">
                             <!-- Notifications -->
                             <button class="text-gray-500 hover:text-gray-700">
-                                
+
                             </button>
                         </div>
                     </div>
@@ -290,7 +290,7 @@
                                 :href="route('admin.client-subscriptions.index')"
                                 :class="[
                                     'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 text-right',
-                                    route().current('admin.client-subscriptions.*')
+                                    route().current('admin.client-subscriptions.index')
                                         ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
                                         : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                                 ]"
@@ -298,6 +298,22 @@
                                 <span class="text-right flex-1">اشتراكات العملاء</span>
                                 <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                            </Link>
+
+                            <!-- Create Client Subscription -->
+                            <Link
+                                :href="route('admin.client-subscriptions.create')"
+                                :class="[
+                                    'group flex items-center px-6 py-2 text-sm font-medium rounded-lg transition-colors duration-200 text-right ml-4',
+                                    route().current('admin.client-subscriptions.create')
+                                        ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
+                                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                ]"
+                            >
+                                <span class="text-right flex-1">إنشاء اشتراك جديد</span>
+                                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                 </svg>
                             </Link>
                         </div>

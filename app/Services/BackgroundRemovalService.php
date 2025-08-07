@@ -15,7 +15,7 @@ class BackgroundRemovalService
 
     public function __construct()
     {
-        $this->removeBgApiKey = config('services.removebg.api_key', env('REMOVEBG_API_KEY'));
+        $this->removeBgApiKey = config('services.removebg.api_key', env('REMOVEBG_API_KEY')) ?? '';
     }
 
     /**
@@ -40,7 +40,7 @@ class BackgroundRemovalService
         try {
             // Get the image file path
             $imagePath = storage_path('app/public/' . $userFile->path);
-            
+
             if (!file_exists($imagePath)) {
                 return [
                     'success' => false,
@@ -52,8 +52,8 @@ class BackgroundRemovalService
             $response = Http::withHeaders([
                 'X-Api-Key' => $this->removeBgApiKey
             ])->attach(
-                'image_file', 
-                file_get_contents($imagePath), 
+                'image_file',
+                file_get_contents($imagePath),
                 $userFile->filename
             )->post($this->removeBgUrl, [
                 'size' => 'auto',
@@ -63,7 +63,7 @@ class BackgroundRemovalService
             if ($response->successful()) {
                 // Save the processed image
                 $processedImageData = $response->body();
-                
+
                 // Generate new filename
                 $originalName = pathinfo($userFile->filename, PATHINFO_FILENAME);
                 $newFilename = $originalName . '_no_bg_' . time() . '.png';
@@ -105,7 +105,7 @@ class BackgroundRemovalService
                 // Handle API errors
                 $errorData = $response->json();
                 $errorMessage = $this->getErrorMessage($response->status(), $errorData);
-                
+
                 return [
                     'success' => false,
                     'message' => $errorMessage
@@ -144,7 +144,7 @@ class BackgroundRemovalService
             if ($response->successful()) {
                 // Save the processed image
                 $processedImageData = $response->body();
-                
+
                 // Generate filename
                 $filename = 'processed_image_' . time() . '.png';
                 $storedFilename = Str::uuid() . '.png';
@@ -182,7 +182,7 @@ class BackgroundRemovalService
             } else {
                 $errorData = $response->json();
                 $errorMessage = $this->getErrorMessage($response->status(), $errorData);
-                
+
                 return [
                     'success' => false,
                     'message' => $errorMessage
@@ -216,7 +216,7 @@ class BackgroundRemovalService
 
             if ($response->successful()) {
                 $data = $response->json();
-                
+
                 return [
                     'success' => true,
                     'account_info' => [
@@ -278,11 +278,11 @@ class BackgroundRemovalService
         // Remove.bg pricing is usually 1 credit per image
         // But can vary based on image size and complexity
         $fileSize = $userFile->size;
-        
+
         if ($fileSize > 10 * 1024 * 1024) { // > 10MB
             return 2; // Larger images might cost more
         }
-        
+
         return 1; // Standard cost
     }
 
@@ -293,7 +293,7 @@ class BackgroundRemovalService
     {
         return [
             'image/jpeg',
-            'image/jpg', 
+            'image/jpg',
             'image/png',
             'image/webp'
         ];
