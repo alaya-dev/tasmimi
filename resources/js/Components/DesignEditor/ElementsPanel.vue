@@ -114,7 +114,7 @@ const shapes = [
     { type: 'diamond', name: 'معين', icon: 'fas fa-diamond' },
     { type: 'star', name: 'نجمة', icon: 'fas fa-star' },
     { type: 'arrow', name: 'سهم', icon: 'fas fa-arrow-right' },
-    { type: 'polygon', name: 'مضلع', icon: 'fas fa-draw-polygon' }
+  //  { type: 'polygon', name: 'مضلع', icon: 'fas fa-draw-polygon' }
 ]
 
 const icons = [

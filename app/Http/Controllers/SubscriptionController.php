@@ -38,6 +38,11 @@ class SubscriptionController extends Controller
 
         $data = $request->all();
 
+        // Set default color if not provided
+        if (empty($data['color'])) {
+            $data['color'] = '#8D39EB';
+        }
+
         // Filter out empty features
         if (isset($data['features'])) {
             $data['features'] = array_filter($data['features'], function($feature) {
@@ -67,6 +72,11 @@ class SubscriptionController extends Controller
         ]);
 
         $data = $request->all();
+
+        // Set default color if not provided
+        if (empty($data['color'])) {
+            $data['color'] = '#8D39EB';
+        }
 
         // Filter out empty features
         if (isset($data['features'])) {

@@ -34,6 +34,15 @@ class Subscription extends Model
         'sort_order' => 'integer',
     ];
 
+    /**
+     * The attributes that should have default values.
+     */
+    protected $attributes = [
+        'color' => '#8D39EB',
+        'is_active' => true,
+        'sort_order' => 0,
+    ];
+
     // Constants for subscription types
     const TYPE_ANNUAL = 'annual';
     const TYPE_MONTHLY = 'monthly';

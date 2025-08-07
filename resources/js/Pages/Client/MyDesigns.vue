@@ -140,7 +140,7 @@
                             @click="cloneDesign(design)"
                             class="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 px-4 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-200"
                         >
-                            استنساخ
+                            نسخ
                         </button>
                         <button
                             @click="showDeleteModal(design)"
@@ -345,13 +345,13 @@ const cloneDesign = async (design) => {
             console.log('✅ Design cloned successfully:', result);
 
             if (result.success) {
-                showSuccessMessage('تم استنساخ التصميم بنجاح!');
+                showSuccessMessage('تم نسخ التصميم بنجاح!');
                 // Refresh the page to show the new cloned design
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500); // Wait 1.5 seconds to show the success message
             } else {
-                showErrorMessage(result.message || 'خطأ في استنساخ التصميم');
+                showErrorMessage(result.message || 'خطأ في نسخ التصميم');
             }
         } else {
             const errorData = await response.json().catch(() => null);
@@ -360,13 +360,13 @@ const cloneDesign = async (design) => {
                 statusText: response.statusText,
                 errorData: errorData
             });
-            
+
             const errorMessage = errorData?.message || `خطأ ${response.status}: ${response.statusText}`;
             showErrorMessage(errorMessage);
         }
     } catch (error) {
         console.error('Error cloning design:', error);
-        showErrorMessage('خطأ في استنساخ التصميم');
+        showErrorMessage('خطأ في نسخ التصميم');
     }
 };
 

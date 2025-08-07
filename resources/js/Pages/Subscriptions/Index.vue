@@ -31,7 +31,7 @@
                         <h3 class="text-lg font-semibold text-white">قائمة الاشتراكات</h3>
                         <p class="text-blue-100 text-sm">إدارة جميع أنواع الاشتراكات وأسعارها</p>
                     </div>
-                    
+
                     <div class="p-6">
                         <!-- Subscriptions Table -->
                         <div class="overflow-x-auto">
@@ -305,18 +305,7 @@
                         </p>
                     </div>
 
-                    <!-- Color -->
-                    <div>
-                        <label for="color" class="block text-sm font-medium text-gray-700 text-right mb-2">
-                            لون البطاقة (اختياري)
-                        </label>
-                        <input
-                            id="color"
-                            v-model="form.color"
-                            type="color"
-                            class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                        />
-                    </div>
+
 
                     <!-- Checkboxes -->
                     <div class="space-y-3">
@@ -433,7 +422,7 @@ const form = useForm({
     features: [],
     sort_order: 0,
     is_popular: false,
-    color: '',
+    color: '#8D39EB', // Default purple color
     is_active: true,
 });
 
