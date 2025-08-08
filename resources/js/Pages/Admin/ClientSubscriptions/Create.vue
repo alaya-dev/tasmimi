@@ -23,13 +23,14 @@
                         <form @submit.prevent="submit" class="space-y-6">
                             <!-- Client Selection -->
                             <div>
-                                <label for="user_id" class="block text-sm font-medium text-gray-700 text-right mb-2">
+                                <label for="user_id" class="block text-sm font-medium text-gray-700 mb-2" style="text-align: right; direction: rtl;">
                                     العميل *
                                 </label>
                                 <select
                                     id="user_id"
                                     v-model="form.user_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    style="text-align: right; direction: rtl;"
                                     required
                                 >
                                     <option value="">اختر العميل</option>
@@ -37,21 +38,22 @@
                                         {{ client.email }} {{ client.phone ? `(${client.phone})` : '' }}
                                     </option>
                                 </select>
-                                <div v-if="form.errors.user_id" class="text-red-600 text-sm mt-1 text-right">
+                                <div v-if="form.errors.user_id" class="text-red-600 text-sm mt-1" style="text-align: right; direction: rtl;">
                                     {{ form.errors.user_id }}
                                 </div>
                             </div>
 
                             <!-- Subscription Plan Selection -->
                             <div>
-                                <label for="subscription_id" class="block text-sm font-medium text-gray-700 text-right mb-2">
+                                <label for="subscription_id" class="block text-sm font-medium text-gray-700 mb-2" style="text-align: right; direction: rtl;">
                                     خطة الاشتراك *
                                 </label>
                                 <select
                                     id="subscription_id"
                                     v-model="form.subscription_id"
                                     @change="onSubscriptionChange"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    style="text-align: right; direction: rtl;"
                                     required
                                 >
                                     <option value="">اختر خطة الاشتراك</option>
@@ -60,20 +62,21 @@
                                         {{ subscription.duration_days ? `(${subscription.duration_days} يوم)` : `(${getTypeText(subscription.type)})` }}
                                     </option>
                                 </select>
-                                <div v-if="form.errors.subscription_id" class="text-red-600 text-sm mt-1 text-right">
+                                <div v-if="form.errors.subscription_id" class="text-red-600 text-sm mt-1" style="text-align: right; direction: rtl;">
                                     {{ form.errors.subscription_id }}
                                 </div>
                             </div>
 
                             <!-- Status -->
                             <div>
-                                <label for="status" class="block text-sm font-medium text-gray-700 text-right mb-2">
+                                <label for="status" class="block text-sm font-medium text-gray-700 mb-2" style="text-align: right; direction: rtl;">
                                     حالة الاشتراك *
                                 </label>
                                 <select
                                     id="status"
                                     v-model="form.status"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    style="text-align: right; direction: rtl;"
                                     required
                                 >
                                     <option value="active">نشط</option>
@@ -81,57 +84,61 @@
                                     <option value="canceled">ملغي</option>
                                     <option value="expired">منتهي الصلاحية</option>
                                 </select>
-                                <div v-if="form.errors.status" class="text-red-600 text-sm mt-1 text-right">
+                                <div v-if="form.errors.status" class="text-red-600 text-sm mt-1" style="text-align: right; direction: rtl;">
                                     {{ form.errors.status }}
                                 </div>
                             </div>
 
                             <!-- Start Date -->
                             <div>
-                                <label for="starts_at" class="block text-sm font-medium text-gray-700 text-right mb-2">
+                                <label for="starts_at" class="block text-sm font-medium text-gray-700 mb-2" style="text-align: right; direction: rtl;">
                                     تاريخ البداية *
                                 </label>
                                 <input
                                     id="starts_at"
                                     v-model="form.starts_at"
                                     type="datetime-local"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    style="text-align: right; direction: rtl;"
                                     required
                                     @change="updateEndDate"
                                 />
-                                <div v-if="form.errors.starts_at" class="text-red-600 text-sm mt-1 text-right">
+                                <div v-if="form.errors.starts_at" class="text-red-600 text-sm mt-1" style="text-align: right; direction: rtl;">
                                     {{ form.errors.starts_at }}
                                 </div>
                             </div>
 
                             <!-- End Date -->
                             <div>
-                                <label for="ends_at" class="block text-sm font-medium text-gray-700 text-right mb-2">
+                                <label for="ends_at" class="block text-sm font-medium text-gray-700 mb-2" style="text-align: right; direction: rtl;">
                                     تاريخ الانتهاء *
                                 </label>
                                 <input
                                     id="ends_at"
                                     v-model="form.ends_at"
                                     type="datetime-local"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-right"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    style="text-align: right; direction: rtl;"
                                     required
                                 />
-                                <div v-if="form.errors.ends_at" class="text-red-600 text-sm mt-1 text-right">
+                                <div v-if="form.errors.ends_at" class="text-red-600 text-sm mt-1" style="text-align: right; direction: rtl;">
                                     {{ form.errors.ends_at }}
                                 </div>
                             </div>
 
                             <!-- Auto Renew -->
-                            <div class="flex items-center">
-                                <input
-                                    id="auto_renew"
-                                    v-model="form.auto_renew"
-                                    type="checkbox"
-                                    class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded ml-3"
-                                />
-                                <label for="auto_renew" class="text-sm font-medium text-gray-700 text-right">
+                            <div>
+                                <label for="auto_renew" class="block text-sm font-medium text-gray-700 mb-2" style="text-align: right; direction: rtl;">
                                     تجديد تلقائي
                                 </label>
+                                <div class="flex items-center justify-end">
+                                    <input
+                                        id="auto_renew"
+                                        v-model="form.auto_renew"
+                                        type="checkbox"
+                                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                    />
+                                </div>
                             </div>
 
                             <!-- Selected Subscription Info -->
@@ -140,10 +147,10 @@
                                 <div class="text-sm text-blue-800 space-y-1 text-right">
                                     <p><strong>الاسم:</strong> {{ selectedSubscription.name }}</p>
                                     <p><strong>السعر:</strong> {{ selectedSubscription.price }} ريال</p>
-                                    <p><strong>المدة:</strong> 
-                                        {{ selectedSubscription.duration_days ? 
-                                            `${selectedSubscription.duration_days} يوم` : 
-                                            getTypeText(selectedSubscription.type) 
+                                    <p><strong>المدة:</strong>
+                                        {{ selectedSubscription.duration_days ?
+                                            `${selectedSubscription.duration_days} يوم` :
+                                            getTypeText(selectedSubscription.type)
                                         }}
                                     </p>
                                     <p v-if="selectedSubscription.description"><strong>الوصف:</strong> {{ selectedSubscription.description }}</p>
@@ -215,10 +222,10 @@ const onSubscriptionChange = () => {
 
 const updateEndDate = () => {
     if (!form.starts_at || !selectedSubscription.value) return;
-    
+
     const startDate = new Date(form.starts_at);
     let endDate = new Date(startDate);
-    
+
     if (selectedSubscription.value.duration_days) {
         // Use custom duration
         endDate.setDate(startDate.getDate() + selectedSubscription.value.duration_days);
@@ -237,7 +244,7 @@ const updateEndDate = () => {
                 break;
         }
     }
-    
+
     form.ends_at = endDate.toISOString().slice(0, 16);
 };
 
